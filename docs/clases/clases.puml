@@ -1,5 +1,28 @@
 @startuml
-!define Swing_JCalendar https://toedter.com/jcalendar/
+skinparam defaultFontName Helvetica
+
+interface Descuento {
+    + aplicarDescuento()
+}
+
+Descuento <|.. D1
+Descuento <|.. D2
+
+class AppChat {
+    +login()
+}
+
+hide AppChat attributes
+note top of AppChat : Controlador
+AppChat -left->  Descuento
+
+class CatalogoUsuarios {
+    +getUsuario()
+    +addUsuario()
+}
+
+hide CatalogoUsuarios attributes
+AppChat *-- "1" CatalogoUsuarios
 
 class Usuario {
     - nombre: String
@@ -8,14 +31,18 @@ class Usuario {
     - premium: Boolean
 }
 
+CatalogoUsuarios *-- "0..*" Usuario
+
 class Contacto {
     - nombre: String
     - telefono : String
 }
 
+Usuario *-right- Contacto
+
 class Grupo {
     - nombre: String
-    - contactos: Set<Contacto>
+    - miembros: Set<Contacto>
     - agregarContacto()
 }
 
@@ -24,40 +51,21 @@ class Mensaje {
     - emisor: String
     - receptor: String
     - fechaHora: Date
-    - horaEnvio: Time
 }
 
-class AppChat {
-    - login()
-}
+Usuario -right- Mensaje
 
-interface Descuento {
-    + aplicarDescuento(usuario: Usuario): double
-}
-
-class D1 {
-}
-
-class D2 {
-}
-
-Descuento <|.. D1
-Descuento <|.. D2
+Usuario -down- Grupo
 
 interface Filtro {
-    + aplicarDescuento(usuario: Usuario): double
-}
-
-class FiltroUsuario {
-}
-
-class FiltroTelefono {
+    + aplicarDescuento()
 }
 
 Filtro  <|.. FiltroTexto
-Filtro  <|.. FiltroContacto
+Filtro  <|.left. FiltroContacto
 Filtro  <|.. FiltroTelefono
 
-note left of AppChat : Controlador
+Usuario -left->  Filtro
+
 
 @enduml
