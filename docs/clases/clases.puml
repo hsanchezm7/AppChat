@@ -1,0 +1,63 @@
+@startuml
+!define Swing_JCalendar https://toedter.com/jcalendar/
+
+class Usuario {
+    - nombre: String
+    - email: String
+    - telefono: String
+    - premium: Boolean
+}
+
+class Contacto {
+    - nombre: String
+    - telefono : String
+}
+
+class Grupo {
+    - nombre: String
+    - contactos: Set<Contacto>
+    - agregarContacto()
+}
+
+class Mensaje {
+    - texto: String
+    - emisor: String
+    - receptor: String
+    - fechaHora: Date
+    - horaEnvio: Time
+}
+
+class AppChat {
+    - login()
+}
+
+interface Descuento {
+    + aplicarDescuento(usuario: Usuario): double
+}
+
+class D1 {
+}
+
+class D2 {
+}
+
+Descuento <|.. D1
+Descuento <|.. D2
+
+interface Filtro {
+    + aplicarDescuento(usuario: Usuario): double
+}
+
+class FiltroUsuario {
+}
+
+class FiltroTelefono {
+}
+
+Filtro  <|.. FiltroTexto
+Filtro  <|.. FiltroContacto
+Filtro  <|.. FiltroTelefono
+
+note left of AppChat : Controlador
+
+@enduml
