@@ -8,6 +8,12 @@ interface Descuento {
 Descuento <|.. D1
 Descuento <|.. D2
 
+hide D1 attributes
+hide D1 methods
+
+hide D2 attributes
+hide D2 methods
+
 class AppChat {
     +login()
 }
@@ -55,6 +61,8 @@ class Mensaje {
 
 Usuario -right- Mensaje
 
+Grupo -right- Mensaje
+
 Usuario -down- Grupo
 
 interface Filtro {
@@ -64,6 +72,15 @@ interface Filtro {
 Filtro  <|.. FiltroTexto
 Filtro  <|.left. FiltroContacto
 Filtro  <|.. FiltroTelefono
+
+hide FiltroTexto attributes
+hide FiltroTexto methods
+
+hide FiltroContacto attributes
+hide FiltroContacto methods
+
+hide FiltroTelefono attributes
+hide FiltroTelefono methods
 
 Usuario -left->  Filtro
 
