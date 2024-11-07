@@ -1,17 +1,17 @@
 package umu.tds.model;
 
-//Haría falta poner un atributo de premium para ver si el usuario es premium o no??
+//Haría falta poner un atributo de premium para ver si el username es premium o no??
 import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Clase que modela los usuarios de AppChat.
+ * Clase que modela los usernames de AppChat.
  */
 public class Usuario {
 	private static final String DEFAULT_SALUDO = "Hey there! I'm using AppChat";
 
 	// Atributos
-	private String usuario;
+	private String username;
 	private String password;
 	private String telefono;
 	private LocalDate fechaNacimiento;
@@ -22,16 +22,16 @@ public class Usuario {
 
 	// Constructores
 	/**
-	 * Crea un usuario con una lista de contactos vacía.
-	 * @param usuario mombre de usuario.
+	 * Crea un username con una lista de contactos vacía.
+	 * @param username mombre de username.
 	 * @param password contraseña.
 	 * @param telefono número de teléfono.
 	 * @param fechaNacimiento fecha de nacimiento.
 	 * @param imagenURL URL de la imagen de perfil.
 	 * @param saludo texto de saludo (opcional).
 	 */
-	public Usuario(String usuario, String password, String telefono, LocalDate fechaNacimiento, String imagenURL, String saludo) {
-		this.usuario = usuario;
+	public Usuario(String username, String password, String telefono, LocalDate fechaNacimiento, String imagenURL, String saludo) {
+		this.username = username;
 		this.password = password;
 		this.telefono = telefono;
 		this.fechaNacimiento = fechaNacimiento;
@@ -41,23 +41,23 @@ public class Usuario {
 	
 	/**
 	 * Crea un usuario con una lista de contactos vacía y con un mensaje de saludo por defecto.
-	 * @param usuario mombre de usuario.
+	 * @param username nombre de usuario.
 	 * @param password contraseña.
 	 * @param telefono número de teléfono.
 	 * @param fechaNacimiento fecha de nacimiento.
 	 * @param imagenURL URL de la imagen de perfil.
 	 */
-	public Usuario(String usuario, String password, String telefono, LocalDate fechaNacimiento, String imagenURL) {
-		this(usuario, password, telefono, fechaNacimiento, imagenURL, DEFAULT_SALUDO);
+	public Usuario(String username, String password, String telefono, LocalDate fechaNacimiento, String imagenURL) {
+		this(username, password, telefono, fechaNacimiento, imagenURL, DEFAULT_SALUDO);
 	}
 
-	// Métodos de consulta
-	public String getUsuario() {
-		return usuario;
+	/* Consulta */
+	public String getUsername() {
+		return username;
 	}
 
-	public void setUsuario(String usuario) {
-		this.usuario = usuario;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public String getPassword() {
@@ -100,8 +100,7 @@ public class Usuario {
 		this.saludo = saludo;
 	}
 
-	// Métodos
-	
+	/* Métodos */
 	//Si está la clase ContactoIndividual, para añadir contacto se usaría esa??
 	/**
 	 * Añade el contacto pasado como parámetro a la lista de contactos del usuario.

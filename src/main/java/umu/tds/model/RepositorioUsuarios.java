@@ -41,10 +41,14 @@ public class RepositorioUsuarios {
      * ya por otro usuario.
      * 
      * @param usuario el usuario a agregar.
-     * @return {@code true} si el usuario fue añadido correctamente.
+     * @return 	{@code false} si no se ha podido añadir al usuario o el nombre es {@code null},
+     * 			{@code true} si el usuario fue añadido correctamente.
      */
     public boolean addUserToRepo(Usuario usuario) {
-        return userRepo.add(usuario) && (nameUserMap.put(usuario.getUsuario(), usuario) == null);
+    	String username = usuario.getUsername();
+    	if (username == null || username.isEmpty() || nameUserMap.containsKey(username)) return false;
+    	
+    	return (nameUserMap.put(usuario.getUsername(), usuario) == null) && userRepo.add(usuario);
     }
 
     /**
@@ -53,7 +57,7 @@ public class RepositorioUsuarios {
      * @param usuario el usuario del repositorio a eliminar.
      */
     public void deleteUserFromRepo(Usuario usuario) {
-    	String username = usuario.getUsuario();
+    	String username = usuario.getUsername();
     	if(nameUserMap.remove(username) != null) userRepo.remove(usuario);
     }
     
