@@ -1,7 +1,7 @@
 package umu.tds.model;
 
 import java.time.LocalDateTime;
-
+//Falta emoticono
 /**
  * Clase que modela los mensajes de AppChat.
  */

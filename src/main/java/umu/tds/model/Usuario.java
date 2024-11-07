@@ -1,5 +1,6 @@
 package umu.tds.model;
 
+//Haría falta poner un atributo de premium para ver si el usuario es premium o no??
 import java.time.LocalDate;
 import java.util.List;
 
@@ -100,6 +101,8 @@ public class Usuario {
 	}
 
 	// Métodos
+	
+	//Si está la clase ContactoIndividual, para añadir contacto se usaría esa??
 	/**
 	 * Añade el contacto pasado como parámetro a la lista de contactos del usuario.
 	 * @param contacto
