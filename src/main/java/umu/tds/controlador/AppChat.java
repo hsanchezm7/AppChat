@@ -31,6 +31,11 @@ public class AppChat {
 	}
 	
 	// Métodos
+	public boolean isUserRegistered(String username) {
+		return repoUsuarios.getUserByUsername(username) != null;
+	}
+	
 	public static List<Mensaje> obtenerMensajesRecientesPorUsuario;
+	
 	
 }

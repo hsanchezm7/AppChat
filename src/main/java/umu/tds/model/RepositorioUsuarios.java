@@ -32,7 +32,7 @@ public class RepositorioUsuarios {
      * @return {@code true} si el usuario fue añadido correctamente.
      */
     public Usuario getUserByUsername(String username) {
-        return this.nameUserMap.get(username);
+        return nameUserMap.get(username);
     }
 
     /* Métodos */
