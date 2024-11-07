@@ -1,6 +1,7 @@
 package umu.tds.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -9,37 +10,51 @@ import java.util.List;
  */
 public class RepositorioUsuarios {
 	
-	// Atributos
-	private List<Usuario> usuarios;
+	/* Atributos */
+	private List<Usuario> userRepo;
+	private HashMap<String, Usuario> nameUserMap;
 	
 	
-	// Constructores	
+	/* Constructores */
 	/**
      * Constructor que inicializa el repositorio de usuarios.
      */
     public RepositorioUsuarios() {
-        this.usuarios = new ArrayList<>();
+        this.userRepo = new ArrayList<>();
+        this.nameUserMap = new HashMap<>();
     }
-
-    // Métodos
+    
+    /* Consulta */
     /**
-     * Agrega un nuevo usuario al repositorio.
+     * Devuelve el objeto Usuario
      * 
      * @param usuario el usuario a agregar.
-     * @return {@code true} si el usuario fue eliminado exitosamente.
+     * @return {@code true} si el usuario fue añadido correctamente.
      */
-    public boolean addUsuarioToRepo(Usuario usuario) {
-        return this.usuarios.add(usuario);
+    public Usuario getUserByUsername(String username) {
+        return this.nameUserMap.get(username);
+    }
+
+    /* Métodos */
+    /**
+     * Agrega un nuevo usuario al repositorio. Comprueba que el nombre de usuario esté usado.
+     * ya por otro usuario.
+     * 
+     * @param usuario el usuario a agregar.
+     * @return {@code true} si el usuario fue añadido correctamente.
+     */
+    public boolean addUserToRepo(Usuario usuario) {
+        return userRepo.add(usuario) && (nameUserMap.put(usuario.getUsuario(), usuario) == null);
     }
 
     /**
      * Elimina un usuario del repositorio.
      * 
      * @param usuario el usuario del repositorio a eliminar.
-     * @return {@code true} si el usuario fue eliminado exitosamente.
      */
-    public boolean deleteUsuarioToRepo(Usuario usuario) {
-        return this.usuarios.remove(usuario);
+    public void deleteUserFromRepo(Usuario usuario) {
+    	String username = usuario.getUsuario();
+    	if(nameUserMap.remove(username) != null) userRepo.remove(usuario);
     }
     
 }

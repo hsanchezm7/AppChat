@@ -13,7 +13,7 @@ public class AppChat {
 	private RepositorioUsuarios repoUsuarios;
 	
 	// Consulta
-	public Usuario getUser() {
+	public Usuario getCurrentUser() {
 		return user;
 	}
 
