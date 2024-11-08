@@ -9,7 +9,13 @@ import java.util.List;
  */
 public class Usuario {
 	private static final String DEFAULT_SALUDO = "Hey there! I'm using AppChat";
-
+	private static final double PRECIO_ORIGINAL = 11.99;
+	private static final LocalDate FECHA_INICIO_INTERVALO = LocalDate.of(2024, 11, 1);
+	private static final LocalDate FECHA_FIN_INTERVALO = LocalDate.of(2024, 12, 31);
+	private static final int NUM_MIN_MENSAJES_ULT_MES = 200;
+	private static final double PORCENTAJE_FECHAS = 35;
+	private static final double PORCENTAJE_MENSAJES = 40;
+	
 	// Atributos
 	private String username;
 	private String password;
@@ -19,6 +25,8 @@ public class Usuario {
 	private String saludo;
 	private List<Contacto> contactos;
 	private boolean premium;
+	private LocalDate fechaRegistro; //Este atributro se podría hacer de alguna forma que cuando el usuario se registre se guarde la fecha en vez
+	//de tener que pasarlo como parametro al constructor?? Si se pone como LocalDate.now() funcionaría como quiero??
 
 
 	// Constructores
@@ -31,7 +39,7 @@ public class Usuario {
 	 * @param imagenURL URL de la imagen de perfil.
 	 * @param saludo texto de saludo (opcional).
 	 */
-	public Usuario(String username, String password, String telefono, LocalDate fechaNacimiento, String imagenURL, String saludo) {
+	public Usuario(String username, String password, String telefono, LocalDate fechaNacimiento, String imagenURL, String saludo, LocalDate fechaRegistro) {
 		this.username = username;
 		this.password = password;
 		this.telefono = telefono;
@@ -39,6 +47,7 @@ public class Usuario {
 		this.imagenURL = imagenURL;
 		this.saludo = saludo;
 		this.premium = false;
+		this.fechaRegistro = fechaRegistro;
 	}
 	
 	/**
@@ -49,8 +58,8 @@ public class Usuario {
 	 * @param fechaNacimiento fecha de nacimiento.
 	 * @param imagenURL URL de la imagen de perfil.
 	 */
-	public Usuario(String username, String password, String telefono, LocalDate fechaNacimiento, String imagenURL) {
-		this(username, password, telefono, fechaNacimiento, imagenURL, DEFAULT_SALUDO);
+	public Usuario(String username, String password, String telefono, LocalDate fechaNacimiento, String imagenURL, LocalDate fechaRegistro, int mensajesEnviados) {
+		this(username, password, telefono, fechaNacimiento, imagenURL, DEFAULT_SALUDO, fechaRegistro);
 	}
 
 	/* Consulta */
@@ -109,8 +118,41 @@ public class Usuario {
 	public void setPremium(boolean premium) {
 		this.premium = premium;
 	}
+	
+	public static double getPrecioOriginal() {
+		return PRECIO_ORIGINAL;
+	}
+
 
 	/* Métodos */
+	
+	public LocalDate getFechaRegistro() {
+		return fechaRegistro;
+	}
+	
+	
+	//Método para calcular el total de los mensajes enviados por el usuario en el último mes
+	public int getMensajesEnviadosUltimoMes() {
+		int mensajesEnviados = 0;
+		for (Contacto contacto : contactos) {
+			mensajesEnviados += contacto.contarMensajesUltimoMes();
+		}
+		return mensajesEnviados;
+	}
+	
+	
+	//Método para calcular, en caso de que tenga algún tipo de descuento por cumplir unas condiciones, el precio a pagar por el usuario premium más barato posible
+	public double calcularPrecioMasBarato() {
+		DescuentoFecha descFecha = new DescuentoFecha(FECHA_INICIO_INTERVALO, FECHA_FIN_INTERVALO, PORCENTAJE_FECHAS);
+		DescuentoMensajes descMensaje = new DescuentoMensajes(NUM_MIN_MENSAJES_ULT_MES, PORCENTAJE_MENSAJES);
+		
+		if(descFecha.calcularDescuento(this) < descMensaje.calcularDescuento(this)) {
+			return descFecha.calcularDescuento(this);
+		} else {
+			return descMensaje.calcularDescuento(this);
+		}
+		
+	}
 	//Si está la clase ContactoIndividual, para añadir contacto se usaría esa??
 	/**
 	 * Añade el contacto pasado como parámetro a la lista de contactos del usuario.
