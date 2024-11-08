@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Clase que modela los usernames de AppChat.
+ * Clase que modela los usuarios de AppChat.
  */
 public class Usuario {
 	private static final String DEFAULT_SALUDO = "Hey there! I'm using AppChat";
@@ -14,7 +14,7 @@ public class Usuario {
 	private String username;
 	private String password;
 	private String telefono;
-	private LocalDate fechaNacimiento;
+	private LocalDate fechaNacim;
 	private String imagenURL;
 	private String saludo;
 	private List<Contacto> contactos;
@@ -34,7 +34,7 @@ public class Usuario {
 		this.username = username;
 		this.password = password;
 		this.telefono = telefono;
-		this.fechaNacimiento = fechaNacimiento;
+		this.fechaNacim = fechaNacimiento;
 		this.imagenURL = imagenURL;
 		this.saludo = saludo;
 	}
@@ -77,11 +77,11 @@ public class Usuario {
 	}
 
 	public LocalDate getFechaNacimiento() {
-		return fechaNacimiento;
+		return fechaNacim;
 	}
 
 	public void setFechaNacimiento(LocalDate fechaNacimiento) {
-		this.fechaNacimiento = fechaNacimiento;
+		this.fechaNacim = fechaNacimiento;
 	}
 
 	public String getImagenURL() {
