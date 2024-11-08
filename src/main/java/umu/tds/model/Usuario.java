@@ -18,6 +18,7 @@ public class Usuario {
 	private String imagenURL;
 	private String saludo;
 	private List<Contacto> contactos;
+	private boolean premium;
 
 
 	// Constructores
@@ -37,6 +38,7 @@ public class Usuario {
 		this.fechaNacim = fechaNacimiento;
 		this.imagenURL = imagenURL;
 		this.saludo = saludo;
+		this.premium = false;
 	}
 	
 	/**
@@ -98,6 +100,14 @@ public class Usuario {
 
 	public void setSaludo(String saludo) {
 		this.saludo = saludo;
+	}
+
+	public boolean isPremium() {
+		return premium;
+	}
+
+	public void setPremium(boolean premium) {
+		this.premium = premium;
 	}
 
 	/* Métodos */
