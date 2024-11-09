@@ -1,4 +1,4 @@
-package umu.tds.apps;
+package umu.tds.vista;
 
 import java.awt.EventQueue;
 

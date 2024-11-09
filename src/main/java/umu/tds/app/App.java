@@ -1,4 +1,6 @@
-package umu.tds.apps;
+package umu.tds.app;
+
+import umu.tds.vista.VentanaLoginWB;
 
 public class App {
     public static void main(String[] args) {
