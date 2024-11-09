@@ -16,10 +16,10 @@ public class Usuario {
 	private static final double PORCENTAJE_FECHAS = 35;
 	private static final double PORCENTAJE_MENSAJES = 40;
 	
-	// Atributos
+	/* Atributos */
 	private String username;
 	private String password;
-	private String telefono;
+	private String telefono;		// string o int?
 	private LocalDate fechaNacim;
 	private String imagenURL;
 	private String saludo;
@@ -29,7 +29,7 @@ public class Usuario {
 	//de tener que pasarlo como parametro al constructor?? Si se pone como LocalDate.now() funcionaría como quiero??
 
 
-	// Constructores
+	/* Constructores */
 	/**
 	 * Crea un username con una lista de contactos vacía.
 	 * @param username mombre de username.
@@ -122,22 +122,29 @@ public class Usuario {
 	public static double getPrecioOriginal() {
 		return PRECIO_ORIGINAL;
 	}
-
-
-	/* Métodos */
 	
 	public LocalDate getFechaRegistro() {
 		return fechaRegistro;
 	}
 	
-	
-	//Método para calcular el total de los mensajes enviados por el usuario en el último mes
+
+
+	/* Métodos */
+	// ¿Está contando todos los mensajes, tanto enviados como recibididos?
+	/**
+	 * Obtiene el número de mensajes enviados por el usuario en el último mes. El último mes no se refiere
+	 * sólo al mes acutal, sino a los últimos 30 o 31 días, dependiendo del mes.
+	 * 
+	 * @return número de mensajes enviados.
+	 */
 	public int getMensajesEnviadosUltimoMes() {
-		int mensajesEnviados = 0;
+		int nMensajesSent = 0;
+		LocalDate fechaUltimoMes = LocalDate.now().minusMonths(1);
 		for (Contacto contacto : contactos) {
-			mensajesEnviados += contacto.contarMensajesUltimoMes();
+			nMensajesSent += contacto.contarMensajesDesdeFecha(fechaUltimoMes);
 		}
-		return mensajesEnviados;
+		
+		return nMensajesSent;
 	}
 	
 	

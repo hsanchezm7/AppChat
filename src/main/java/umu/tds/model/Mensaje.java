@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
  */
 public class Mensaje {
 	
-	// Atributos
+	/* Atributos */
 	private String texto;
 	private Usuario emisor;
 	private Usuario receptor;
 	private LocalDateTime fechaHora;
 	private int emoticono;
 	
-	// Constructores
+	/* Constructores */
 	/**
 	 * Crea un usuario a partir de los siguientes parámetros:
 	 * @param texto texto del mensaje (información enviada).
@@ -22,8 +22,7 @@ public class Mensaje {
 	 * @param repector usuario que recibe el mensaje.
 	 * @param fechaHora fecha y hora del envío del mensaje.
 	 */
-	//El string usuario aquí para que sirve???
-	public Mensaje(String texto, String usuario, Usuario emisor, Usuario receptor, LocalDateTime fechaHora, int emoticono) {
+	public Mensaje(String texto, Usuario emisor, Usuario receptor, LocalDateTime fechaHora, int emoticono) {
 		this.texto = texto;
 		this.emisor = emisor;
 		this.receptor = receptor;
@@ -31,7 +30,7 @@ public class Mensaje {
 		this.emoticono = emoticono;
 	}
 	
-	// Métodos de consulta
+	/* Consulta */
 	public String getTexto() {
 		return texto;
 	}
