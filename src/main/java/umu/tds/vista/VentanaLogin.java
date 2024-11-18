@@ -103,5 +103,7 @@ public class VentanaLogin extends JFrame {
         panel.add(btnLogin);
         
         pack();
+        setMinimumSize(getSize());
+        setLocationRelativeTo(null);
 	}
 }
