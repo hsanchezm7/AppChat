@@ -4,6 +4,7 @@ import javax.swing.UIManager;
 
 import umu.tds.vista.VentanaLogin;
 import umu.tds.vista.VentanaLoginWB;
+import umu.tds.vista.VentanaRegister;
 
 public class App {
     public static void main(String[] args) {

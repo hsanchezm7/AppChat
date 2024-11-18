@@ -19,8 +19,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.AbstractListModel;
 
-import test.Persona;
-import test.PersonaCellRenderer;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 
