@@ -75,7 +75,6 @@ public class AppChat {
         }
         return unicaInstancia;
     }
-
 	
 	public static List<Mensaje> obtenerMensajesRecientesPorUsuario;
 	

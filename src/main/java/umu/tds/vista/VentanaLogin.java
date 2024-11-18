@@ -19,39 +19,61 @@ public class VentanaLogin extends JFrame {
 	}
 	
 	public void initComponents() {
+		
+		/* Window properties */
 		setTitle(NOMBRE_VENTANA);
-		setResizable(false);
+
 		ImageIcon img = new ImageIcon("/umu/tds/resources/logo128x128.png");
 		setIconImage(img.getImage());
 		
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         getContentPane().setLayout(new BorderLayout(0, 0));
         
-        JPanel panelLogo = new JPanel();
+        JPanel panelLogo = crearPanelLogo();
         getContentPane().add(panelLogo, BorderLayout.NORTH);
-        panelLogo.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         
-        JLabel lblAppchat = new JLabel("");
-        lblAppchat.setIcon(new ImageIcon(VentanaLogin.class.getResource("/umu/tds/resources/logo128x128.png")));
-        panelLogo.add(lblAppchat);
         
         JPanel panelCentro = new JPanel();
         getContentPane().add(panelCentro, BorderLayout.CENTER);
         panelCentro.setBorder(new EmptyBorder(10, 10, 10, 10));
         panelCentro.setLayout(new BorderLayout(0, 0));
         
-        JPanel panelWrapperDatos = new JPanel();
-        panelWrapperDatos.setBorder(new TitledBorder(null, "Login", TitledBorder.CENTER, TitledBorder.TOP, null, null));
-        panelCentro.add(panelWrapperDatos, BorderLayout.CENTER);
-        panelWrapperDatos.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        JPanel panelWrapperForm = new JPanel();
+        panelWrapperForm.setBorder(new TitledBorder(null, "Login", TitledBorder.CENTER, TitledBorder.TOP, null, null));
+        panelCentro.add(panelWrapperForm, BorderLayout.CENTER);
+        panelWrapperForm.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
         
-        JPanel panelDatos = new JPanel();
-        panelWrapperDatos.add(panelDatos);
-        panelDatos.setBorder(new EmptyBorder(10, 10, 10, 10));
-        panelDatos.setLayout(new BoxLayout(panelDatos, BoxLayout.Y_AXIS));
+        JPanel panelFormulario = crearPanelFormulario();
+        panelWrapperForm.add(panelFormulario);
+        
+        JPanel panelBotones = crearPanelBotones();
+        getContentPane().add(panelBotones, BorderLayout.SOUTH);
+        
+        
+        pack();
+        setResizable(false);
+        setMinimumSize(getSize());
+        setLocationRelativeTo(null);
+	}
+	
+	public JPanel crearPanelLogo() {
+		JPanel panelLogo = new JPanel();
+		panelLogo.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        
+        JLabel lblAppchat = new JLabel("");
+        lblAppchat.setIcon(new ImageIcon(VentanaLogin.class.getResource("/umu/tds/resources/logo128x128.png")));
+        panelLogo.add(lblAppchat);
+        
+        return panelLogo;
+	}
+	
+	public JPanel crearPanelFormulario() {
+		JPanel panelFormulario = new JPanel();
+        panelFormulario.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panelFormulario.setLayout(new BoxLayout(panelFormulario, BoxLayout.Y_AXIS));
         
         JPanel panelPhone = new JPanel();
-        panelDatos.add(panelPhone);
+        panelFormulario.add(panelPhone);
         panelPhone.setLayout(new BorderLayout());
         
         JLabel lblPhone = new JLabel("Phone: ");
@@ -63,7 +85,7 @@ public class VentanaLogin extends JFrame {
         panelPhone.add(phoneField, BorderLayout.EAST);
         
         JPanel panelPassword = new JPanel();
-        panelDatos.add(panelPassword);
+        panelFormulario.add(panelPassword);
         panelPassword.setLayout(new BorderLayout());
         
         JLabel lblPassword = new JLabel("Password: ");
@@ -74,8 +96,12 @@ public class VentanaLogin extends JFrame {
         passwordField.setColumns(15);
         panelPassword.add(passwordField, BorderLayout.EAST);
         
-        JPanel panelBotones = new JPanel();
-        getContentPane().add(panelBotones, BorderLayout.SOUTH);
+        return panelFormulario;
+	}
+	
+	
+	public JPanel crearPanelBotones() {
+		JPanel panelBotones = new JPanel();
         panelBotones.setBorder(new EmptyBorder(5, 10, 5, 10));
         panelBotones.setLayout(new BorderLayout(0, 0));
         
@@ -86,24 +112,23 @@ public class VentanaLogin extends JFrame {
         btnRegister.addActionListener(
                 event -> {
                   VentanaRegister registerWindow = new VentanaRegister();
+                  this.setVisible(false);
                   registerWindow.setVisible(true);
                 });
         btnRegister.setVerticalAlignment(SwingConstants.BOTTOM);
         panelBotonRegistro.add(btnRegister);
         
-        JPanel panel = new JPanel();
-        panelBotones.add(panel, BorderLayout.EAST);
+        JPanel panelOtrosBotones = new JPanel();
+        panelBotones.add(panelOtrosBotones, BorderLayout.EAST);
         
         JButton btnExit = new JButton("Exit");
-        panel.add(btnExit);
+        panelOtrosBotones.add(btnExit);
         btnExit.setVerticalAlignment(SwingConstants.BOTTOM);
         
         JButton btnLogin = new JButton("Login");
         btnLogin.setVerticalAlignment(SwingConstants.BOTTOM);
-        panel.add(btnLogin);
+        panelOtrosBotones.add(btnLogin);
         
-        pack();
-        setMinimumSize(getSize());
-        setLocationRelativeTo(null);
+        return panelBotones;
 	}
 }
