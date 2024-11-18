@@ -4,15 +4,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import umu.tds.controlador.AppChat;
+
 
 /**
  * Clase que contiene y organiza todos los usuarios de la plataforma.
  */
 public class RepositorioUsuarios {
 	
+	/* Instancia Singleton */
+	private static RepositorioUsuarios unicaInstancia = null;
+	
 	/* Atributos */
 	private List<Usuario> userRepo;
-	private HashMap<String, Usuario> nameUserMap;
+	private HashMap<String, Usuario> phoneUserMap;
 	
 	
 	/* Constructores */
@@ -21,18 +26,18 @@ public class RepositorioUsuarios {
      */
     public RepositorioUsuarios() {
         this.userRepo = new ArrayList<>();
-        this.nameUserMap = new HashMap<>();
+        this.phoneUserMap = new HashMap<>();
     }
     
     /* Consulta */
     /**
-     * Devuelve el objeto Usuario
+     * Devuelve el Usuario asociado a un número de teléfono.
      * 
-     * @param usuario el usuario a agregar.
-     * @return {@code true} si el usuario fue añadido correctamente.
+     * @param phone el número de teléfono del usuario
+     * @return Usuario el usuario asociado
      */
-    public Usuario getUserByUsername(String username) {
-        return nameUserMap.get(username);
+    public Usuario getUserByPhone(String phone) {
+        return phoneUserMap.get(phone);
     }
 
     /* Métodos */
@@ -40,25 +45,39 @@ public class RepositorioUsuarios {
      * Agrega un nuevo usuario al repositorio. Comprueba que el nombre de usuario esté usado.
      * ya por otro usuario.
      * 
-     * @param usuario el usuario a agregar.
+     * @param usuario el usuario a agregar
      * @return 	{@code false} si no se ha podido añadir al usuario o el nombre es {@code null},
-     * 			{@code true} si el usuario fue añadido correctamente.
+     * 			{@code true} si el usuario fue añadido correctamente
      */
     public boolean addUserToRepo(Usuario usuario) {
     	String username = usuario.getUsername();
-    	if (username == null || username.isEmpty() || nameUserMap.containsKey(username)) return false;
+    	if (username == null || username.isEmpty() || phoneUserMap.containsKey(username)) return false;
     	
-    	return (nameUserMap.put(usuario.getUsername(), usuario) == null) && userRepo.add(usuario);
+    	return (phoneUserMap.put(usuario.getUsername(), usuario) == null) && userRepo.add(usuario);
     }
 
     /**
      * Elimina un usuario del repositorio.
      * 
-     * @param usuario el usuario del repositorio a eliminar.
+     * @param usuario el usuario del repositorio a eliminar
      */
     public void deleteUserFromRepo(Usuario usuario) {
     	String username = usuario.getUsername();
-    	if(nameUserMap.remove(username) != null) userRepo.remove(usuario);
+    	if(phoneUserMap.remove(username) != null) userRepo.remove(usuario);
+    }
+    
+    /**
+     * Obtiene la instancia única de la clase {@code RepositorioUsuarios}.
+     *
+     * Si la instancia aún no ha sido creada, se inicializa en este momento.
+     *
+     * @return la instancia única de {@code RepositorioUsuarios}.
+     */
+    public static RepositorioUsuarios getInstance() {
+        if (unicaInstancia == null) {
+        	unicaInstancia = new RepositorioUsuarios();
+        }
+        return unicaInstancia;
     }
     
 }

@@ -10,8 +10,9 @@ import umu.tds.model.Usuario;
  * Clase controlador de la aplicación.
  */
 public class AppChat {
-	/* TODO: IMPLEMENTAR Singleton */
-	private static AppChat singleton = null;
+	
+	/* Instancia Singleton */
+	private static AppChat unicaInstancia = null;
 
 	/* Atributos */
 	private Usuario user;
@@ -30,26 +31,51 @@ public class AppChat {
 	
 	/* Métodos */
     /**
-     * Inicia sesión en la aplicación.
+     * Inicia sesión en la aplicación. MAL. HAY QUE HACER LOGIN EN EL USER, Y AQUI COMPROBAR CON user.isClave(). estamos violando patron experto
      * 
-     * @param username el nombre de usuario.
+     * @param phone el número de teléfono.
      * @param password la contraseña del usuario.
      * @return 	{@code false} si no existe un usuario registrado con ese nombre 
      * 			o la contraseña es incorrecta, {@code true} si se ha iniciado
      * 			sesión exitosamente.
      */
-	public boolean login(String username, String password) {
-		Usuario usuarioReg = repoUsuarios.getUserByUsername(username);
-		if (!isUserRegistered(username) || !usuarioReg.getPassword().equals(password)) return false;
+	public boolean login(String phone, String password) {
+		Usuario usuarioReg = repoUsuarios.getUserByPhone(phone);
+		if (!isPhoneRegistered(phone) || !usuarioReg.getPassword().equals(password)) return false;
 		
 		this.user = usuarioReg;
 		
 		return true;
 	}
 	
-	public boolean isUserRegistered(String username) {
-		return repoUsuarios.getUserByUsername(username) != null;
+	/**
+	 * Verifica si un número de teléfono está registrado en el sistema.
+	 *
+	 * @param phone el número de teléfono que se desea comprobar.
+	 * @return {@code true} si el número de teléfono está registrado, 
+	 *         {@code false} si no lo está.
+	 */
+	public boolean isPhoneRegistered(String phone) {
+		return repoUsuarios.getUserByPhone(phone) != null;
 	}
+	
+    /**
+     * Obtiene la instancia única de la clase {@code AppChat}.
+     *
+     * Si la instancia aún no ha sido creada, se inicializa en este momento.
+     *
+     * @param user El usuario que está usando la aplicación.
+     * @param repoUsuarios El repositorio de usuarios.
+     * @return La instancia única de AppChat.
+     */
+	
+	public static AppChat getInstance(Usuario user, RepositorioUsuarios repoUsuarios) {
+        if (unicaInstancia == null) {
+        	unicaInstancia = new AppChat(user, repoUsuarios);
+        }
+        return unicaInstancia;
+    }
+
 	
 	public static List<Mensaje> obtenerMensajesRecientesPorUsuario;
 	

@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class VentanaLogin extends JFrame {
-	private static final long serialVersionUID = -7659074376023869511L;
+	private static final long serialVersionUID = 1L;
 	private static final String NOMBRE_VENTANA = "Iniciar sesión en AppChat";
 	private JTextField phoneField;
 	private JPasswordField passwordField;
