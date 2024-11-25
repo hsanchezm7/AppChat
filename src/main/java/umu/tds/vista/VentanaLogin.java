@@ -7,6 +7,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import com.toedter.calendar.JDateChooser;
 
 public class VentanaLogin extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -41,17 +42,59 @@ public class VentanaLogin extends JFrame {
         JPanel panelWrapperForm = new JPanel();
         panelWrapperForm.setBorder(new TitledBorder(null, "Login", TitledBorder.CENTER, TitledBorder.TOP, null, null));
         panelCentro.add(panelWrapperForm, BorderLayout.CENTER);
-        panelWrapperForm.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        panelWrapperForm.setLayout(new BorderLayout(0, 0));
         
-        JPanel panelFormulario = crearPanelFormulario();
-        panelWrapperForm.add(panelFormulario);
+        JPanel registerPanel = new JPanel();
+        registerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panelWrapperForm.add(registerPanel, BorderLayout.CENTER);
+        GridBagLayout gbl_registerPanel = new GridBagLayout();
+        gbl_registerPanel.columnWidths = new int[]{0, 0, 0};
+        gbl_registerPanel.rowHeights = new int[]{0, 0, 0, 0, 0};
+        gbl_registerPanel.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
+        gbl_registerPanel.rowWeights = new double[]{0.0, 0.0, 1.0, 1.0, Double.MIN_VALUE};	
+        registerPanel.setLayout(gbl_registerPanel);
+        
+        JLabel lblPhone = new JLabel("Phone: ");
+        GridBagConstraints gbc_lblPhone = new GridBagConstraints();
+        gbc_lblPhone.anchor = GridBagConstraints.EAST;
+        gbc_lblPhone.insets = new Insets(0, 0, 5, 5);
+        gbc_lblPhone.gridx = 0;
+        gbc_lblPhone.gridy = 0;
+        registerPanel.add(lblPhone, gbc_lblPhone);
+        lblPhone.setHorizontalAlignment(SwingConstants.RIGHT);
+        
+        phoneField = new JTextField(15);
+        GridBagConstraints gbc_phoneField = new GridBagConstraints();
+        gbc_phoneField.fill = GridBagConstraints.HORIZONTAL;
+        gbc_phoneField.insets = new Insets(0, 0, 5, 0);
+        gbc_phoneField.gridx = 1;
+        gbc_phoneField.gridy = 0;
+        registerPanel.add(phoneField, gbc_phoneField);
+        
+        JLabel lblPassword_1 = new JLabel("Password: ");
+        GridBagConstraints gbc_lblPassword_1 = new GridBagConstraints();
+        gbc_lblPassword_1.anchor = GridBagConstraints.EAST;
+        gbc_lblPassword_1.insets = new Insets(0, 0, 5, 5);
+        gbc_lblPassword_1.gridx = 0;
+        gbc_lblPassword_1.gridy = 1;
+        registerPanel.add(lblPassword_1, gbc_lblPassword_1);
+        lblPassword_1.setHorizontalAlignment(SwingConstants.RIGHT);
+        
+        passwordField = new JPasswordField();
+        GridBagConstraints gbc_passwordField = new GridBagConstraints();
+        gbc_passwordField.fill = GridBagConstraints.HORIZONTAL;
+        gbc_passwordField.insets = new Insets(0, 0, 5, 0);
+        gbc_passwordField.gridx = 1;
+        gbc_passwordField.gridy = 1;
+        registerPanel.add(passwordField, gbc_passwordField);
+        passwordField.setColumns(15);
         
         JPanel panelBotones = crearPanelBotones();
         getContentPane().add(panelBotones, BorderLayout.SOUTH);
         
         
         pack();
-        setResizable(false);
+        setResizable(true);
         setMinimumSize(getSize());
         setLocationRelativeTo(null);
 	}
@@ -68,35 +111,6 @@ public class VentanaLogin extends JFrame {
 	}
 	
 	public JPanel crearPanelFormulario() {
-		JPanel panelFormulario = new JPanel();
-        panelFormulario.setBorder(new EmptyBorder(10, 10, 10, 10));
-        panelFormulario.setLayout(new BoxLayout(panelFormulario, BoxLayout.Y_AXIS));
-        
-        JPanel panelPhone = new JPanel();
-        panelFormulario.add(panelPhone);
-        panelPhone.setLayout(new BorderLayout());
-        
-        JLabel lblPhone = new JLabel("Phone: ");
-        lblPhone.setHorizontalAlignment(SwingConstants.RIGHT);
-        panelPhone.add(lblPhone);
-        
-        phoneField = new JTextField(15);
-        
-        panelPhone.add(phoneField, BorderLayout.EAST);
-        
-        JPanel panelPassword = new JPanel();
-        panelFormulario.add(panelPassword);
-        panelPassword.setLayout(new BorderLayout());
-        
-        JLabel lblPassword = new JLabel("Password: ");
-        lblPassword.setHorizontalAlignment(SwingConstants.RIGHT);
-        panelPassword.add(lblPassword);
-        
-        passwordField = new JPasswordField();
-        passwordField.setColumns(15);
-        panelPassword.add(passwordField, BorderLayout.EAST);
-        
-        return panelFormulario;
 	}
 	
 	
