@@ -15,6 +15,8 @@ import javax.swing.JButton;
 import java.awt.Component;
 import javax.swing.JScrollPane;
 import java.awt.FlowLayout;
+import java.awt.Font;
+
 import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
@@ -51,8 +53,8 @@ public class VentanaRegister extends JFrame {
 	private JPanel panelLogo;
 	private JLabel lblAppchat;
 	private JPanel panelWrapperFormulario;
-	private JTextArea txtGreeting;
 	private JPanel panelGreeting;
+	private JTextArea textArea;
 
 	public VentanaRegister() {
 		initComponents();
@@ -88,9 +90,9 @@ public class VentanaRegister extends JFrame {
 		registerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		GridBagLayout gbl_registerPanel = new GridBagLayout();
 		gbl_registerPanel.columnWidths = new int[]{0, 0, 0, 0, 0};
-		gbl_registerPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_registerPanel.columnWeights = new double[]{1.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_registerPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, Double.MIN_VALUE};
+		gbl_registerPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_registerPanel.columnWeights = new double[]{0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_registerPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
 		registerPanel.setLayout(gbl_registerPanel);
 		
 		lblPhone = new JLabel("Phone number");
@@ -203,47 +205,42 @@ public class VentanaRegister extends JFrame {
 		gbc_lblProfilePicture.gridy = 3;
 		registerPanel.add(lblProfilePicture, gbc_lblProfilePicture);
 		
-				// Crear JTextArea y agregarlo al JScrollPane
-				txtGreeting = new JTextArea();
-				GridBagConstraints gbc_txtGreeting = new GridBagConstraints();
-				gbc_txtGreeting.gridwidth = 3;
-				gbc_txtGreeting.insets = new Insets(0, 0, 5, 0);
-				gbc_txtGreeting.gridx = 1;
-				gbc_txtGreeting.gridy = 4;
-				registerPanel.add(txtGreeting, gbc_txtGreeting);
-		
 		lblGreeting = new JLabel("Greeting");
 		GridBagConstraints gbc_lblGreeting = new GridBagConstraints();
 		gbc_lblGreeting.anchor = GridBagConstraints.NORTHEAST;
 		gbc_lblGreeting.insets = new Insets(0, 0, 5, 5);
 		gbc_lblGreeting.gridx = 0;
-		gbc_lblGreeting.gridy = 5;
+		gbc_lblGreeting.gridy = 4;
 		registerPanel.add(lblGreeting, gbc_lblGreeting);
-		
-				// Crear JScrollPane y agregarlo al panel
-				scrollPaneGreeting = new JScrollPane();
-				GridBagConstraints gbc_scrollPaneGreeting = new GridBagConstraints();
-				gbc_scrollPaneGreeting.gridwidth = 3;
-				gbc_scrollPaneGreeting.insets = new Insets(0, 0, 5, 5);
-				gbc_scrollPaneGreeting.gridx = 1;
-				gbc_scrollPaneGreeting.gridy = 5;
-				registerPanel.add(scrollPaneGreeting, gbc_scrollPaneGreeting);
-				scrollPaneGreeting.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-				scrollPaneGreeting.setViewportBorder(new LineBorder(new Color(0, 0, 0)));
-		
+				
 		panelGreeting = new JPanel();
 		GridBagConstraints gbc_panelGreeting = new GridBagConstraints();
 		gbc_panelGreeting.gridwidth = 3;
 		gbc_panelGreeting.insets = new Insets(0, 0, 5, 0);
 		gbc_panelGreeting.fill = GridBagConstraints.BOTH;
 		gbc_panelGreeting.gridx = 1;
-		gbc_panelGreeting.gridy = 6;
+		gbc_panelGreeting.gridy = 4;
 		registerPanel.add(panelGreeting, gbc_panelGreeting);
 		panelGreeting.setLayout(new BorderLayout());
+				
+			
+		JTextArea textArea = new JTextArea(
+			    "This is an editable JTextArea. " +
+			    "A text area is a \"plain\" text component, " +
+			    "which means that although it can display text " +
+			    "in any font, all of the text is in the same font."
+			);
+		textArea.setDragEnabled(true);
+			textArea.setFont(new Font("Serif", Font.ITALIC, 16));
+			textArea.setLineWrap(true);
+			textArea.setWrapStyleWord(true);
+			
+		// Crear JScrollPane y agregarlo al panel
+		scrollPaneGreeting = new JScrollPane(textArea);
+		scrollPaneGreeting.setViewportBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		panelGreeting.add(scrollPaneGreeting);
+		scrollPaneGreeting.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-		// Configurar el JTextArea
-		//txtrNk.setLineWrap(true); // Ajuste de líneas automático
-		//txtrNk.setWrapStyleWord(true); // Ajusta líneas por palabras
 		
 		panelBotones = new JPanel();
 		panelBotones.setBorder(new EmptyBorder(0, 10, 10, 10));
