@@ -33,10 +33,34 @@ public class VentanaLogin extends JFrame {
         JPanel panelLogo = crearPanelLogo();
         getContentPane().add(panelLogo, BorderLayout.NORTH);
         
-        
-        JPanel panelCentro = new JPanel();
+        JPanel panelCentro = crearPanelFormulario();
         getContentPane().add(panelCentro, BorderLayout.CENTER);
-        panelCentro.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        JPanel panelBotones = crearPanelBotones();
+        getContentPane().add(panelBotones, BorderLayout.SOUTH);
+        
+        pack();
+        setResizable(true);
+        setMinimumSize(getSize());
+        setLocationRelativeTo(null);
+	}
+	
+	public JPanel crearPanelLogo() {
+		JPanel panelLogo = new JPanel();
+		panelLogo.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        
+        JLabel lblAppchat = new JLabel("");
+        lblAppchat.setIcon(new ImageIcon(VentanaLogin.class.getResource("/umu/tds/resources/logo128x128.png")));
+        panelLogo.add(lblAppchat);
+        
+        return panelLogo;
+	}
+	
+	public JPanel crearPanelFormulario() {
+		JPanel panelCentro = new JPanel();
+        getContentPane().add(panelCentro, BorderLayout.CENTER);
+        
+		panelCentro.setBorder(new EmptyBorder(10, 10, 10, 10));
         panelCentro.setLayout(new BorderLayout(0, 0));
         
         JPanel panelWrapperForm = new JPanel();
@@ -71,14 +95,14 @@ public class VentanaLogin extends JFrame {
         gbc_phoneField.gridy = 0;
         registerPanel.add(phoneField, gbc_phoneField);
         
-        JLabel lblPassword_1 = new JLabel("Password: ");
-        GridBagConstraints gbc_lblPassword_1 = new GridBagConstraints();
-        gbc_lblPassword_1.anchor = GridBagConstraints.EAST;
-        gbc_lblPassword_1.insets = new Insets(0, 0, 5, 5);
-        gbc_lblPassword_1.gridx = 0;
-        gbc_lblPassword_1.gridy = 1;
-        registerPanel.add(lblPassword_1, gbc_lblPassword_1);
-        lblPassword_1.setHorizontalAlignment(SwingConstants.RIGHT);
+        JLabel lblPassword = new JLabel("Password: ");
+        GridBagConstraints gbc_lblPassword = new GridBagConstraints();
+        gbc_lblPassword.anchor = GridBagConstraints.EAST;
+        gbc_lblPassword.insets = new Insets(0, 0, 5, 5);
+        gbc_lblPassword.gridx = 0;
+        gbc_lblPassword.gridy = 1;
+        registerPanel.add(lblPassword, gbc_lblPassword);
+        lblPassword.setHorizontalAlignment(SwingConstants.RIGHT);
         
         passwordField = new JPasswordField();
         GridBagConstraints gbc_passwordField = new GridBagConstraints();
@@ -89,30 +113,8 @@ public class VentanaLogin extends JFrame {
         registerPanel.add(passwordField, gbc_passwordField);
         passwordField.setColumns(15);
         
-        JPanel panelBotones = crearPanelBotones();
-        getContentPane().add(panelBotones, BorderLayout.SOUTH);
-        
-        
-        pack();
-        setResizable(true);
-        setMinimumSize(getSize());
-        setLocationRelativeTo(null);
+        return panelCentro;
 	}
-	
-	public JPanel crearPanelLogo() {
-		JPanel panelLogo = new JPanel();
-		panelLogo.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        
-        JLabel lblAppchat = new JLabel("");
-        lblAppchat.setIcon(new ImageIcon(VentanaLogin.class.getResource("/umu/tds/resources/logo128x128.png")));
-        panelLogo.add(lblAppchat);
-        
-        return panelLogo;
-	}
-	
-	public JPanel crearPanelFormulario() {
-	}
-	
 	
 	public JPanel crearPanelBotones() {
 		JPanel panelBotones = new JPanel();
