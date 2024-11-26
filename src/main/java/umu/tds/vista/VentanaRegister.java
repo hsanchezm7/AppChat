@@ -4,14 +4,28 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
+
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URL;
+
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import com.toedter.calendar.JDateChooser;
+
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+
 import java.awt.Component;
 import javax.swing.JScrollPane;
 import java.awt.FlowLayout;
@@ -23,6 +37,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import javax.swing.border.LineBorder;
 import javax.swing.ScrollPaneConstants;
+import java.awt.Dimension;
 
 public class VentanaRegister extends JFrame {
 
@@ -55,6 +70,10 @@ public class VentanaRegister extends JFrame {
 	private JPanel panelWrapperFormulario;
 	private JPanel panelGreeting;
 	private JTextArea textArea;
+	private JButton btnPictureGen;
+	private JLabel lblImageLabel;
+	private JPanel panel;
+	private JButton btnPictureCustom;
 
 	public VentanaRegister() {
 		initComponents();
@@ -90,9 +109,9 @@ public class VentanaRegister extends JFrame {
 		registerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		GridBagLayout gbl_registerPanel = new GridBagLayout();
 		gbl_registerPanel.columnWidths = new int[]{0, 0, 0, 0, 0};
-		gbl_registerPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_registerPanel.columnWeights = new double[]{0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_registerPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
+		gbl_registerPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0};
+		gbl_registerPanel.columnWeights = new double[]{0.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
+		gbl_registerPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		registerPanel.setLayout(gbl_registerPanel);
 		
 		lblPhone = new JLabel("Phone number");
@@ -205,21 +224,58 @@ public class VentanaRegister extends JFrame {
 		gbc_lblProfilePicture.gridy = 3;
 		registerPanel.add(lblProfilePicture, gbc_lblProfilePicture);
 		
+		panel = new JPanel();
+		GridBagConstraints gbc_panel = new GridBagConstraints();
+		gbc_panel.insets = new Insets(0, 0, 5, 0);
+		gbc_panel.fill = GridBagConstraints.VERTICAL;
+		gbc_panel.gridx = 3;
+		gbc_panel.gridy = 3;
+		registerPanel.add(panel, gbc_panel);
+		panel.setLayout(new BorderLayout(0, 0));
+		
+		btnPictureGen = new JButton("Generate");
+		panel.add(btnPictureGen, BorderLayout.CENTER);
+		
+		btnPictureGen.addActionListener(
+                event -> {
+            		try {
+            			@SuppressWarnings("deprecation")
+						URL imageUrl = new URL("https://robohash.org/" + firstNameField.getText() + "?size=50x50");
+            			Image image = ImageIO.read(imageUrl);
+            			ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(50, 50, Image.SCALE_SMOOTH));
+            			lblImageLabel.setText("");
+            			lblImageLabel.setIcon(imageIcon);
+                		pack();
+            	        setMinimumSize(getSize());
+            		} catch (IOException e) {
+            			e.printStackTrace();
+            		}
+                });		
+		
+		lblImageLabel = new JLabel("No image");
+		lblImageLabel.setFont(new Font("Tahoma", Font.ITALIC, 11));
+		GridBagConstraints gbc_lblImageLabel = new GridBagConstraints();
+		gbc_lblImageLabel.insets = new Insets(0, 0, 5, 0);
+		gbc_lblImageLabel.gridx = 3;
+		gbc_lblImageLabel.gridy = 4;
+		registerPanel.add(lblImageLabel, gbc_lblImageLabel);
+		
+		
+		
 		lblGreeting = new JLabel("Greeting");
 		GridBagConstraints gbc_lblGreeting = new GridBagConstraints();
 		gbc_lblGreeting.anchor = GridBagConstraints.NORTHEAST;
-		gbc_lblGreeting.insets = new Insets(0, 0, 5, 5);
+		gbc_lblGreeting.insets = new Insets(0, 0, 0, 5);
 		gbc_lblGreeting.gridx = 0;
-		gbc_lblGreeting.gridy = 4;
+		gbc_lblGreeting.gridy = 5;
 		registerPanel.add(lblGreeting, gbc_lblGreeting);
 				
 		panelGreeting = new JPanel();
 		GridBagConstraints gbc_panelGreeting = new GridBagConstraints();
 		gbc_panelGreeting.gridwidth = 3;
-		gbc_panelGreeting.insets = new Insets(0, 0, 5, 0);
 		gbc_panelGreeting.fill = GridBagConstraints.BOTH;
 		gbc_panelGreeting.gridx = 1;
-		gbc_panelGreeting.gridy = 4;
+		gbc_panelGreeting.gridy = 5;
 		registerPanel.add(panelGreeting, gbc_panelGreeting);
 		panelGreeting.setLayout(new BorderLayout());
 				
