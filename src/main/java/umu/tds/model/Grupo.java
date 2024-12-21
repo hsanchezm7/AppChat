@@ -5,7 +5,7 @@ import java.util.List;
 public class Grupo extends Contacto {
 	
 	/* Atributos */
-	// Puede haber más de 1 administrador?
+	// Puede haber más de 1 administrador? Si no, final, no?
 	private Usuario administrador;
 	private List<Usuario> miembros;
 	private String imagenGrupoURL;

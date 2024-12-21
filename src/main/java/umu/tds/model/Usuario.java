@@ -18,7 +18,7 @@ public class Usuario {
 	
 	/* Atributos */
 	private String username;
-	private String password;
+	private char[] password;
 	private String telefono;		// string o int?
 	private LocalDate fechaNacim;
 	private String imagenURL;
@@ -39,7 +39,7 @@ public class Usuario {
 	 * @param imagenURL URL de la imagen de perfil.
 	 * @param saludo texto de saludo (opcional).
 	 */
-	public Usuario(String username, String password, String telefono, LocalDate fechaNacimiento, String imagenURL, String saludo, LocalDate fechaRegistro) {
+	public Usuario(String username, char[] password, String telefono, LocalDate fechaNacimiento, String imagenURL, String saludo, LocalDate fechaRegistro) {
 		this.username = username;
 		this.password = password;
 		this.telefono = telefono;
@@ -58,7 +58,7 @@ public class Usuario {
 	 * @param fechaNacimiento fecha de nacimiento.
 	 * @param imagenURL URL de la imagen de perfil.
 	 */
-	public Usuario(String username, String password, String telefono, LocalDate fechaNacimiento, String imagenURL, LocalDate fechaRegistro, int mensajesEnviados) {
+	public Usuario(String username, char[] password, String telefono, LocalDate fechaNacimiento, String imagenURL, LocalDate fechaRegistro, int mensajesEnviados) {
 		this(username, password, telefono, fechaNacimiento, imagenURL, DEFAULT_SALUDO, fechaRegistro);
 	}
 
@@ -71,11 +71,11 @@ public class Usuario {
 		this.username = username;
 	}
 
-	public String getPassword() {
+	public char[] getPassword() {
 		return password;
 	}
 
-	public void setPassword(String password) {
+	public void setPassword(char[] password) {
 		this.password = password;
 	}
 
