@@ -18,6 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 
+import tds.BubbleText;
+
 public class intentoVentanaMain extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -131,6 +133,12 @@ public class intentoVentanaMain extends JFrame {
 		JLabel lblNewLabel = new JLabel("");
 		lblNewLabel.setIcon(new ImageIcon(intentoVentanaMain.class.getResource("/umu/tds/resources/usuario.png")));
 		panel_2.add(lblNewLabel);
+		
+		JPanel panel_4 = new JPanel();
+		panel.add(panel_4, BorderLayout.WEST);
+		
+		JPanel panel_5 = new JPanel();
+		panel.add(panel_5, BorderLayout.CENTER);
 		
 		
 		

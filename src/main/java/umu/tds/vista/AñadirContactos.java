@@ -1,0 +1,135 @@
+package umu.tds.vista;
+
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import javax.swing.JLabel;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import javax.swing.JTextField;
+import java.awt.Insets;
+import javax.swing.JButton;
+import javax.swing.ImageIcon;
+import java.awt.FlowLayout;
+
+public class AñadirContactos extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	private JPanel contentPane;
+	private JTextField textField;
+	private JTextField textField_1;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					AñadirContactos frame = new AñadirContactos();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public AñadirContactos() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 450, 300);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+		setContentPane(contentPane);
+		contentPane.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel = new JPanel();
+		contentPane.add(panel, BorderLayout.NORTH);
+		panel.setLayout(new BorderLayout(0, 0));
+		
+		JLabel lblNewLabel_2 = new JLabel("Introduzca el nombre del contacto y su teléfono");
+		lblNewLabel_2.setIcon(new ImageIcon(AñadirContactos.class.getResource("/umu/tds/resources/peligro-2.png")));
+		panel.add(lblNewLabel_2, BorderLayout.WEST);
+		
+		
+		
+		JPanel panel_1 = new JPanel();
+		contentPane.add(panel_1, BorderLayout.CENTER);
+		panel_1.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel_3 = new JPanel();
+		panel_1.add(panel_3, BorderLayout.CENTER);
+		panel_3.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel_4 = new JPanel();
+		panel_3.add(panel_4, BorderLayout.CENTER);
+		GridBagLayout gbl_panel_4 = new GridBagLayout();
+		gbl_panel_4.columnWidths = new int[]{0, 0, 0, 0};
+		gbl_panel_4.rowHeights = new int[]{0, 0, 0, 0, 0};
+		gbl_panel_4.columnWeights = new double[]{0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_4.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		panel_4.setLayout(gbl_panel_4);
+		
+		JLabel lblNewLabel = new JLabel("Name");
+		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
+		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel.anchor = GridBagConstraints.EAST;
+		gbc_lblNewLabel.gridx = 1;
+		gbc_lblNewLabel.gridy = 1;
+		panel_4.add(lblNewLabel, gbc_lblNewLabel);
+		
+		textField = new JTextField();
+		GridBagConstraints gbc_textField = new GridBagConstraints();
+		gbc_textField.insets = new Insets(0, 0, 5, 0);
+		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textField.gridx = 2;
+		gbc_textField.gridy = 1;
+		panel_4.add(textField, gbc_textField);
+		textField.setColumns(10);
+		
+		JLabel lblNewLabel_1 = new JLabel("Phone");
+		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
+		gbc_lblNewLabel_1.anchor = GridBagConstraints.EAST;
+		gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_1.gridx = 1;
+		gbc_lblNewLabel_1.gridy = 2;
+		panel_4.add(lblNewLabel_1, gbc_lblNewLabel_1);
+		
+		textField_1 = new JTextField();
+		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
+		gbc_textField_1.insets = new Insets(0, 0, 5, 0);
+		gbc_textField_1.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textField_1.gridx = 2;
+		gbc_textField_1.gridy = 2;
+		panel_4.add(textField_1, gbc_textField_1);
+		textField_1.setColumns(10);
+		
+		JPanel panel_6 = new JPanel();
+		GridBagConstraints gbc_panel_6 = new GridBagConstraints();
+		gbc_panel_6.fill = GridBagConstraints.BOTH;
+		gbc_panel_6.gridx = 2;
+		gbc_panel_6.gridy = 3;
+		panel_4.add(panel_6, gbc_panel_6);
+		panel_6.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel_7 = new JPanel();
+		panel_6.add(panel_7, BorderLayout.EAST);
+		
+		JButton btnNewButton_2 = new JButton("Add");
+		panel_7.add(btnNewButton_2);
+		
+		JButton btnNewButton_3 = new JButton("Cancel");
+		panel_7.add(btnNewButton_3);
+		
+		
+	}
+
+}
