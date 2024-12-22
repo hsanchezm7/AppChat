@@ -19,6 +19,8 @@ import javax.swing.border.LineBorder;
 import java.awt.Color;
 
 import tds.BubbleText;
+import javax.swing.border.TitledBorder;
+import javax.swing.JScrollBar;
 
 public class intentoVentanaMain extends JFrame {
 
@@ -26,6 +28,7 @@ public class intentoVentanaMain extends JFrame {
 	private JPanel contentPane;
 	private JTextField txtUsuarioActual;
 	private JTextField textField;
+	private JTextField textField_1;
 
 	/**
 	 * Launch the application.
@@ -48,7 +51,7 @@ public class intentoVentanaMain extends JFrame {
 	 */
 	public intentoVentanaMain() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 764, 477);
+		setBounds(100, 100, 652, 378);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -69,9 +72,9 @@ public class intentoVentanaMain extends JFrame {
 		panel_1.setBorder(new EmptyBorder(0, 0, 0, 0));
 		panel_3.add(panel_1);
 		GridBagLayout gbl_panel_1 = new GridBagLayout();
-		gbl_panel_1.columnWidths = new int[]{143, 0, 0, 0, 0, 0, 0};
+		gbl_panel_1.columnWidths = new int[]{209, 0, 0, 0, 0, 0, 0};
 		gbl_panel_1.rowHeights = new int[]{0, 0, 0};
-		gbl_panel_1.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_1.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		gbl_panel_1.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
 		panel_1.setLayout(gbl_panel_1);
 		
@@ -135,12 +138,74 @@ public class intentoVentanaMain extends JFrame {
 		panel_2.add(lblNewLabel);
 		
 		JPanel panel_4 = new JPanel();
-		panel.add(panel_4, BorderLayout.WEST);
+		panel.add(panel_4, BorderLayout.CENTER);
+		GridBagLayout gbl_panel_4 = new GridBagLayout();
+		gbl_panel_4.columnWidths = new int[]{303, 0, 0};
+		gbl_panel_4.rowHeights = new int[]{0, 0};
+		gbl_panel_4.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_4.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+		panel_4.setLayout(gbl_panel_4);
+		
+		JPanel panel_6 = new JPanel();
+		panel_6.setBorder(new TitledBorder(null, "mensajes", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_panel_6 = new GridBagConstraints();
+		gbc_panel_6.insets = new Insets(0, 0, 0, 5);
+		gbc_panel_6.fill = GridBagConstraints.BOTH;
+		gbc_panel_6.gridx = 0;
+		gbc_panel_6.gridy = 0;
+		panel_4.add(panel_6, gbc_panel_6);
+		GridBagLayout gbl_panel_6 = new GridBagLayout();
+		gbl_panel_6.columnWidths = new int[]{0, 0, 0};
+		gbl_panel_6.rowHeights = new int[]{0, 0};
+		gbl_panel_6.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_6.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+		panel_6.setLayout(gbl_panel_6);
+		
+		JScrollBar scrollBar = new JScrollBar();
+		GridBagConstraints gbc_scrollBar = new GridBagConstraints();
+		gbc_scrollBar.anchor = GridBagConstraints.EAST;
+		gbc_scrollBar.fill = GridBagConstraints.VERTICAL;
+		gbc_scrollBar.gridx = 1;
+		gbc_scrollBar.gridy = 0;
+		panel_6.add(scrollBar, gbc_scrollBar);
 		
 		JPanel panel_5 = new JPanel();
-		panel.add(panel_5, BorderLayout.CENTER);
+		panel_5.setBorder(new TitledBorder(null, "mensajes con x", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_panel_5 = new GridBagConstraints();
+		gbc_panel_5.fill = GridBagConstraints.BOTH;
+		gbc_panel_5.gridx = 1;
+		gbc_panel_5.gridy = 0;
+		panel_4.add(panel_5, gbc_panel_5);
+		GridBagLayout gbl_panel_5 = new GridBagLayout();
+		gbl_panel_5.columnWidths = new int[]{0, 0, 0};
+		gbl_panel_5.rowHeights = new int[]{0, 0, 0};
+		gbl_panel_5.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_5.rowWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
+		panel_5.setLayout(gbl_panel_5);
 		
+		textField_1 = new JTextField();
+		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
+		gbc_textField_1.anchor = GridBagConstraints.SOUTH;
+		gbc_textField_1.insets = new Insets(0, 0, 0, 5);
+		gbc_textField_1.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textField_1.gridx = 0;
+		gbc_textField_1.gridy = 1;
+		panel_5.add(textField_1, gbc_textField_1);
+		textField_1.setColumns(10);
 		
+		JButton btnNewButton_4 = new JButton("");
+		btnNewButton_4.setIcon(new ImageIcon(intentoVentanaMain.class.getResource("/umu/tds/resources/send.png")));
+		GridBagConstraints gbc_btnNewButton_4 = new GridBagConstraints();
+		gbc_btnNewButton_4.anchor = GridBagConstraints.SOUTH;
+		gbc_btnNewButton_4.gridx = 1;
+		gbc_btnNewButton_4.gridy = 1;
+		panel_5.add(btnNewButton_4, gbc_btnNewButton_4);
+		
+	
+		pack();
+		setResizable(true);
+		setMinimumSize(getSize());
+		setLocationRelativeTo(null);
 		
 		
 	}
