@@ -38,6 +38,7 @@ public class ContactoExiste extends JFrame {
 	 * Create the frame.
 	 */
 	public ContactoExiste() {
+		setTitle("¡AVISO!");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -84,7 +85,8 @@ public class ContactoExiste extends JFrame {
 		
 		
 		
-		
+		setSize(400, 200); // Configura un tamaño fijo que permita mostrar todo
+		setResizable(false);
 		
 		
 	}

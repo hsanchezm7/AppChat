@@ -43,6 +43,7 @@ public class AñadirContactos extends JFrame {
 	 * Create the frame.
 	 */
 	public AñadirContactos() {
+		setTitle("Añadir contacto");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -129,6 +130,10 @@ public class AñadirContactos extends JFrame {
 		JButton btnNewButton_3 = new JButton("Cancel");
 		panel_7.add(btnNewButton_3);
 		
+		
+			
+		setSize(400, 200); // Configura un tamaño fijo que permita mostrar todo
+		setResizable(false);
 		
 	}
 
