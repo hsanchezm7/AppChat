@@ -1,5 +1,7 @@
 package umu.tds.controlador;
 
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import umu.tds.model.Mensaje;
@@ -30,38 +32,6 @@ public class AppChat {
 		return user;
 	}
 
-	/* Métodos */
-	/**
-	 * Inicia sesión en la aplicación. MAL. HAY QUE HACER LOGIN EN EL USER, Y AQUI
-	 * COMPROBAR CON user.isClave(). estamos violando patron experto
-	 * 
-	 * @param phone    el número de teléfono.
-	 * @param password la contraseña del usuario.
-	 * @return {@code false} si no existe un usuario registrado con ese nombre o la
-	 *         contraseña es incorrecta, {@code true} si se ha iniciado sesión
-	 *         exitosamente.
-	 */
-	public boolean login(String phone, char[] password) {
-		Usuario usuarioReg = repoUsuarios.getUserByPhone(phone);
-		if (!isPhoneRegistered(phone) || !usuarioReg.getPassword().equals(password))
-			return false;
-
-		this.user = usuarioReg;
-
-		return true;
-	}
-
-	/**
-	 * Verifica si un número de teléfono está registrado en el sistema.
-	 *
-	 * @param phone el número de teléfono que se desea comprobar.
-	 * @return {@code true} si el número de teléfono está registrado, {@code false}
-	 *         si no lo está.
-	 */
-	public boolean isPhoneRegistered(String phone) {
-		return repoUsuarios.getUserByPhone(phone) != null;
-	}
-
 	/**
 	 * Obtiene la instancia única de la clase {@code AppChat}.
 	 *
@@ -88,6 +58,55 @@ public class AppChat {
 			throw new IllegalStateException("No existe ninguna instancia de AppChat.");
 		}
 		return unicaInstancia;
+	}
+
+	/* Métodos */
+	/**
+	 * Inicia sesión en la aplicación. MAL. HAY QUE HACER LOGIN EN EL USER, Y AQUI
+	 * COMPROBAR CON user.isClave(). estamos violando patron experto
+	 * 
+	 * @param phone    el número de teléfono.
+	 * @param password la contraseña del usuario.
+	 * @return {@code false} si no existe un usuario registrado con ese nombre o la
+	 *         contraseña es incorrecta, {@code true} si se ha iniciado sesión
+	 *         exitosamente.
+	 */
+	public boolean login(String phone, char[] password) {
+		if (!isPhoneRegistered(phone))
+			return false;
+
+		Usuario usuarioRegistrado = repoUsuarios.getUserByPhone(phone);
+		if (!Arrays.equals(password, usuarioRegistrado.getPassword())) {
+			return false;
+		}
+
+		this.user = usuarioRegistrado;
+
+		return true;
+	}
+
+	public boolean register(String phone, String firstName, String lastName, char[] password, LocalDate fechaNacim,
+			String imagenURL, String saludo) {
+		if (isPhoneRegistered(phone))
+			return false;
+
+		Usuario user = new Usuario(phone, password, firstName + lastName, fechaNacim, imagenURL, saludo,
+				LocalDate.now());
+		repoUsuarios.addUserToRepo(user);
+		// TODO: persistencia
+
+		return true;
+	}
+
+	/**
+	 * Verifica si un número de teléfono está registrado en el sistema.
+	 *
+	 * @param phone el número de teléfono que se desea comprobar.
+	 * @return {@code true} si el número de teléfono está registrado, {@code false}
+	 *         si no lo está.
+	 */
+	public boolean isPhoneRegistered(String phone) {
+		return repoUsuarios.getUserByPhone(phone) != null;
 	}
 
 	public static List<Mensaje> obtenerMensajesRecientesPorUsuario;

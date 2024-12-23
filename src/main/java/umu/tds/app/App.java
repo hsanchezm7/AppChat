@@ -10,10 +10,12 @@ public class App {
     public static void main(String[] args) {
     	try {
     		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    		
     		RepositorioUsuarios userRepo= new RepositorioUsuarios();
-    		AppChat controlador = AppChat.getInstance(userRepo);
-    		VentanaLogin login = new VentanaLogin();
-			login.setVisible(true);
+    		AppChat.getInstance(userRepo);		// Crea la única instancia de AppChat
+    		
+    		VentanaLogin ventanaLogin = new VentanaLogin();
+    		ventanaLogin.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

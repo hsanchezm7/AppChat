@@ -2,6 +2,7 @@ package umu.tds.model;
 
 //Haría falta poner un atributo de premium para ver si el username es premium o no??
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,9 +18,10 @@ public class Usuario {
 	private static final double PORCENTAJE_MENSAJES = 40;
 	
 	/* Atributos */
-	private String username;
+	
+	private String telefono;	// string o int?
 	private char[] password;
-	private String telefono;		// string o int?
+	private String name;
 	private LocalDate fechaNacim;
 	private String imagenURL;
 	private String saludo;
@@ -32,17 +34,17 @@ public class Usuario {
 	/* Constructores */
 	/**
 	 * Crea un username con una lista de contactos vacía.
-	 * @param username mombre de username.
-	 * @param password contraseña.
 	 * @param telefono número de teléfono.
+	 * @param password contraseña.
+	 * @param name nombre completo del usuario.
 	 * @param fechaNacimiento fecha de nacimiento.
 	 * @param imagenURL URL de la imagen de perfil.
 	 * @param saludo texto de saludo (opcional).
 	 */
-	public Usuario(String username, char[] password, String telefono, LocalDate fechaNacimiento, String imagenURL, String saludo, LocalDate fechaRegistro) {
-		this.username = username;
+	public Usuario(String telefono, char[] password, String name, LocalDate fechaNacimiento, String imagenURL, String saludo, LocalDate fechaRegistro) {
 		this.password = password;
 		this.telefono = telefono;
+		this.name = name;
 		this.fechaNacim = fechaNacimiento;
 		this.imagenURL = imagenURL;
 		this.saludo = saludo;
@@ -52,23 +54,24 @@ public class Usuario {
 	
 	/**
 	 * Crea un usuario con una lista de contactos vacía y con un mensaje de saludo por defecto.
-	 * @param username nombre de usuario.
-	 * @param password contraseña.
 	 * @param telefono número de teléfono.
+	 * @param password contraseña.
+	 * @param name nombre completo del usuario.
 	 * @param fechaNacimiento fecha de nacimiento.
 	 * @param imagenURL URL de la imagen de perfil.
 	 */
-	public Usuario(String username, char[] password, String telefono, LocalDate fechaNacimiento, String imagenURL, LocalDate fechaRegistro, int mensajesEnviados) {
-		this(username, password, telefono, fechaNacimiento, imagenURL, DEFAULT_SALUDO, fechaRegistro);
+	public Usuario(String telefono, char[] password, String name, LocalDate fechaNacimiento, String imagenURL, LocalDate fechaRegistro) {
+		this(telefono, password, name, fechaNacimiento, imagenURL, DEFAULT_SALUDO, fechaRegistro);
 	}
 
+
 	/* Consulta */
-	public String getUsername() {
-		return username;
+	public String getName() {
+		return name;
 	}
 
 	public void setUsername(String username) {
-		this.username = username;
+		this.name = username;
 	}
 
 	public char[] getPassword() {
@@ -160,13 +163,14 @@ public class Usuario {
 		}
 		
 	}
+	
 	//Si está la clase ContactoIndividual, para añadir contacto se usaría esa??
 	/**
 	 * Añade el contacto pasado como parámetro a la lista de contactos del usuario.
 	 * @param contacto
 	 */
 	public void addContacto(Contacto contacto) {
-		this.contactos.add(contacto);
+		contactos.add(contacto);
 	}
 
 	/**
@@ -174,7 +178,14 @@ public class Usuario {
 	 * @param contacto
 	 */
 	public void deleteContacto(Contacto contacto) {
-		this.contactos.remove(contacto);
+		contactos.remove(contacto);
+	}
+	
+	@Override
+	public String toString() {
+		return "Usuario [telefono=" + telefono + ", password=" + Arrays.toString(password) + ", name=" + name
+				+ ", fechaNacim=" + fechaNacim + ", imagenURL=" + imagenURL + ", saludo=" + saludo + ", contactos="
+				+ contactos + ", premium=" + premium + ", fechaRegistro=" + fechaRegistro + "]";
 	}
 
 }

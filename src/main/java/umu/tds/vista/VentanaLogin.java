@@ -1,19 +1,30 @@
 package umu.tds.vista;
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import com.toedter.calendar.JDateChooser;
 
 import umu.tds.controlador.AppChat;
 
 public class VentanaLogin extends JFrame {
+
 	private static final long serialVersionUID = 1L;
 	private static final String NOMBRE_VENTANA = "Iniciar sesión en AppChat";
+
 	private JTextField phoneField;
 	private JPasswordField passwordField;
 
@@ -22,14 +33,13 @@ public class VentanaLogin extends JFrame {
 	}
 
 	public void initComponents() {
-
 		/* Window properties */
 		setTitle(NOMBRE_VENTANA);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		ImageIcon img = new ImageIcon("/umu/tds/resources/logo128x128.png");
 		setIconImage(img.getImage());
 
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
 		JPanel panelLogo = crearPanelLogo();
@@ -60,13 +70,12 @@ public class VentanaLogin extends JFrame {
 
 	public JPanel crearPanelFormulario() {
 		JPanel panelCentro = new JPanel();
-		getContentPane().add(panelCentro, BorderLayout.CENTER);
-
 		panelCentro.setBorder(new EmptyBorder(10, 10, 10, 10));
 		panelCentro.setLayout(new BorderLayout(0, 0));
 
 		JPanel panelWrapperForm = new JPanel();
-		panelWrapperForm.setBorder(new TitledBorder(null, "Login", TitledBorder.CENTER, TitledBorder.TOP, null, null));
+		panelWrapperForm
+				.setBorder(new TitledBorder(null, "  Login  ", TitledBorder.CENTER, TitledBorder.TOP, null, null));
 		panelCentro.add(panelWrapperForm, BorderLayout.CENTER);
 		panelWrapperForm.setLayout(new BorderLayout(0, 0));
 
@@ -74,10 +83,10 @@ public class VentanaLogin extends JFrame {
 		registerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		panelWrapperForm.add(registerPanel, BorderLayout.CENTER);
 		GridBagLayout gbl_registerPanel = new GridBagLayout();
-		gbl_registerPanel.columnWidths = new int[]{0, 0, 0};
-		gbl_registerPanel.rowHeights = new int[]{0, 0, 0, 0, 0};
-		gbl_registerPanel.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
-		gbl_registerPanel.rowWeights = new double[]{0.0, 0.0, 1.0, 1.0, Double.MIN_VALUE};	
+		gbl_registerPanel.columnWidths = new int[] { 0, 0, 0 };
+		gbl_registerPanel.rowHeights = new int[] { 0, 0, 0, 0, 0 };
+		gbl_registerPanel.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
+		gbl_registerPanel.rowWeights = new double[] { 0.0, 0.0, 1.0, 1.0, Double.MIN_VALUE };
 		registerPanel.setLayout(gbl_registerPanel);
 
 		JLabel lblPhone = new JLabel("Phone: ");
@@ -127,7 +136,7 @@ public class VentanaLogin extends JFrame {
 		panelBotones.add(panelBotonRegistro, BorderLayout.WEST);
 
 		JButton btnRegister = new JButton("Register");
-		btnRegister.addActionListener(e -> handleRegister());
+		btnRegister.addActionListener(e -> openRegister());
 		btnRegister.setVerticalAlignment(SwingConstants.BOTTOM);
 		panelBotonRegistro.add(btnRegister);
 
@@ -147,18 +156,12 @@ public class VentanaLogin extends JFrame {
 		return panelBotones;
 	}
 
-	public void handleRegister() {
-//		boolean login =AppChat.getInstance().login(phoneField.getText(), passwordField.getPassword());
-//		if (login) {
-//			VentanaMain ventanaMain = new VentanaMain();
-//			ventanaMain.setVisible(true);
-//			this.dispose();
-//		} else {
-//			JOptionPane.showMessageDialog(this, "No se ha podido iniciar sesión.", "Error", JOptionPane.ERROR_MESSAGE);
-//		}
+	private void openRegister() {
+		VentanaRegister ventanaRegister = new VentanaRegister(this);
+		ventanaRegister.setVisible(true);
 	}
-	
-	public void handleExit() {
+
+	private void handleExit() {
 		int respuesta = JOptionPane.showConfirmDialog(this, "¿Estás seguro de que deseas salir?", "Confirmar salida",
 				JOptionPane.YES_NO_OPTION);
 
@@ -166,9 +169,13 @@ public class VentanaLogin extends JFrame {
 			System.exit(0);
 		}
 	}
-	
-	public void handleLogin() {
+
+	private void handleLogin() {
 		boolean login = AppChat.getInstance().login(phoneField.getText(), passwordField.getPassword());
+
+		if (!fieldsCheck())
+			return;
+
 		if (login) {
 			VentanaMain ventanaMain = new VentanaMain();
 			ventanaMain.setVisible(true);
@@ -176,6 +183,22 @@ public class VentanaLogin extends JFrame {
 		} else {
 			JOptionPane.showMessageDialog(this, "No se ha podido iniciar sesión.", "Error", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+
+	private boolean fieldsCheck() {
+		if (phoneField.getText().isEmpty() || !phoneField.getText().matches("[0-9]+")) {
+			JOptionPane.showMessageDialog(this, "El contenido del campo 'Phone' no es válido.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+
+		if (passwordField.getPassword().length == 0) {
+			JOptionPane.showMessageDialog(this, "El contenido del campo 'Password' no es válido.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+
+		return true;
 	}
 
 }
