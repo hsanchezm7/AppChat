@@ -1,7 +1,8 @@
 package umu.tds.vista;
 
 import java.awt.EventQueue;
-
+import java.awt.*;
+import javax.swing.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -18,9 +19,21 @@ import javax.swing.JLabel;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 
-import tds.BubbleText;
 import javax.swing.border.TitledBorder;
 import javax.swing.JScrollBar;
+
+import java.util.ArrayList;
+import java.util.List;
+import umu.tds.model.ContactoIndividual;
+
+import java.awt.Image;
+import java.io.IOException;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+
 
 public class intentoVentanaMain extends JFrame {
 
@@ -154,20 +167,26 @@ public class intentoVentanaMain extends JFrame {
 		gbc_panel_6.gridx = 0;
 		gbc_panel_6.gridy = 0;
 		panel_4.add(panel_6, gbc_panel_6);
-		GridBagLayout gbl_panel_6 = new GridBagLayout();
-		gbl_panel_6.columnWidths = new int[]{0, 0, 0};
-		gbl_panel_6.rowHeights = new int[]{0, 0};
-		gbl_panel_6.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_6.rowWeights = new double[]{1.0, Double.MIN_VALUE};
-		panel_6.setLayout(gbl_panel_6);
+		panel_6.setLayout(new BorderLayout(0, 0));
 		
-		JScrollBar scrollBar = new JScrollBar();
-		GridBagConstraints gbc_scrollBar = new GridBagConstraints();
-		gbc_scrollBar.anchor = GridBagConstraints.EAST;
-		gbc_scrollBar.fill = GridBagConstraints.VERTICAL;
-		gbc_scrollBar.gridx = 1;
-		gbc_scrollBar.gridy = 0;
-		panel_6.add(scrollBar, gbc_scrollBar);
+		
+		
+		DefaultListModel<ContactoIndividual> modelo = new DefaultListModel<>();
+		modelo.addElement(new ContactoIndividual("Jose", "612345678"));
+		modelo.addElement(new ContactoIndividual("Ana", "623456789"));
+		modelo.addElement(new ContactoIndividual("Maria", "634567890"));
+
+		// Crear el JList basado en el modelo
+		JList<ContactoIndividual> lista = new JList<>(modelo);
+		lista.setCellRenderer(new ContactoIndividualCellRenderer());
+		
+		JScrollPane scrollPane = new JScrollPane(lista);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		panel_6.add(scrollPane, BorderLayout.CENTER);
+        panel_6.setVisible(true);
+		
+		
 		
 		JPanel panel_5 = new JPanel();
 		panel_5.setBorder(new TitledBorder(null, "mensajes con x", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -208,6 +227,50 @@ public class intentoVentanaMain extends JFrame {
 		setLocationRelativeTo(null);
 		
 		
+	}
+	
+	private class ContactoIndividualCellRenderer extends JPanel implements ListCellRenderer<ContactoIndividual> {
+		private JLabel nameLabel;
+		private JLabel imageLabel;
+
+		public ContactoIndividualCellRenderer() {
+			setLayout(new BorderLayout(5, 5));
+
+			nameLabel = new JLabel();
+			imageLabel = new JLabel();
+
+			add(imageLabel, BorderLayout.WEST);
+			add(nameLabel, BorderLayout.CENTER);
+		}
+
+		@Override
+		public Component getListCellRendererComponent(JList<? extends ContactoIndividual> list, ContactoIndividual persona, int index,
+				boolean isSelected, boolean cellHasFocus) {
+			// Set the text
+			nameLabel.setText(persona.getNombre());
+
+			// Load the image from a random URL (for example, using "https://robohash.org")
+			try {
+				URL imageUrl = new URL("https://robohash.org/" + persona.getNombre() + "?size=50x50");
+				Image image = ImageIO.read(imageUrl);
+				ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(50, 50, Image.SCALE_SMOOTH));
+				imageLabel.setIcon(imageIcon);
+			} catch (IOException e) {
+				e.printStackTrace();
+				imageLabel.setIcon(null); // Default to no image if there was an issue
+			}
+
+			// Set background and foreground based on selection
+			if (isSelected) {
+				setBackground(list.getSelectionBackground());
+				setForeground(list.getSelectionForeground());
+			} else {
+				setBackground(list.getBackground());
+				setForeground(list.getForeground());
+			}
+
+			return this;
+		}
 	}
 
 }
