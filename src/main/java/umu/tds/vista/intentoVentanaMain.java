@@ -34,6 +34,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
+import tds.BubbleText;
+
 
 public class intentoVentanaMain extends JFrame {
 
@@ -63,6 +65,12 @@ public class intentoVentanaMain extends JFrame {
 	 * Create the frame.
 	 */
 	public intentoVentanaMain() {
+		
+		DefaultListModel<ContactoIndividual> modelo = new DefaultListModel<>();
+		modelo.addElement(new ContactoIndividual("Jose", "612345678"));
+		modelo.addElement(new ContactoIndividual("Ana", "623456789"));
+		modelo.addElement(new ContactoIndividual("Maria", "634567890"));
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 652, 378);
 		contentPane = new JPanel();
@@ -92,7 +100,11 @@ public class intentoVentanaMain extends JFrame {
 		panel_1.setLayout(gbl_panel_1);
 		
 		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Contacto1", "Contacto2", "Contacto3", "Contacto4"}));
+		//comboBox.setModel(new DefaultComboBoxModel(new String[] {"Contacto1", "Contacto2", "Contacto3", "Contacto4"}));
+		for (int i = 0; i < modelo.size(); i++) {
+		    ContactoIndividual contacto = modelo.getElementAt(i);  // Obtener el contacto
+		    comboBox.addItem(contacto.getNombre());  // Añadir el nombre al JComboBox
+		}
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboBox.insets = new Insets(0, 0, 5, 5);
@@ -171,10 +183,7 @@ public class intentoVentanaMain extends JFrame {
 		
 		
 		
-		DefaultListModel<ContactoIndividual> modelo = new DefaultListModel<>();
-		modelo.addElement(new ContactoIndividual("Jose", "612345678"));
-		modelo.addElement(new ContactoIndividual("Ana", "623456789"));
-		modelo.addElement(new ContactoIndividual("Maria", "634567890"));
+		
 
 		// Crear el JList basado en el modelo
 		JList<ContactoIndividual> lista = new JList<>(modelo);
@@ -199,8 +208,22 @@ public class intentoVentanaMain extends JFrame {
 		gbl_panel_5.columnWidths = new int[]{0, 0, 0};
 		gbl_panel_5.rowHeights = new int[]{0, 0, 0};
 		gbl_panel_5.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_5.rowWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_5.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
 		panel_5.setLayout(gbl_panel_5);
+		
+		
+		JPanel chat = new JPanel();
+		GridBagConstraints gbc_panel_7 = new GridBagConstraints();
+		gbc_panel_7.gridwidth = 2;
+		gbc_panel_7.insets = new Insets(0, 0, 5, 5);
+		gbc_panel_7.fill = GridBagConstraints.BOTH;
+		gbc_panel_7.gridx = 0;
+		gbc_panel_7.gridy = 0;
+		panel_5.add(chat, gbc_panel_7);
+		chat.setLayout(new BoxLayout(chat,BoxLayout.Y_AXIS)); chat.setSize(400,700);
+		chat.setMinimumSize(new Dimension(400,700)); chat.setMaximumSize(new Dimension(400,700)); chat.setPreferredSize(new Dimension(400,700));
+		BubbleText burbuja;
+		burbuja=new BubbleText(chat,"Hola grupo!!", Color.GREEN, "J.Ramón", BubbleText.SENT); chat.add(burbuja);
 		
 		textField_1 = new JTextField();
 		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
