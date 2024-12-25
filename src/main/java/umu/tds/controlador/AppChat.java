@@ -44,6 +44,7 @@ public class AppChat {
 		if (unicaInstancia == null) {
 			unicaInstancia = new AppChat(repoUsuarios);
 		}
+		
 		return unicaInstancia;
 	}
 
@@ -51,7 +52,6 @@ public class AppChat {
 	 * Obtiene la instancia única de la clase {@code AppChat}.
 	 *
 	 * @return La instancia única de AppChat.
-	 * @thrq
 	 */
 	public static AppChat getInstance() {
 		if (unicaInstancia == null) {
