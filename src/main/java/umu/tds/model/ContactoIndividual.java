@@ -4,6 +4,7 @@ public class ContactoIndividual extends Contacto{
 	
 	/* Atributos */
 	private String movil;
+	private int codigo;
 
 	/* Constructor */
 	public ContactoIndividual(String nombre, String movil) {
@@ -19,5 +20,17 @@ public class ContactoIndividual extends Contacto{
 	public void setMovil(String movil) {
 		this.movil = movil;
 	}
+
+	public int getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(int codigo) {
+		this.codigo = codigo;
+	}
+
+	
+	
+	
 
 }

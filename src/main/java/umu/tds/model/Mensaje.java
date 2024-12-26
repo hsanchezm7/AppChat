@@ -10,9 +10,10 @@ public class Mensaje {
 	/* Atributos */
 	private String texto;
 	private Usuario emisor;
-	private Usuario receptor;
+	private Contacto receptor;
 	private LocalDateTime fechaHora;
 	private int emoticono;
+	private int codigo;
 	
 	/* Constructores */
 	/**
@@ -22,7 +23,7 @@ public class Mensaje {
 	 * @param repector usuario que recibe el mensaje.
 	 * @param fechaHora fecha y hora del envío del mensaje.
 	 */
-	public Mensaje(String texto, Usuario emisor, Usuario receptor, LocalDateTime fechaHora, int emoticono) {
+	public Mensaje(String texto, Usuario emisor, Contacto receptor, LocalDateTime fechaHora, int emoticono) {
 		this.texto = texto;
 		this.emisor = emisor;
 		this.receptor = receptor;
@@ -47,11 +48,11 @@ public class Mensaje {
 		this.emisor = emisor;
 	}
 
-	public Usuario getReceptor() {
+	public Contacto getReceptor() {
 		return receptor;
 	}
 
-	public void setReceptor(Usuario receptor) {
+	public void setReceptor(Contacto receptor) {
 		this.receptor = receptor;
 	}
 
@@ -70,6 +71,15 @@ public class Mensaje {
 	public void setEmoticono(int emoticono) {
 		this.emoticono = emoticono;
 	}
+
+	public int getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(int codigo) {
+		this.codigo = codigo;
+	}
+	
 	
 
 }

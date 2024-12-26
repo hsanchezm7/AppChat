@@ -156,11 +156,9 @@ public class intentoVentanaMain extends JFrame {
 		JLabel lblNewLabel_1 = new JLabel("usuario actual");
 		panel_2.add(lblNewLabel_1);
 		
-		
-		
-		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(intentoVentanaMain.class.getResource("/umu/tds/resources/usuario.png")));
-		panel_2.add(lblNewLabel);
+		JButton btnNewButton_5 = new JButton("");
+		btnNewButton_5.setIcon(new ImageIcon(intentoVentanaMain.class.getResource("/umu/tds/resources/usuario.png")));
+		panel_2.add(btnNewButton_5);
 		
 		JPanel panel_4 = new JPanel();
 		panel.add(panel_4, BorderLayout.CENTER);
@@ -224,6 +222,11 @@ public class intentoVentanaMain extends JFrame {
 		chat.setMinimumSize(new Dimension(400,700)); chat.setMaximumSize(new Dimension(400,700)); chat.setPreferredSize(new Dimension(400,700));
 		BubbleText burbuja;
 		burbuja=new BubbleText(chat,"Hola grupo!!", Color.GREEN, "J.Ramón", BubbleText.SENT); chat.add(burbuja);
+		
+		BubbleText burbuja2; burbuja2=new BubbleText(chat,
+				"Hola, ¿Está seguro de que la burbuja usa varias lineas si es necesario?",
+				Color.LIGHT_GRAY, "Alumno", BubbleText.RECEIVED); chat.add(burbuja2);
+		BubbleText burbuja3=new BubbleText(chat, 0, Color.GREEN, "J.Ramón", BubbleText.SENT,18); chat.add(burbuja3);
 		
 		textField_1 = new JTextField();
 		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
