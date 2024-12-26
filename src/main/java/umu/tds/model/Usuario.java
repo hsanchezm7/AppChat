@@ -29,7 +29,7 @@ public class Usuario {
 	private boolean premium;
 	private LocalDate fechaRegistro; //Este atributro se podría hacer de alguna forma que cuando el usuario se registre se guarde la fecha en vez
 	//de tener que pasarlo como parametro al constructor?? Si se pone como LocalDate.now() funcionaría como quiero??
-
+	private int codigo;
 
 	/* Constructores */
 	/**
@@ -129,8 +129,14 @@ public class Usuario {
 	public LocalDate getFechaRegistro() {
 		return fechaRegistro;
 	}
-	
 
+	public int getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(int codigo) {
+		this.codigo = codigo;
+	}
 
 	/* Métodos */
 	// ¿Está contando todos los mensajes, tanto enviados como recibididos?
