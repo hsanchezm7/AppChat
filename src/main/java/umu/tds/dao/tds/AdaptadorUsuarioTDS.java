@@ -1,55 +1,94 @@
 package umu.tds.dao.tds;
 
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import beans.Entidad;
+import beans.Propiedad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
 import umu.tds.dao.AdaptadorUsuarioDAO;
 import umu.tds.model.Usuario;
 
 public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
+
+	private static final String ENTITY_TYPE = "Usuario";
 	
+	private static final String PHONE_FIELD = "phone";
+	private static final String PASSWORD_FIELD = "password";
+	private static final String NAME_FIELD = "name";
+	private static final String BIRTH_FIELD = "fechaNacim";
+	private static final String IMAGENURL_FIELD = "imagenURL";
+	private static final String SALUDO_FIELD = "saludo";
+	private static final String CONTACTOS_FIELD = "contactos";
+	private static final String PREMIUM_FIELD = "premium";
+	private static final String FECHAREG_FIELD = "fechaRegistro";
+
 	private static AdaptadorUsuarioTDS unicaInstancia = null;
 	private static ServicioPersistencia servPersistencia;
-	
+	private DateTimeFormatter dateFormat;
+
 	private AdaptadorUsuarioTDS() {
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
+		dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 	}
-	
+
 	public static AdaptadorUsuarioTDS getUnicaInstancia() {
-		
+
 		if (unicaInstancia == null) {
 			return new AdaptadorUsuarioTDS();
-		}
-		else {
+		} else {
 			return unicaInstancia;
 		}
-		
+
 	}
-	
+
+	@Override
 	public void registrarUsuario(Usuario usuario) {
-		
-		Entidad entUsuario;
-		
-		if (servPersistencia.recuperarEntidad(usuario.getCodigo()) != null)
+
+		if (servPersistencia.recuperarEntidad(usuario.getId()) != null)
 			return;
+
+		Entidad entUsuario = new Entidad();
+		entUsuario.setNombre(ENTITY_TYPE);
+
+		entUsuario.setPropiedades(
+				new ArrayList<Propiedad>(Arrays.asList(
+						new Propiedad(PHONE_FIELD, usuario.getPhone()),
+						new Propiedad(PASSWORD_FIELD, new String(usuario.getPassword())),
+						new Propiedad(NAME_FIELD, usuario.getName()),
+						new Propiedad(BIRTH_FIELD, usuario.getFechaNacimiento().format(dateFormat)),
+						new Propiedad(IMAGENURL_FIELD, usuario.getImagenURL()),
+						new Propiedad(SALUDO_FIELD, usuario.getSaludo()),
+						// new Propiedad(CONTACTOS_FIELD, /* COMPLETAR parseContactsIds() */ ),
+						new Propiedad(PREMIUM_FIELD, String.valueOf(usuario.isPremium())),
+						new Propiedad(FECHAREG_FIELD, usuario.getFechaRegistro().format(dateFormat)))));
+		
+		servPersistencia.registrarEntidad(entUsuario);
+		usuario.setId(entUsuario.getId());
 		
 	}
-	
+
+	@Override
 	public void borrarUsuario(Usuario usuario) {
+		/* TODO: BORRAR CONTACTOS ASOCIADOS */
 		
-		
-		
+		Entidad entUsuario = servPersistencia.recuperarEntidad(usuario.getId());
+		servPersistencia.borrarEntidad(entUsuario);
 	}
-	
+
+	@Override
 	public void modificarUsuario(Usuario usuario) {
-		
-		
-		
+
+	}
+
+	@Override
+	public Usuario recuperarUsuario(int codigo) {
+
 	}
 	
-	public Usuario recuperarUsuario(int codigo) {
-		
-		
+	private String parseContactsIds() { 
 		
 	}
 

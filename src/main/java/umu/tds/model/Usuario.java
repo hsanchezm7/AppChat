@@ -19,7 +19,7 @@ public class Usuario {
 	
 	/* Atributos */
 	
-	private String telefono;	// string o int?
+	private String phone;	// string o int?
 	private char[] password;
 	private String name;
 	private LocalDate fechaNacim;
@@ -29,21 +29,21 @@ public class Usuario {
 	private boolean premium;
 	private LocalDate fechaRegistro; //Este atributro se podría hacer de alguna forma que cuando el usuario se registre se guarde la fecha en vez
 	//de tener que pasarlo como parametro al constructor?? Si se pone como LocalDate.now() funcionaría como quiero??
-	private int codigo;
+	private int id;
 
 	/* Constructores */
 	/**
 	 * Crea un username con una lista de contactos vacía.
-	 * @param telefono número de teléfono.
+	 * @param phone número de teléfono.
 	 * @param password contraseña.
 	 * @param name nombre completo del usuario.
 	 * @param fechaNacimiento fecha de nacimiento.
 	 * @param imagenURL URL de la imagen de perfil.
 	 * @param saludo texto de saludo (opcional).
 	 */
-	public Usuario(String telefono, char[] password, String name, LocalDate fechaNacimiento, String imagenURL, String saludo, LocalDate fechaRegistro) {
+	public Usuario(String phone, char[] password, String name, LocalDate fechaNacimiento, String imagenURL, String saludo, LocalDate fechaRegistro) {
+		this.phone = phone;
 		this.password = password;
-		this.telefono = telefono;
 		this.name = name;
 		this.fechaNacim = fechaNacimiento;
 		this.imagenURL = imagenURL;
@@ -66,14 +66,14 @@ public class Usuario {
 
 
 	/* Consulta */
-	public String getName() {
-		return name;
+	public String getPhone() {
+		return phone;
 	}
 
-	public void setUsername(String username) {
-		this.name = username;
+	public void setPhone(String telefono) {
+		this.phone = telefono;
 	}
-
+	
 	public char[] getPassword() {
 		return password;
 	}
@@ -81,13 +81,13 @@ public class Usuario {
 	public void setPassword(char[] password) {
 		this.password = password;
 	}
-
-	public String getTelefono() {
-		return telefono;
+	
+	public String getName() {
+		return name;
 	}
 
-	public void setTelefono(String telefono) {
-		this.telefono = telefono;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public LocalDate getFechaNacimiento() {
@@ -130,12 +130,12 @@ public class Usuario {
 		return fechaRegistro;
 	}
 
-	public int getCodigo() {
-		return codigo;
+	public int getId() {
+		return id;
 	}
 
-	public void setCodigo(int codigo) {
-		this.codigo = codigo;
+	public void setId(int codigo) {
+		this.id = codigo;
 	}
 
 	/* Métodos */
@@ -170,7 +170,6 @@ public class Usuario {
 		
 	}
 	
-	//Si está la clase ContactoIndividual, para añadir contacto se usaría esa??
 	/**
 	 * Añade el contacto pasado como parámetro a la lista de contactos del usuario.
 	 * @param contacto
@@ -186,12 +185,13 @@ public class Usuario {
 	public void deleteContacto(Contacto contacto) {
 		contactos.remove(contacto);
 	}
-	
+
 	@Override
 	public String toString() {
-		return "Usuario [telefono=" + telefono + ", password=" + Arrays.toString(password) + ", name=" + name
+		return "Usuario [phone=" + phone + ", password=" + Arrays.toString(password) + ", name=" + name
 				+ ", fechaNacim=" + fechaNacim + ", imagenURL=" + imagenURL + ", saludo=" + saludo + ", contactos="
-				+ contactos + ", premium=" + premium + ", fechaRegistro=" + fechaRegistro + "]";
+				+ contactos + ", premium=" + premium + ", fechaRegistro=" + fechaRegistro + ", codigo=" + id + "]";
 	}
+	
 
 }

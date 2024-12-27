@@ -61,12 +61,12 @@ public class RepositorioUsuarios {
 	 *         {@code null}, {@code true} si el usuario fue añadido correctamente
 	 */
 	public boolean addUserToRepo(Usuario usuario) {
-		String username = usuario.getTelefono();
+		String username = usuario.getPhone();
 		if (username == null || username.isEmpty() || phoneUserMap.containsKey(username))
 			return false;
 
 		System.out.println("Registrado usuario: " + usuario.toString());
-		return (phoneUserMap.put(usuario.getTelefono(), usuario) == null) && userRepo.add(usuario);
+		return (phoneUserMap.put(usuario.getPhone(), usuario) == null) && userRepo.add(usuario);
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class RepositorioUsuarios {
 	 * @param usuario el usuario del repositorio a eliminar
 	 */
 	public void deleteUserFromRepo(Usuario usuario) {
-		String username = usuario.getTelefono();
+		String username = usuario.getPhone();
 		if (phoneUserMap.remove(username) != null)
 			userRepo.remove(usuario);
 	}

@@ -37,6 +37,7 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		
 	}
 	
+	@Override
 	public void registrarContactoIndividual(ContactoIndividual contactoIndividual) {
 		
 		Entidad entContactoIndividual;
@@ -63,10 +64,11 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		);
 		
 		eContactoIndividual = servPersistencia.registrarEntidad(eContactoIndividual);
-		contactoIndividual.setCodigo(eContactoIndividual.getId()); //mirar esto
+		contactoIndividual.setId(eContactoIndividual.getId()); //mirar esto
 		
 	}
 	
+	@Override
 	public void borrarContactoIndividual(ContactoIndividual contactoIndividual) {
 		
 		Entidad eContactoIndividual;
@@ -81,6 +83,7 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		
 	}
 	
+	@Override
 	public void modificarContactoIndividual(ContactoIndividual contactoIndividual) {
 	
 		Entidad eContactoIndividual = servPersistencia.recuperarEntidad(contactoIndividual.getCodigo()); //mirar esto
@@ -104,6 +107,7 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		
 	}
 	
+	@Override
 	public ContactoIndividual recuperarContactoIndividual(int codigo) {
 		
 		if ( PoolDAO.getUnicaInstancia().contiene(codigo)) {
