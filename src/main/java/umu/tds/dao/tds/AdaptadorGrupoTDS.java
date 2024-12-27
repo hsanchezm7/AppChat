@@ -1,23 +1,24 @@
 package umu.tds.dao.tds;
 
+import beans.Entidad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
-
+import umu.tds.dao.AdaptadorGrupoDAO;
 import umu.tds.model.Grupo;
 
-public class AdaptadorGrupoDAO implements umu.tds.dao.IAdaptadorGrupoDAO {
+public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	
-	private static AdaptadorGrupoDAO unicaInstancia = null;
+	private static AdaptadorGrupoTDS unicaInstancia = null;
 	private static ServicioPersistencia servPersistencia;
 	
-	private AdaptadorGrupoDAO() {
+	private AdaptadorGrupoTDS() {
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 	}
 	
-	public static AdaptadorGrupoDAO getUnicaInstancia() {
+	public static AdaptadorGrupoTDS getUnicaInstancia() {
 		
 		if (unicaInstancia == null) {
-			return new AdaptadorGrupoDAO();
+			return new AdaptadorGrupoTDS();
 		}
 		else {
 			return unicaInstancia;
@@ -28,7 +29,10 @@ public class AdaptadorGrupoDAO implements umu.tds.dao.IAdaptadorGrupoDAO {
 	
 	public void registrarGrupo(Grupo grupo) {
 		
+		Entidad entGrupo;
 		
+		if (servPersistencia.recuperarEntidad(grupo.getCodigo()) != null)
+			return;
 		
 	}
 	

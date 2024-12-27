@@ -1,6 +1,9 @@
 package umu.tds.dao;
 
-import umu.tds.controlador.AppChat;
+import umu.tds.dao.tds.AdaptadorContactoIndividualTDS;
+import umu.tds.dao.tds.AdaptadorGrupoTDS;
+import umu.tds.dao.tds.AdaptadorMensajeTDS;
+import umu.tds.dao.tds.AdaptadorUsuarioTDS;
 
 public abstract class DAOFactory {
 
@@ -22,5 +25,13 @@ public abstract class DAOFactory {
 	public static DAOFactory getInstance() {
 		return getInstance(DAOFactory.DAO_TDS);
 	}
+
+	public abstract AdaptadorUsuarioTDS getUsuarioDAO();
+
+	public abstract AdaptadorMensajeTDS getMensajeDAO();
+
+	public abstract AdaptadorGrupoTDS getGrupoDAO();
+
+	public abstract AdaptadorContactoIndividualTDS getContactoIndividualDAO();
 
 }

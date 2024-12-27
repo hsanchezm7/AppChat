@@ -1,25 +1,24 @@
 package umu.tds.dao.tds;
 
 import beans.Entidad;
-import beans.Propiedad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
-
+import umu.tds.dao.AdaptadorUsuarioDAO;
 import umu.tds.model.Usuario;
 
-public class AdaptadorUsuarioDAO implements umu.tds.dao.IAdaptadorUsuarioDAO {
+public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 	
-	private static AdaptadorUsuarioDAO unicaInstancia = null;
+	private static AdaptadorUsuarioTDS unicaInstancia = null;
 	private static ServicioPersistencia servPersistencia;
 	
-	private AdaptadorUsuarioDAO() {
+	private AdaptadorUsuarioTDS() {
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 	}
 	
-	public static AdaptadorUsuarioDAO getUnicaInstancia() {
+	public static AdaptadorUsuarioTDS getUnicaInstancia() {
 		
 		if (unicaInstancia == null) {
-			return new AdaptadorUsuarioDAO();
+			return new AdaptadorUsuarioTDS();
 		}
 		else {
 			return unicaInstancia;
@@ -29,7 +28,10 @@ public class AdaptadorUsuarioDAO implements umu.tds.dao.IAdaptadorUsuarioDAO {
 	
 	public void registrarUsuario(Usuario usuario) {
 		
+		Entidad entUsuario;
 		
+		if (servPersistencia.recuperarEntidad(usuario.getCodigo()) != null)
+			return;
 		
 	}
 	

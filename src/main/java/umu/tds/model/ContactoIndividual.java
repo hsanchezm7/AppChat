@@ -1,6 +1,6 @@
 package umu.tds.model;
 
-public class ContactoIndividual extends Contacto{
+public class ContactoIndividual extends Contacto {
 	
 	/* Atributos */
 	private String movil;

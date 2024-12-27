@@ -10,26 +10,26 @@ import beans.Entidad;
 import beans.Propiedad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
-
+import umu.tds.dao.AdaptadorContactoIndividualDAO;
 import umu.tds.model.ContactoIndividual;
 import umu.tds.model.Mensaje;
 import umu.tds.model.Usuario;
 
 
 
-public class AdaptadorContactoIndividual implements umu.tds.dao.IAdaptadorContactoIndividualDAO{
+public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividualDAO {
 	
-	private static AdaptadorContactoIndividual unicaInstancia = null;
+	private static AdaptadorContactoIndividualTDS unicaInstancia = null;
 	private static ServicioPersistencia servPersistencia;
 	
-	private AdaptadorContactoIndividual() {
+	private AdaptadorContactoIndividualTDS() {
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 	}
 	
-	public static AdaptadorContactoIndividual getUnicaInstancia() {
+	public static AdaptadorContactoIndividualTDS getUnicaInstancia() {
 		
 		if (unicaInstancia == null) {
-			return new AdaptadorContactoIndividual();
+			return new AdaptadorContactoIndividualTDS();
 		}
 		else {
 			return unicaInstancia;
@@ -39,20 +39,13 @@ public class AdaptadorContactoIndividual implements umu.tds.dao.IAdaptadorContac
 	
 	public void registrarContactoIndividual(ContactoIndividual contactoIndividual) {
 		
-		Entidad eContactoIndividual;
-		boolean existe = true;
-		try {
-			eContactoIndividual = servPersistencia.recuperarEntidad(contactoIndividual.getCodigo());
-		} catch (NullPointerException e) {
-			existe = false;
-		}
+		Entidad entContactoIndividual;
 		
-		if (existe) {
+		if (servPersistencia.recuperarEntidad(contactoIndividual.getCodigo()) != null)
 			return;
-		}
 		
-		AdaptadorUsuarioDAO adaptadorUsuario = AdaptadorUsuarioDAO.getUnicaInstancia();
-		AdaptadorMensajeDAO adaptadorMensaje = AdaptadorMensajeDAO.getUnicaInstancia();
+		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getUnicaInstancia();
+		AdaptadorMensajeTDS adaptadorMensaje = AdaptadorMensajeTDS.getUnicaInstancia();
 		
 		adaptadorUsuario.registrarUsuario(contactoIndividual.getUsuario());
 		for (Mensaje mensaje : contactoIndividual.getMensajes()) {
@@ -79,7 +72,7 @@ public class AdaptadorContactoIndividual implements umu.tds.dao.IAdaptadorContac
 		Entidad eContactoIndividual;
 		eContactoIndividual = servPersistencia.recuperarEntidad(contactoIndividual.getCodigo()); //mirar esto
 		
-		AdaptadorMensajeDAO adaptadorMensaje = AdaptadorMensajeDAO.getUnicaInstancia();
+		AdaptadorMensajeTDS adaptadorMensaje = AdaptadorMensajeTDS.getUnicaInstancia();
 		
 		for (Mensaje mensaje : contactoIndividual.getMensajes()) {
 			adaptadorMensaje.borrarMensaje(mensaje);
@@ -131,7 +124,7 @@ public class AdaptadorContactoIndividual implements umu.tds.dao.IAdaptadorContac
 		
 		PoolDAO.addObjeto(codigo, contactoIndividual);
 		
-		AdaptadorUsuarioDAO adaptadorUsuario = AdaptadorUsuarioDAO.getUnicaInstancia();
+		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getUnicaInstancia();
 		int idUsuario = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(eContactoIndividual, "usuario"));
 		
 		usuario = adaptadorUsuario.recuperarUsuario(idUsuario);
@@ -162,7 +155,7 @@ public class AdaptadorContactoIndividual implements umu.tds.dao.IAdaptadorContac
 	private List<Mensaje> obtenerMensajesDesdeIds(String mensajes) {
 		List<Mensaje> listaMensajes = new LinkedList<Mensaje>();
 		StringTokenizer strTok = new StringTokenizer(mensajes, " ");
-		AdaptadorMensajeDAO adaptadorMensaje = AdaptadorMensajeDAO.getUnicaInstancia();
+		AdaptadorMensajeTDS adaptadorMensaje = AdaptadorMensajeTDS.getUnicaInstancia();
 		while (strTok.hasMoreTokens()) {
 			listaMensajes.add(adaptadorMensaje.recuperarMensaje(
 							Integer.valueOf((String) strTok.nextElement())));

@@ -16,26 +16,27 @@ import tds.driver.ServicioPersistencia;
 
 import umu.tds.model.Mensaje;
 import umu.tds.model.Usuario;
+import umu.tds.dao.AdaptadorMensajeDAO;
 import umu.tds.model.Contacto;
 import umu.tds.model.ContactoIndividual;
 import umu.tds.model.Grupo;
 
 
-public class AdaptadorMensajeDAO implements umu.tds.dao.IAdaptadorMensajeDAO{
+public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 	
-	private static AdaptadorMensajeDAO unicaInstancia = null;
+	private static AdaptadorMensajeTDS unicaInstancia = null;
 	private static ServicioPersistencia servPersistencia;
 	private SimpleDateFormat dateFormat;
 	
-	private AdaptadorMensajeDAO() {
+	private AdaptadorMensajeTDS() {
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 		dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	}
 	
-	public static AdaptadorMensajeDAO getUnicaInstancia() {
+	public static AdaptadorMensajeTDS getUnicaInstancia() {
 		
 		if (unicaInstancia == null) {
-			return new AdaptadorMensajeDAO();
+			return new AdaptadorMensajeTDS();
 		}
 		else {
 			return unicaInstancia;
@@ -43,26 +44,21 @@ public class AdaptadorMensajeDAO implements umu.tds.dao.IAdaptadorMensajeDAO{
 		
 	}
 	
+	@Override
 	public void registrarMensaje(Mensaje mensaje) {
 		
-		Entidad eMensaje;
-		boolean existe = true;
-		try {
-			eMensaje = servPersistencia.recuperarEntidad(mensaje.getCodigo());
-		} catch (NullPointerException e) {
-			existe = false;
-		}
+		Entidad entMensaje;
 		
-		if (existe) {
+		if (servPersistencia.recuperarEntidad(mensaje.getCodigo()) != null)
 			return;
-		}
 		
-		AdaptadorUsuarioDAO adaptadorUsuario = AdaptadorUsuarioDAO.getUnicaInstancia();
+		// volver a registrar un usuario? debería ser persistente y estar ya registrado. lo hace el repoUsuarios llamando a su adaptador
+		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getUnicaInstancia();
 		adaptadorUsuario.registrarUsuario(mensaje.getEmisor());
 		
-		AdaptadorContactoIndividual adaptadorContactoIndividual = AdaptadorContactoIndividual.getUnicaInstancia();
-		AdaptadorGrupoDAO adaptadorGrupo = AdaptadorGrupoDAO.getUnicaInstancia();
-
+		// lo mismo con el grupo
+		AdaptadorContactoIndividualTDS adaptadorContactoIndividual = AdaptadorContactoIndividualTDS.getUnicaInstancia();
+		AdaptadorGrupoTDS adaptadorGrupo = AdaptadorGrupoTDS.getUnicaInstancia();
 		Contacto contacto = mensaje.getReceptor();
 		if (contacto instanceof ContactoIndividual) {
 			adaptadorContactoIndividual.registrarContactoIndividual((ContactoIndividual)contacto);
@@ -71,9 +67,9 @@ public class AdaptadorMensajeDAO implements umu.tds.dao.IAdaptadorMensajeDAO{
 			adaptadorGrupo.registrarGrupo((Grupo) contacto);
 		}
 		
-		eMensaje = new Entidad();
-		eMensaje.setNombre("mensaje");
-		eMensaje.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(
+		entMensaje = new Entidad();
+		entMensaje.setNombre("mensaje");
+		entMensaje.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(
 				new Propiedad("texto", mensaje.getTexto()),
 				new Propiedad("emisor", String.valueOf(mensaje.getEmisor().getCodigo())),
 				new Propiedad("receptor", String.valueOf(mensaje.getReceptor().getCodigo())),
@@ -82,23 +78,25 @@ public class AdaptadorMensajeDAO implements umu.tds.dao.IAdaptadorMensajeDAO{
 		))
 		);
 		
-		eMensaje = servPersistencia.registrarEntidad(eMensaje);
-		mensaje.setCodigo(eMensaje.getId()); //mirar esto
+		entMensaje = servPersistencia.registrarEntidad(entMensaje);
+		mensaje.setCodigo(entMensaje.getId()); //mirar esto
 		
 	}
 	
+	@Override
 	public void borrarMensaje(Mensaje mensaje) {
 		
-		Entidad eMensaje = servPersistencia.recuperarEntidad(mensaje.getCodigo());
-		servPersistencia.borrarEntidad(eMensaje);
+		Entidad entMensaje = servPersistencia.recuperarEntidad(mensaje.getCodigo());
+		servPersistencia.borrarEntidad(entMensaje);
 		
 	}
 	
+	@Override
 	public void modificarMensaje(Mensaje mensaje) {
 
-		Entidad eMensaje = servPersistencia.recuperarEntidad(mensaje.getCodigo()); // mirar esto
+		Entidad entMensaje = servPersistencia.recuperarEntidad(mensaje.getCodigo()); // mirar esto
 
-		for (Propiedad prop : eMensaje.getPropiedades()) {
+		for (Propiedad prop : entMensaje.getPropiedades()) {
 			if (prop.getNombre().equals("texto")) {
 				prop.setValor(String.valueOf(mensaje.getTexto()));
 			} else if (prop.getNombre().equals("emisor")) {
@@ -115,6 +113,7 @@ public class AdaptadorMensajeDAO implements umu.tds.dao.IAdaptadorMensajeDAO{
 
 	}
 	
+	@Override
 	public Mensaje recuperarMensaje(int codigo) {
 		
 		if ( PoolDAO.getUnicaInstancia().contiene(codigo)) {
@@ -127,28 +126,28 @@ public class AdaptadorMensajeDAO implements umu.tds.dao.IAdaptadorMensajeDAO{
 		LocalDateTime fechaHora;
 		int emoticono;
 		
-		Entidad eMensaje = servPersistencia.recuperarEntidad(codigo);
+		Entidad entMensaje = servPersistencia.recuperarEntidad(codigo);
 		
-		texto = servPersistencia.recuperarPropiedadEntidad(eMensaje, "texto");
-		fechaHora = LocalDateTime.parse(servPersistencia.recuperarPropiedadEntidad(eMensaje, "fechaHora"));
-		emoticono = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(eMensaje, "emoticono"));
+		texto = servPersistencia.recuperarPropiedadEntidad(entMensaje, "texto");
+		fechaHora = LocalDateTime.parse(servPersistencia.recuperarPropiedadEntidad(entMensaje, "fechaHora"));
+		emoticono = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, "emoticono"));
 		
 		Mensaje mensaje = new Mensaje(texto, fechaHora, emoticono);//
 		mensaje.setCodigo(codigo);
 		
 		PoolDAO.addObjeto(codigo, mensaje);//
 		
-		AdaptadorUsuarioDAO adaptadorUsuario = AdaptadorUsuarioDAO.getUnicaInstancia();
-		emisor = adaptadorUsuario.recuperarUsuario(Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(eMensaje, "emisor")));
+		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getUnicaInstancia();
+		emisor = adaptadorUsuario.recuperarUsuario(Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, "emisor")));
 		
-		int codigoReceptor = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(eMensaje, "receptor"));
+		int codigoReceptor = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, "receptor"));
 		
 		if(servPersistencia.recuperarEntidad(codigoReceptor).getNombre().equals("grupo")) {
-			Grupo grupo = AdaptadorGrupoDAO.getUnicaInstncia().recuperarGrupo(codigoReceptor);
+			Grupo grupo = AdaptadorGrupoTDS.getUnicaInstancia().recuperarGrupo(codigoReceptor);
 			mensaje.setReceptor(grupo);
 		}
 		else {
-			ContactoIndividual contactoIndividual = AdaptadorContactoIndividual.getUnicaInstancia().recuperarContactoIndividual(codigoReceptor);
+			ContactoIndividual contactoIndividual = AdaptadorContactoIndividualTDS.getUnicaInstancia().recuperarContactoIndividual(codigoReceptor);
 			mensaje.setReceptor(contactoIndividual);
 		}
 		
@@ -159,13 +158,14 @@ public class AdaptadorMensajeDAO implements umu.tds.dao.IAdaptadorMensajeDAO{
 		
 	}
 	
+	@Override
 	public List<Mensaje> recuperarTodosMensajes(){
 		
 		List<Mensaje> mensajes = new LinkedList<Mensaje>();
 		List<Entidad> entidades = servPersistencia.recuperarEntidades("mensaje");
 		
-		for (Entidad eMensaje : entidades) {
-			mensajes.add(recuperarMensaje(eMensaje.getId()));
+		for (Entidad entMensaje : entidades) {
+			mensajes.add(recuperarMensaje(entMensaje.getId()));
 		}
 		
 		return mensajes;
