@@ -13,9 +13,10 @@ public class App {
     		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     		
     		DAOFactory daoFactory = DAOFactory.getInstance();
-    		
     		RepositorioUsuarios userRepo = new RepositorioUsuarios();
-    		AppChat.getInstance(userRepo);		// Crea la única instancia de AppChat
+    		
+    		AppChat.getInstance(userRepo, daoFactory);		// Crea la única instancia de AppChat
+    		
     		
     		VentanaLogin ventanaLogin = new VentanaLogin();
     		ventanaLogin.setVisible(true);

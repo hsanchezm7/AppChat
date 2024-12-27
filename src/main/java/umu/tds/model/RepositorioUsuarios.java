@@ -57,12 +57,12 @@ public class RepositorioUsuarios {
 	 * esté usado. ya por otro usuario.
 	 * 
 	 * @param usuario el usuario a agregar
-	 * @return {@code false} si no se ha podido añadir al usuario o el nombre es
+	 * @return {@code false} si no se ha podido añadir al usuario o el teléfono no es válido
 	 *         {@code null}, {@code true} si el usuario fue añadido correctamente
 	 */
 	public boolean addUserToRepo(Usuario usuario) {
-		String username = usuario.getPhone();
-		if (username == null || username.isEmpty() || phoneUserMap.containsKey(username))
+		String phone = usuario.getPhone();
+		if (phone == null || phone.isEmpty() || phoneUserMap.containsKey(phone))
 			return false;
 
 		System.out.println("Registrado usuario: " + usuario.toString());

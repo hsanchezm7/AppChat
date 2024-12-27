@@ -10,7 +10,7 @@ public abstract class Contacto {
 	/* Atributos */
 	private String nombre;
 	private List<Mensaje> mensajes;
-	private int codigo;
+	private int id;
 	
 	/* Constructor */
 	public Contacto(String nombre) {
@@ -30,22 +30,18 @@ public abstract class Contacto {
 	public List<Mensaje> getMensajes() {
 		return mensajes;
 	}
-
-	public int getCodigo() {
-		return codigo;
-	}
-
-	public void setCodigo(int codigo) {
-		this.codigo = codigo;
-	}
 	
-	
-	
-
-	// Necesario? ¿añadir addMensaje también?
-	// Parece ser necesaria si añadimos un contacto cuando ya hemos estado hablando con el.
+	// Necesario? ¿añadir addMensaje también? Parece ser necesaria si añadimos un contacto cuando ya hemos estado hablando con el.
 	public void setMensajes(List<Mensaje> mensajes) {
 		this.mensajes = mensajes;
+	}
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 	public int contarMensajesDesdeFecha(LocalDate fecha) {

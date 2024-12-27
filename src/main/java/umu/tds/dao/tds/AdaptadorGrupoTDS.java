@@ -31,7 +31,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		
 		Entidad entGrupo;
 		
-		if (servPersistencia.recuperarEntidad(grupo.getCodigo()) != null)
+		if (servPersistencia.recuperarEntidad(grupo.getId()) != null)
 			return;
 		
 	}
@@ -48,9 +48,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		
 	}
 	
-	public Grupo recuperarGrupo(int codigo) {
-		
-		
+	public Grupo recuperarGrupo(int id) {
 		
 	}
 

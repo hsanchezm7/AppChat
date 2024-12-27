@@ -47,7 +47,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 
 		Entidad entMensaje;
 
-		if (servPersistencia.recuperarEntidad(mensaje.getCodigo()) != null)
+		if (servPersistencia.recuperarEntidad(mensaje.getId()) != null)
 			return;
 
 		// volver a registrar un usuario? debería ser persistente y estar ya registrado.
@@ -69,19 +69,19 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		entMensaje.setNombre("mensaje");
 		entMensaje.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad("texto", mensaje.getTexto()),
 				new Propiedad("emisor", String.valueOf(mensaje.getEmisor().getId())),
-				new Propiedad("receptor", String.valueOf(mensaje.getReceptor().getCodigo())),
+				new Propiedad("receptor", String.valueOf(mensaje.getReceptor().getId())),
 				new Propiedad("fechaHora", dateFormat.format(mensaje.getFechaHora())),
 				new Propiedad("emoticono", String.valueOf(mensaje.getEmoticono())))));
 
 		entMensaje = servPersistencia.registrarEntidad(entMensaje);
-		mensaje.setCodigo(entMensaje.getId()); // mirar esto
+		mensaje.setId(entMensaje.getId()); // mirar esto
 
 	}
 
 	@Override
 	public void borrarMensaje(Mensaje mensaje) {
 
-		Entidad entMensaje = servPersistencia.recuperarEntidad(mensaje.getCodigo());
+		Entidad entMensaje = servPersistencia.recuperarEntidad(mensaje.getId());
 		servPersistencia.borrarEntidad(entMensaje);
 
 	}
@@ -89,7 +89,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 	@Override
 	public void modificarMensaje(Mensaje mensaje) {
 
-		Entidad entMensaje = servPersistencia.recuperarEntidad(mensaje.getCodigo()); // mirar esto
+		Entidad entMensaje = servPersistencia.recuperarEntidad(mensaje.getId()); // mirar esto
 
 		for (Propiedad prop : entMensaje.getPropiedades()) {
 			if (prop.getNombre().equals("texto")) {
@@ -97,7 +97,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 			} else if (prop.getNombre().equals("emisor")) {
 				prop.setValor(String.valueOf(mensaje.getEmisor().getId()));
 			} else if (prop.getNombre().equals("receptor")) {
-				prop.setValor(String.valueOf(mensaje.getReceptor().getCodigo()));
+				prop.setValor(String.valueOf(mensaje.getReceptor().getId()));
 			} else if (prop.getNombre().equals("fechaHora")) {
 				prop.setValor(dateFormat.format(mensaje.getFechaHora()));
 			} else if (prop.getNombre().equals("emoticono")) {
@@ -128,7 +128,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		emoticono = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, "emoticono"));
 
 		Mensaje mensaje = new Mensaje(texto, fechaHora, emoticono);//
-		mensaje.setCodigo(codigo);
+		mensaje.setId(codigo);
 
 		PoolDAO.addObjeto(codigo, mensaje);//
 

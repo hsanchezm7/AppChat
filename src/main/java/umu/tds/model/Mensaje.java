@@ -13,7 +13,7 @@ public class Mensaje {
 	private Contacto receptor;
 	private LocalDateTime fechaHora;
 	private int emoticono;
-	private int codigo;
+	private int id;
 	
 	/* Constructores */
 	/**
@@ -72,12 +72,12 @@ public class Mensaje {
 		this.emoticono = emoticono;
 	}
 
-	public int getCodigo() {
-		return codigo;
+	public int getId() {
+		return id;
 	}
 
-	public void setCodigo(int codigo) {
-		this.codigo = codigo;
+	public void setId(int codigo) {
+		this.id = codigo;
 	}
 	
 	

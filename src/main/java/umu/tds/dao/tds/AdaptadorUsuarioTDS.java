@@ -84,7 +84,7 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 	}
 
 	@Override
-	public Usuario recuperarUsuario(int codigo) {
+	public Usuario recuperarUsuario(int id) {
 
 	}
 	

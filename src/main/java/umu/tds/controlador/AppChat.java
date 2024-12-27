@@ -4,6 +4,11 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import umu.tds.dao.DAOFactory;
+import umu.tds.dao.tds.AdaptadorContactoIndividualTDS;
+import umu.tds.dao.tds.AdaptadorGrupoTDS;
+import umu.tds.dao.tds.AdaptadorMensajeTDS;
+import umu.tds.dao.tds.AdaptadorUsuarioTDS;
 import umu.tds.model.Mensaje;
 import umu.tds.model.RepositorioUsuarios;
 import umu.tds.model.Usuario;
@@ -20,9 +25,18 @@ public class AppChat {
 	private Usuario user;
 	private RepositorioUsuarios repoUsuarios;
 
+	private AdaptadorUsuarioTDS usuarioDao;
+	private AdaptadorMensajeTDS mensajeDao;
+	private AdaptadorGrupoTDS grupoDao;
+	private AdaptadorContactoIndividualTDS contactoIndividualDao;
+
 	/* Constructor */
-	private AppChat(RepositorioUsuarios repoUsuarios) {
+	private AppChat(RepositorioUsuarios repoUsuarios, DAOFactory daoFactory) {
 		this.repoUsuarios = repoUsuarios;
+		this.usuarioDao = daoFactory.getUsuarioDAO();
+		this.mensajeDao = daoFactory.getMensajeDAO();
+		this.grupoDao = daoFactory.getGrupoDAO();
+		this.contactoIndividualDao = daoFactory.getContactoIndividualDAO();
 
 		this.user = null;
 	}
@@ -40,9 +54,9 @@ public class AppChat {
 	 * @param repoUsuarios El repositorio de usuarios.
 	 * @return La instancia única de AppChat.
 	 */
-	public static AppChat getInstance(RepositorioUsuarios repoUsuarios) {
+	public static AppChat getInstance(RepositorioUsuarios repoUsuarios, DAOFactory daoFactory) {
 		if (unicaInstancia == null) {
-			unicaInstancia = new AppChat(repoUsuarios);
+			unicaInstancia = new AppChat(repoUsuarios, daoFactory);
 		}
 		
 		return unicaInstancia;
@@ -62,8 +76,7 @@ public class AppChat {
 
 	/* Métodos */
 	/**
-	 * Inicia sesión en la aplicación. MAL. HAY QUE HACER LOGIN EN EL USER, Y AQUI
-	 * COMPROBAR CON user.isClave(). estamos violando patron experto
+	 * Inicia sesión en la aplicación.
 	 * 
 	 * @param phone    el número de teléfono.
 	 * @param password la contraseña del usuario.
@@ -90,10 +103,14 @@ public class AppChat {
 		if (isPhoneRegistered(phone))
 			return false;
 
-		Usuario user = new Usuario(phone, password, firstName + lastName, fechaNacim, imagenURL, saludo,
+		Usuario usuario = new Usuario(phone, password, firstName + lastName, fechaNacim, imagenURL, saludo,
 				LocalDate.now());
-		repoUsuarios.addUserToRepo(user);
-		// TODO: persistencia
+		
+		if (!repoUsuarios.addUserToRepo(usuario)) {
+			return false;
+		}
+		
+		usuarioDao.registrarUsuario(usuario);
 
 		return true;
 	}
