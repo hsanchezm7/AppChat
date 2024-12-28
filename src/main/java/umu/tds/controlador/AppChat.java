@@ -4,6 +4,10 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import umu.tds.dao.AdaptadorContactoIndividualDAO;
+import umu.tds.dao.AdaptadorGrupoDAO;
+import umu.tds.dao.AdaptadorMensajeDAO;
+import umu.tds.dao.AdaptadorUsuarioDAO;
 import umu.tds.dao.DAOFactory;
 import umu.tds.dao.tds.AdaptadorContactoIndividualTDS;
 import umu.tds.dao.tds.AdaptadorGrupoTDS;
@@ -25,10 +29,10 @@ public class AppChat {
 	private Usuario user;
 	private RepositorioUsuarios repoUsuarios;
 
-	private AdaptadorUsuarioTDS usuarioDao;
-	private AdaptadorMensajeTDS mensajeDao;
-	private AdaptadorGrupoTDS grupoDao;
-	private AdaptadorContactoIndividualTDS contactoIndividualDao;
+	private AdaptadorUsuarioDAO usuarioDao;
+	private AdaptadorMensajeDAO mensajeDao;
+	private AdaptadorGrupoDAO grupoDao;
+	private AdaptadorContactoIndividualDAO contactoIndividualDao;
 
 	/* Constructor */
 	private AppChat(RepositorioUsuarios repoUsuarios, DAOFactory daoFactory) {

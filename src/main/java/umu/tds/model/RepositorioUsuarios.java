@@ -20,12 +20,19 @@ public class RepositorioUsuarios {
 	/**
 	 * Constructor que inicializa el repositorio de usuarios.
 	 */
-	public RepositorioUsuarios() {
-		this.userRepo = new ArrayList<>();
+	public RepositorioUsuarios(List<Usuario> usuarios) {
+		this.userRepo = usuarios;
 		this.phoneUserMap = new HashMap<>();
 	}
 
 	/* Consulta */
+	public static RepositorioUsuarios getInstance(List<Usuario> usuarios) {
+		if (unicaInstancia == null) {
+			unicaInstancia = new RepositorioUsuarios(usuarios);
+		}
+		return unicaInstancia;
+	}
+	
 	/**
 	 * Obtiene la instancia única de la clase {@code RepositorioUsuarios}.
 	 *
@@ -35,7 +42,7 @@ public class RepositorioUsuarios {
 	 */
 	public static RepositorioUsuarios getInstance() {
 		if (unicaInstancia == null) {
-			unicaInstancia = new RepositorioUsuarios();
+			throw new IllegalStateException("No existe ninguna instancia de RepositorioUsuarios.");
 		}
 		return unicaInstancia;
 	}

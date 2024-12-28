@@ -1,14 +1,9 @@
 package umu.tds.dao;
 
-import umu.tds.dao.tds.AdaptadorContactoIndividualTDS;
-import umu.tds.dao.tds.AdaptadorGrupoTDS;
-import umu.tds.dao.tds.AdaptadorMensajeTDS;
-import umu.tds.dao.tds.AdaptadorUsuarioTDS;
-
 public abstract class DAOFactory {
 
 	/* Instancia Singleton */
-	public static final String DAO_TDS = "umu.tds.dao.impl.DaoFactory";
+	public static final String DAO_TDS = "umu.tds.dao.tds.DAOFactoryTDS";
 	private static DAOFactory unicaInstancia = null;
 
 	public static DAOFactory getInstance(String tipo) {
@@ -23,15 +18,15 @@ public abstract class DAOFactory {
 	}
 
 	public static DAOFactory getInstance() {
-		return getInstance(DAOFactory.DAO_TDS);
+		return getInstance(DAO_TDS);
 	}
 
-	public abstract AdaptadorUsuarioTDS getUsuarioDAO();
+	public abstract AdaptadorUsuarioDAO getUsuarioDAO();
 
-	public abstract AdaptadorMensajeTDS getMensajeDAO();
+	public abstract AdaptadorMensajeDAO getMensajeDAO();
 
-	public abstract AdaptadorGrupoTDS getGrupoDAO();
+	public abstract AdaptadorGrupoDAO getGrupoDAO();
 
-	public abstract AdaptadorContactoIndividualTDS getContactoIndividualDAO();
+	public abstract AdaptadorContactoIndividualDAO getContactoIndividualDAO();
 
 }

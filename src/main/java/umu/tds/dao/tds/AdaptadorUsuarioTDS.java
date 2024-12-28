@@ -1,8 +1,11 @@
 package umu.tds.dao.tds;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import beans.Entidad;
 import beans.Propiedad;
@@ -82,14 +85,55 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 	public void modificarUsuario(Usuario usuario) {
 
 	}
+	
+	@Override
+	public List<Usuario> recuperarAllUsuarios() {
+		List<Usuario> listaUsuarios = new LinkedList<Usuario>();
+		List<Entidad> listaEntUsuarios = new ArrayList<Entidad>();
+		listaEntUsuarios = servPersistencia.recuperarEntidades(ENTITY_TYPE);
+		
+		for (Entidad entUsuario : listaEntUsuarios) {
+	        listaUsuarios.add(recuperarUsuario(entUsuario));
+	    }
+		
+		return listaUsuarios;
+	}
 
 	@Override
 	public Usuario recuperarUsuario(int id) {
+		Entidad entUsuario = servPersistencia.recuperarEntidad(id);
 
+		String phone = servPersistencia.recuperarPropiedadEntidad(entUsuario, PHONE_FIELD);
+		char[] password = servPersistencia.recuperarPropiedadEntidad(entUsuario, PASSWORD_FIELD).toCharArray();
+		String name = servPersistencia.recuperarPropiedadEntidad(entUsuario, NAME_FIELD);
+		LocalDate birthDate = LocalDate.parse(servPersistencia.recuperarPropiedadEntidad(entUsuario, BIRTH_FIELD), dateFormat);
+		String imagenURL = servPersistencia.recuperarPropiedadEntidad(entUsuario, IMAGENURL_FIELD);
+		String saludo = servPersistencia.recuperarPropiedadEntidad(entUsuario, SALUDO_FIELD);
+		boolean premium = Boolean.parseBoolean(servPersistencia.recuperarPropiedadEntidad(entUsuario, PREMIUM_FIELD));
+		LocalDate fechaReg = LocalDate.parse(servPersistencia.recuperarPropiedadEntidad(entUsuario, FECHAREG_FIELD), dateFormat);
+		
+		Usuario usuario = new Usuario(phone, password, name, birthDate, saludo, fechaReg);
+		usuario.setPremium(premium);
+		
+		return usuario;
 	}
 	
-	private String parseContactsIds() { 
+	private Usuario recuperarUsuario(Entidad entUsuario) {
+		String phone = servPersistencia.recuperarPropiedadEntidad(entUsuario, PHONE_FIELD);
+		char[] password = servPersistencia.recuperarPropiedadEntidad(entUsuario, PASSWORD_FIELD).toCharArray();
+		String name = servPersistencia.recuperarPropiedadEntidad(entUsuario, NAME_FIELD);
+		LocalDate birthDate = LocalDate.parse(servPersistencia.recuperarPropiedadEntidad(entUsuario, BIRTH_FIELD), dateFormat);
+		String imagenURL = servPersistencia.recuperarPropiedadEntidad(entUsuario, IMAGENURL_FIELD);
+		String saludo = servPersistencia.recuperarPropiedadEntidad(entUsuario, SALUDO_FIELD);
+		boolean premium = Boolean.parseBoolean(servPersistencia.recuperarPropiedadEntidad(entUsuario, PREMIUM_FIELD));
+		LocalDate fechaReg = LocalDate.parse(servPersistencia.recuperarPropiedadEntidad(entUsuario, FECHAREG_FIELD), dateFormat);
 		
+		Usuario usuario = new Usuario(phone, password, name, birthDate, saludo, fechaReg);
+		usuario.setPremium(premium);
+		
+		return usuario;
 	}
+	
+	// private String parseContactsIds() { }
 
 }

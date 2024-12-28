@@ -8,8 +8,7 @@ import umu.tds.dao.DAOFactory;
 
 public class DAOFactoryTDS extends DAOFactory {
 
-	public DAOFactoryTDS() {
-	}
+	public DAOFactoryTDS() { }
 
 	@Override
 	public AdaptadorUsuarioDAO getUsuarioDAO() {
