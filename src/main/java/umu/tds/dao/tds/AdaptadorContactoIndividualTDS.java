@@ -40,7 +40,7 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 	@Override
 	public void registrarContactoIndividual(ContactoIndividual contactoIndividual) {
 		
-		Entidad entContactoIndividual;
+		Entidad eContactoIndividual;
 		
 		if (servPersistencia.recuperarEntidad(contactoIndividual.getId()) != null)
 			return;
@@ -58,21 +58,20 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		eContactoIndividual.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(
 				new Propiedad("nombre", contactoIndividual.getNombre()),
 				new Propiedad("movil", contactoIndividual.getMovil()),
-				new Propiedad("usuario", contactoIndividual.getId()),
-				new Propiedad("mensajes", contactoIndividual.getMensajes())
+				new Propiedad("usuario", String.valueOf(contactoIndividual.getUsuario().getId())),
+				new Propiedad("mensajes", obtenerCodigosMensajes(contactoIndividual.getMensajes()))
 		))
 		);
 		
 		eContactoIndividual = servPersistencia.registrarEntidad(eContactoIndividual);
-		contactoIndividual.setId(eContactoIndividual.getId()); //mirar esto
+		contactoIndividual.setId(eContactoIndividual.getId());
 		
 	}
 	
 	@Override
 	public void borrarContactoIndividual(ContactoIndividual contactoIndividual) {
 		
-		Entidad eContactoIndividual;
-		eContactoIndividual = servPersistencia.recuperarEntidad(contactoIndividual.getId()); //mirar esto
+		Entidad eContactoIndividual = servPersistencia.recuperarEntidad(contactoIndividual.getId());
 		
 		AdaptadorMensajeTDS adaptadorMensaje = AdaptadorMensajeTDS.getUnicaInstancia();
 		
@@ -86,7 +85,7 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 	@Override
 	public void modificarContactoIndividual(ContactoIndividual contactoIndividual) {
 	
-		Entidad eContactoIndividual = servPersistencia.recuperarEntidad(contactoIndividual.getId()); //mirar esto
+		Entidad eContactoIndividual = servPersistencia.recuperarEntidad(contactoIndividual.getId());
 		
 		for (Propiedad prop : eContactoIndividual.getPropiedades()) {
 			if(prop.getNombre().equals("nombre")) {
@@ -110,9 +109,11 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 	@Override
 	public ContactoIndividual recuperarContactoIndividual(int codigo) {
 		
-		if ( PoolDAO.getUnicaInstancia().contiene(codigo)) {
+		//Cambiar cuando tengamos Pool hecho
+		
+		/*if ( PoolDAO.getUnicaInstancia().contiene(codigo)) {
 			return PoolDAO.getObjeto(codigo);
-		}
+		}*/
 		
 		String nombre;
 		String movil;
@@ -120,23 +121,24 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		List<Mensaje> mensajes;
 		
 		Entidad eContactoIndividual = servPersistencia.recuperarEntidad(codigo);
+		
 		nombre = servPersistencia.recuperarPropiedadEntidad(eContactoIndividual, "nombre");
 		movil = servPersistencia.recuperarPropiedadEntidad(eContactoIndividual, "movil");
 		
-		ContactoIndividual contactoIndividual = new ContactoIndividual(nombre, movil);
+		ContactoIndividual contactoIndividual = new ContactoIndividual(nombre, movil, null);
 		contactoIndividual.setId(codigo);
 		
-		PoolDAO.addObjeto(codigo, contactoIndividual);
+		//PoolDAO.addObjeto(codigo, contactoIndividual);
 		
-		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getUnicaInstancia();
 		int idUsuario = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(eContactoIndividual, "usuario"));
 		
+		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getUnicaInstancia();
 		usuario = adaptadorUsuario.recuperarUsuario(idUsuario);
 		contactoIndividual.setUsuario(usuario);
 		
 		mensajes =  obtenerMensajesDesdeIds(servPersistencia.recuperarPropiedadEntidad(eContactoIndividual, "mensajes"));
 		for (Mensaje mensaje : mensajes) {
-			contactoIndividual.addMensaje(mensaje);
+			contactoIndividual.addMensaje(mensaje);;
 		}
 		
 		return contactoIndividual;

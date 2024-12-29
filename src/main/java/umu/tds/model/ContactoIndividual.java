@@ -4,13 +4,15 @@ public class ContactoIndividual extends Contacto {
 	
 	/* Atributos */
 	private String movil;
-	private int codigo;
+	private Usuario usuario;
 
 	/* Constructor */
-	public ContactoIndividual(String nombre, String movil) {
+	public ContactoIndividual(String nombre, String movil, Usuario usuario) {
 		super(nombre);
 		this.movil = movil;
+		this.usuario = usuario;
 	}
+	
 
 	/* Consulta */
 	public String getMovil() {
@@ -21,14 +23,15 @@ public class ContactoIndividual extends Contacto {
 		this.movil = movil;
 	}
 
-	public int getId() {
-		return codigo;
+	public Usuario getUsuario() {
+		return usuario;
 	}
 
-	public void setId(int codigo) {
-		this.codigo = codigo;
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
 
+	
 	
 	
 	

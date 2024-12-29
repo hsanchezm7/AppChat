@@ -67,9 +67,9 @@ public class intentoVentanaMain extends JFrame {
 	public intentoVentanaMain() {
 		
 		DefaultListModel<ContactoIndividual> modelo = new DefaultListModel<>();
-		modelo.addElement(new ContactoIndividual("Jose", "612345678"));
-		modelo.addElement(new ContactoIndividual("Ana", "623456789"));
-		modelo.addElement(new ContactoIndividual("Maria", "634567890"));
+		modelo.addElement(new ContactoIndividual("Jose", "612345678", null));
+		modelo.addElement(new ContactoIndividual("Ana", "623456789", null));
+		modelo.addElement(new ContactoIndividual("Maria", "634567890", null));
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 652, 378);

@@ -31,6 +31,10 @@ public abstract class Contacto {
 		return mensajes;
 	}
 	
+	public void addMensaje(Mensaje mensaje) {
+		mensajes.add(mensaje);
+	}
+	
 	// Necesario? ¿añadir addMensaje también? Parece ser necesaria si añadimos un contacto cuando ya hemos estado hablando con el.
 	public void setMensajes(List<Mensaje> mensajes) {
 		this.mensajes = mensajes;
