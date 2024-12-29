@@ -2,6 +2,7 @@ package umu.tds.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ public class RepositorioUsuarios {
 	 * Constructor que inicializa el repositorio de usuarios.
 	 */
 	public RepositorioUsuarios(List<Usuario> usuarios) {
-		this.userRepo = usuarios;
+		this.userRepo = new LinkedList<>(usuarios);			// Castea a LinkedList<>
 		this.phoneUserMap = new HashMap<>();
 	}
 

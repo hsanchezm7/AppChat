@@ -14,5 +14,5 @@ public interface AdaptadorMensajeDAO {
 
 	public Mensaje recuperarMensaje(int codigo);
 
-	public List<Mensaje> recuperarTodosMensajes();
+	public List<Mensaje> recuperarAllMensajes();
 }

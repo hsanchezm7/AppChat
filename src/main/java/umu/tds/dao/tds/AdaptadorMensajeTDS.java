@@ -3,11 +3,13 @@ package umu.tds.dao.tds;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import beans.Entidad;
 import beans.Propiedad;
@@ -17,19 +19,29 @@ import tds.driver.ServicioPersistencia;
 import umu.tds.model.Mensaje;
 import umu.tds.model.Usuario;
 import umu.tds.dao.AdaptadorMensajeDAO;
+import umu.tds.dao.DAOFactory;
 import umu.tds.model.Contacto;
 import umu.tds.model.ContactoIndividual;
 import umu.tds.model.Grupo;
 
 public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 
+	private static final String ENTITY_TYPE = "Mensaje";
+
+	private static final String TEXT_FIELD = "texto";
+	private static final String EMISOR_FIELD = "emisor";
+	private static final String RECEPTOR_FIELD = "receptor";
+	private static final String FECHAHORA_FIELD = "fechaHora";
+	private static final String EMOTICONO_FIELD = "emoticono";
+
 	private static AdaptadorMensajeTDS unicaInstancia = null;
 	private static ServicioPersistencia servPersistencia;
-	private SimpleDateFormat dateFormat;
+
+	private DateTimeFormatter dateTimeFormat;
 
 	private AdaptadorMensajeTDS() {
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
-		dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 	}
 
 	public static AdaptadorMensajeTDS getUnicaInstancia() {
@@ -109,59 +121,30 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 	}
 
 	@Override
-	public Mensaje recuperarMensaje(int codigo) {
+	public Mensaje recuperarMensaje(int id) {
+		Entidad entMensaje = servPersistencia.recuperarEntidad(id);
 
-		if (PoolDAO.getUnicaInstancia().contiene(codigo)) {
-			return PoolDAO.getObjeto(codigo);
-		}
+		String texto = servPersistencia.recuperarPropiedadEntidad(entMensaje, TEXT_FIELD);
+		int idEmisor = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, EMISOR_FIELD));
+		int idReceptor = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, RECEPTOR_FIELD));
+		LocalDateTime fechaHora = LocalDateTime
+				.parse(servPersistencia.recuperarPropiedadEntidad(entMensaje, FECHAHORA_FIELD), dateTimeFormat);
+		int emoticono = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, EMOTICONO_FIELD));
 
-		String texto;
-		Usuario emisor;
-		String receptor;
-		LocalDateTime fechaHora;
-		int emoticono;
+		Usuario emisor = DAOFactory.getInstance().getUsuarioDAO().recuperarUsuario(idEmisor);
+		Contacto receptor = DAOFactory.getInstance().getContactoIndividualDAO().recuperarContactoIndividual(idReceptor);
 
-		Entidad entMensaje = servPersistencia.recuperarEntidad(codigo);
-
-		texto = servPersistencia.recuperarPropiedadEntidad(entMensaje, "texto");
-		fechaHora = LocalDateTime.parse(servPersistencia.recuperarPropiedadEntidad(entMensaje, "fechaHora"));
-		emoticono = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, "emoticono"));
-
-		Mensaje mensaje = new Mensaje(texto, fechaHora, emoticono);//
-		mensaje.setId(codigo);
-
-		PoolDAO.addObjeto(codigo, mensaje);//
-
-		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getUnicaInstancia();
-		emisor = adaptadorUsuario
-				.recuperarUsuario(Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, "emisor")));
-
-		int codigoReceptor = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, "receptor"));
-
-		if (servPersistencia.recuperarEntidad(codigoReceptor).getNombre().equals("grupo")) {
-			Grupo grupo = AdaptadorGrupoTDS.getUnicaInstancia().recuperarGrupo(codigoReceptor);
-			mensaje.setReceptor(grupo);
-		} else {
-			ContactoIndividual contactoIndividual = AdaptadorContactoIndividualTDS.getUnicaInstancia()
-					.recuperarContactoIndividual(codigoReceptor);
-			mensaje.setReceptor(contactoIndividual);
-		}
+		Mensaje mensaje = new Mensaje(texto, emisor, receptor, fechaHora, emoticono);
+		mensaje.setId(id);
 
 		return mensaje;
-
 	}
 
 	@Override
-	public List<Mensaje> recuperarTodosMensajes() {
-
-		List<Mensaje> mensajes = new LinkedList<Mensaje>();
-		List<Entidad> entidades = servPersistencia.recuperarEntidades("mensaje");
-
-		for (Entidad entMensaje : entidades) {
-			mensajes.add(recuperarMensaje(entMensaje.getId()));
-		}
-
-		return mensajes;
+	public List<Mensaje> recuperarAllMensajes() {
+		return servPersistencia.recuperarEntidades(ENTITY_TYPE).stream()
+	            .map(entidad -> recuperarMensaje(entidad.getId()))
+	            .collect(Collectors.toCollection(LinkedList::new));
 	}
 
 }
