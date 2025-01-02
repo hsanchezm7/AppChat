@@ -40,6 +40,7 @@ import tds.BubbleText;
 public class intentoVentanaMain extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	private static ImageIcon ICON = new ImageIcon(intentoVentanaMain.class.getResource("/umu/tds/resources/logo128x128.png"));
 	private JPanel contentPane;
 	private JTextField txtUsuarioActual;
 	private JTextField textField;
@@ -53,6 +54,7 @@ public class intentoVentanaMain extends JFrame {
 			public void run() {
 				try {
 					intentoVentanaMain frame = new intentoVentanaMain();
+					frame.setIconImage(ICON.getImage());
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

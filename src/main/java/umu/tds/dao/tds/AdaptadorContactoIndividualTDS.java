@@ -26,7 +26,7 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 	}
 	
-	public static AdaptadorContactoIndividualTDS getUnicaInstancia() {
+	public static AdaptadorContactoIndividualTDS getInstance() {
 		
 		if (unicaInstancia == null) {
 			return new AdaptadorContactoIndividualTDS();
@@ -40,12 +40,12 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 	@Override
 	public void registrarContactoIndividual(ContactoIndividual contactoIndividual) {
 		
-		Entidad eContactoIndividual;
-		
 		if (servPersistencia.recuperarEntidad(contactoIndividual.getId()) != null)
 			return;
 		
-		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getUnicaInstancia();
+		Entidad eContactoIndividual;
+		
+		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getInstance();
 		AdaptadorMensajeTDS adaptadorMensaje = AdaptadorMensajeTDS.getUnicaInstancia();
 		
 		adaptadorUsuario.registrarUsuario(contactoIndividual.getUsuario());
@@ -132,7 +132,7 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		
 		int idUsuario = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(eContactoIndividual, "usuario"));
 		
-		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getUnicaInstancia();
+		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getInstance();
 		usuario = adaptadorUsuario.recuperarUsuario(idUsuario);
 		contactoIndividual.setUsuario(usuario);
 		

@@ -64,12 +64,12 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 
 		// volver a registrar un usuario? debería ser persistente y estar ya registrado.
 		// lo hace el repoUsuarios llamando a su adaptador
-		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getUnicaInstancia();
+		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getInstance();
 		adaptadorUsuario.registrarUsuario(mensaje.getEmisor());
 
 		// lo mismo con el grupo
-		AdaptadorContactoIndividualTDS adaptadorContactoIndividual = AdaptadorContactoIndividualTDS.getUnicaInstancia();
-		AdaptadorGrupoTDS adaptadorGrupo = AdaptadorGrupoTDS.getUnicaInstancia();
+		AdaptadorContactoIndividualTDS adaptadorContactoIndividual = AdaptadorContactoIndividualTDS.getInstance();
+		AdaptadorGrupoTDS adaptadorGrupo = AdaptadorGrupoTDS.getInstance();
 		Contacto contacto = mensaje.getReceptor();
 		if (contacto instanceof ContactoIndividual) {
 			adaptadorContactoIndividual.registrarContactoIndividual((ContactoIndividual) contacto);
@@ -82,7 +82,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		entMensaje.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad("texto", mensaje.getTexto()),
 				new Propiedad("emisor", String.valueOf(mensaje.getEmisor().getId())),
 				new Propiedad("receptor", String.valueOf(mensaje.getReceptor().getId())),
-				new Propiedad("fechaHora", dateFormat.format(mensaje.getFechaHora())),
+				new Propiedad("fechaHora", dateTimeFormat.format(mensaje.getFechaHora())),
 				new Propiedad("emoticono", String.valueOf(mensaje.getEmoticono())))));
 
 		entMensaje = servPersistencia.registrarEntidad(entMensaje);
@@ -111,7 +111,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 			} else if (prop.getNombre().equals("receptor")) {
 				prop.setValor(String.valueOf(mensaje.getReceptor().getId()));
 			} else if (prop.getNombre().equals("fechaHora")) {
-				prop.setValor(dateFormat.format(mensaje.getFechaHora()));
+				prop.setValor(dateTimeFormat.format(mensaje.getFechaHora()));
 			} else if (prop.getNombre().equals("emoticono")) {
 				prop.setValor(String.valueOf(mensaje.getEmoticono()));
 			}

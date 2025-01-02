@@ -15,7 +15,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 	}
 	
-	public static AdaptadorGrupoTDS getUnicaInstancia() {
+	public static AdaptadorGrupoTDS getInstance() {
 		
 		if (unicaInstancia == null) {
 			return new AdaptadorGrupoTDS();

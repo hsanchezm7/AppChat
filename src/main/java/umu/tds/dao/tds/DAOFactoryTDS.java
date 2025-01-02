@@ -12,7 +12,7 @@ public class DAOFactoryTDS extends DAOFactory {
 
 	@Override
 	public AdaptadorUsuarioDAO getUsuarioDAO() {
-		return AdaptadorUsuarioTDS.getUnicaInstancia();
+		return AdaptadorUsuarioTDS.getInstance();
 	}
 	
 	@Override
@@ -22,12 +22,12 @@ public class DAOFactoryTDS extends DAOFactory {
 	
 	@Override
 	public AdaptadorGrupoDAO getGrupoDAO() {
-		return AdaptadorGrupoTDS.getUnicaInstancia();
+		return AdaptadorGrupoTDS.getInstance();
 	}
 
 	@Override
 	public AdaptadorContactoIndividualDAO getContactoIndividualDAO() {
-		return AdaptadorContactoIndividualTDS.getUnicaInstancia();
+		return AdaptadorContactoIndividualTDS.getInstance();
 	}
 
 	

@@ -3,6 +3,7 @@ package umu.tds.model;
 //Haría falta poner un atributo de premium para ver si el username es premium o no??
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -26,6 +27,7 @@ public class Usuario {
 	private String imagenURL;
 	private String saludo;
 	private List<Contacto> contactos;
+
 	private boolean premium;
 	private LocalDate fechaRegistro; //Este atributro se podría hacer de alguna forma que cuando el usuario se registre se guarde la fecha en vez
 	//de tener que pasarlo como parametro al constructor?? Si se pone como LocalDate.now() funcionaría como quiero??
@@ -50,6 +52,8 @@ public class Usuario {
 		this.saludo = saludo;
 		this.premium = false;
 		this.fechaRegistro = fechaRegistro;
+		
+		this.contactos = new LinkedList<>();
 	}
 	
 	/**
@@ -184,6 +188,14 @@ public class Usuario {
 	 */
 	public void deleteContacto(Contacto contacto) {
 		contactos.remove(contacto);
+	}
+	
+	public List<Contacto> getContactos() {
+		return contactos;
+	}
+
+	public void setContactos(List<Contacto> contactos) {
+		this.contactos = contactos;
 	}
 
 	@Override
