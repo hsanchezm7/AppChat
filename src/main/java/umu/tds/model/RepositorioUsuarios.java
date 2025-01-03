@@ -24,6 +24,11 @@ public class RepositorioUsuarios {
 	public RepositorioUsuarios(List<Usuario> usuarios) {
 		this.userRepo = new LinkedList<>(usuarios);			// Castea a LinkedList<>
 		this.phoneUserMap = new HashMap<>();
+		
+		// Poblar el mapa con los usuarios
+	    for (Usuario usuario : usuarios) {
+	        phoneUserMap.put(usuario.getPhone(), usuario);
+	    }
 	}
 
 	/* Consulta */

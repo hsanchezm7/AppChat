@@ -278,8 +278,8 @@ public class VentanaRegister extends JDialog {
 		registerPanel.add(panelGreeting, gbc_panelGreeting);
 		panelGreeting.setLayout(new BorderLayout());
 
-		greetingTextArea = new JTextArea("This is an editable JTextArea. " + "A text area is a \"plain\" text component, "
-				+ "which means that although it can display text "
+		greetingTextArea = new JTextArea("This is an editable JTextArea. "
+				+ "A text area is a \"plain\" text component, " + "which means that although it can display text "
 				+ "in any font, all of the text is in the same font.");
 		greetingTextArea.setDragEnabled(true);
 		greetingTextArea.setFont(new Font("Serif", Font.ITALIC, 16));
@@ -315,6 +315,8 @@ public class VentanaRegister extends JDialog {
 		btnConfirmRegister.setAlignmentX(Component.CENTER_ALIGNMENT);
 		panelBtnConfirmRegister.add(btnConfirmRegister);
 		btnConfirmRegister.addActionListener(e -> handleRegister());
+		
+		getRootPane().setDefaultButton(btnConfirmRegister);
 
 		return panelBotones;
 	}
@@ -329,7 +331,6 @@ public class VentanaRegister extends JDialog {
 	}
 
 	private void handleRegister() {
-
 		if (!fieldsCheck())
 			return;
 
@@ -338,7 +339,8 @@ public class VentanaRegister extends JDialog {
 		LocalDate fechaNacim = instant.atZone(ZoneId.systemDefault()).toLocalDate();
 
 		boolean register = AppChat.getInstance().register(phoneField.getText(), firstNameField.getText(),
-				lastNameField.getText(), passwordField.getPassword(), fechaNacim, "test.org", greetingTextArea.getText());
+				lastNameField.getText(), passwordField.getPassword(), fechaNacim, "test.org",
+				greetingTextArea.getText());
 
 		if (register) {
 			JOptionPane.showMessageDialog(this, "¡Registro completado! Ahora puedes iniciar sesión.", "Éxito",

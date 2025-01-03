@@ -149,8 +149,12 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 	}
 
 	private List<Contacto> getContactsFromConcatenatedIds(String concatenatedIds) {
+		if (concatenatedIds == null || concatenatedIds.trim().isEmpty()) {
+	        return new ArrayList<>(); // Retorna una lista vacía si la cadena está vacía
+	    }
+
 	    return Arrays.stream(concatenatedIds.split(", "))
-	            .map(id -> adapterCI.recuperarContactoIndividual(Integer.parseInt(id)))
+	            .map(id -> adapterCI.recuperarContactoIndividual(Integer.parseInt(id.trim()))) // Asegura que no haya espacios en blanco
 	            .collect(Collectors.toList());
 	}
 

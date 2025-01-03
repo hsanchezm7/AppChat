@@ -152,6 +152,8 @@ public class VentanaLogin extends JFrame {
 		btnLogin.setVerticalAlignment(SwingConstants.BOTTOM);
 		btnLogin.addActionListener(e -> handleLogin());
 		panelOtrosBotones.add(btnLogin);
+		
+		getRootPane().setDefaultButton(btnLogin);
 
 		return panelBotones;
 	}
@@ -171,10 +173,10 @@ public class VentanaLogin extends JFrame {
 	}
 
 	private void handleLogin() {
-		boolean login = AppChat.getInstance().login(phoneField.getText(), passwordField.getPassword());
-
 		if (!fieldsCheck())
 			return;
+
+		boolean login = AppChat.getInstance().login(phoneField.getText(), passwordField.getPassword());
 
 		if (login) {
 			VentanaMain ventanaMain = new VentanaMain();
