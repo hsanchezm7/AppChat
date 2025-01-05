@@ -35,12 +35,17 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
 import tds.BubbleText;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.ActionEvent;
 
 
 public class intentoVentanaMain extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private static ImageIcon ICON = new ImageIcon(intentoVentanaMain.class.getResource("/umu/tds/resources/logo128x128.png"));
+	
 	private JPanel contentPane;
 	private JTextField txtUsuarioActual;
 	private JTextField textField;
@@ -67,6 +72,8 @@ public class intentoVentanaMain extends JFrame {
 	 * Create the frame.
 	 */
 	public intentoVentanaMain() {
+		this.setTitle("AppChat");
+		this.setIconImage(ICON.getImage());
 		
 		DefaultListModel<ContactoIndividual> modelo = new DefaultListModel<>();
 		modelo.addElement(new ContactoIndividual("Jose", "612345678", null));
@@ -84,6 +91,8 @@ public class intentoVentanaMain extends JFrame {
 		JPanel panel = new JPanel();
 		contentPane.add(panel, BorderLayout.CENTER);
 		panel.setLayout(new BorderLayout(0, 0));
+		
+		//Panel de arriba
 		
 		JPanel panel_3 = new JPanel();
 		panel_3.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -131,6 +140,10 @@ public class intentoVentanaMain extends JFrame {
 		panel_1.add(btnNewButton_1, gbc_btnNewButton_1);
 		
 		JButton btnNewButton_2 = new JButton("Contactos");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
 		btnNewButton_2.setIcon(new ImageIcon(intentoVentanaMain.class.getResource("/umu/tds/resources/contacto-2.png")));
 		GridBagConstraints gbc_btnNewButton_2 = new GridBagConstraints();
 		gbc_btnNewButton_2.insets = new Insets(0, 0, 5, 5);
@@ -162,6 +175,11 @@ public class intentoVentanaMain extends JFrame {
 		btnNewButton_5.setIcon(new ImageIcon(intentoVentanaMain.class.getResource("/umu/tds/resources/usuario.png")));
 		panel_2.add(btnNewButton_5);
 		
+		//Cambiar para crear una ventana en la que se muestre la info del usuario y la posibilidad de cambiar la foto de perfil
+		
+		btnNewButton_5.addActionListener(e -> openRegister());
+		
+		
 		JPanel panel_4 = new JPanel();
 		panel.add(panel_4, BorderLayout.CENTER);
 		GridBagLayout gbl_panel_4 = new GridBagLayout();
@@ -170,6 +188,8 @@ public class intentoVentanaMain extends JFrame {
 		gbl_panel_4.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
 		gbl_panel_4.rowWeights = new double[]{1.0, Double.MIN_VALUE};
 		panel_4.setLayout(gbl_panel_4);
+		
+		//Panel izquierda (contactos)
 		
 		JPanel panel_6 = new JPanel();
 		panel_6.setBorder(new TitledBorder(null, "mensajes", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -189,13 +209,40 @@ public class intentoVentanaMain extends JFrame {
 		JList<ContactoIndividual> lista = new JList<>(modelo);
 		lista.setCellRenderer(new ContactoIndividualCellRenderer());
 		
+		lista.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        // Obtener la celda en la que se hizo clic
+		        int index = lista.locationToIndex(e.getPoint());
+		        
+		        // Verificar si el clic fue dentro del área del botón "+"
+		        if (index != -1) {
+		            ContactoIndividual persona = lista.getModel().getElementAt(index);
+		            Rectangle cellBounds = lista.getCellBounds(index, index);
+		            if (cellBounds.contains(e.getPoint())) {
+		                // Verifica si el clic fue dentro del área del botón "+"
+		                int x = e.getX();
+		                int y = e.getY();
+
+		                // Si el clic fue dentro del área del botón "+" (por ejemplo, en el lado derecho de la celda)
+		                // Es posible ajustar esta área según el tamaño del botón.
+		                if (x > cellBounds.x + 100) {  // Ajusta el valor según el tamaño del botón
+		                    AñadirContactos ventanaContacto = new AñadirContactos((JFrame) SwingUtilities.getWindowAncestor(lista));
+		                    ventanaContacto.setVisible(true);
+		                }
+		            }
+		        }
+		    }
+		});
+		
 		JScrollPane scrollPane = new JScrollPane(lista);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		panel_6.add(scrollPane, BorderLayout.CENTER);
         panel_6.setVisible(true);
+        
 		
-		
+		//Panel derecha (conversación)
 		
 		JPanel panel_5 = new JPanel();
 		panel_5.setBorder(new TitledBorder(null, "mensajes con x", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -257,18 +304,62 @@ public class intentoVentanaMain extends JFrame {
 		
 	}
 	
+	private void openRegister() {
+		VentanaRegister ventanaRegister = new VentanaRegister(this);
+		ventanaRegister.setVisible(true);
+	}
+	
 	private class ContactoIndividualCellRenderer extends JPanel implements ListCellRenderer<ContactoIndividual> {
 		private JLabel nameLabel;
 		private JLabel imageLabel;
+		private JButton btnPlus;
+		private JTextField txtMensaje;
 
 		public ContactoIndividualCellRenderer() {
-			setLayout(new BorderLayout(5, 5));
-
+			setLayout(new GridBagLayout());
+	        setBorder(new LineBorder(Color.BLACK)); 
+	        
 			nameLabel = new JLabel();
 			imageLabel = new JLabel();
+			btnPlus = new JButton("+");
+			txtMensaje = new JTextField("mensaje...");
+			
+			GridBagConstraints gbc = new GridBagConstraints();
+			
+			// Imagen (izquierda)
+	        gbc.gridx = 0;
+	        gbc.gridy = 0;
+	        gbc.gridheight = 2; // Abarca dos filas
+	        gbc.insets = new Insets(5, 5, 5, 5); // Margen
+	        gbc.anchor = GridBagConstraints.WEST;
+	        add(imageLabel, gbc);
 
-			add(imageLabel, BorderLayout.WEST);
-			add(nameLabel, BorderLayout.CENTER);
+	        // Botón "+" (arriba derecha)
+	        gbc.gridx = 2;
+	        gbc.gridy = 0;
+	        gbc.gridheight = 1; // Solo una fila
+	        gbc.anchor = GridBagConstraints.NORTHEAST;
+	        add(btnPlus, gbc);
+
+	        // Nombre (arriba, centro)
+	        gbc.gridx = 1;
+	        gbc.gridy = 0;
+	        gbc.gridheight = 1;
+	        gbc.fill = GridBagConstraints.HORIZONTAL;
+	        gbc.weightx = 1.0;
+	        gbc.anchor = GridBagConstraints.CENTER;
+	        add(nameLabel, gbc);
+
+	        // Cuadro de texto (abajo, centro)
+	        gbc.gridx = 1;
+	        gbc.gridy = 1;
+	        gbc.gridheight = 1;
+	        gbc.fill = GridBagConstraints.HORIZONTAL;
+	        add(txtMensaje, gbc);
+	        
+	        
+	        
+
 		}
 
 		@Override

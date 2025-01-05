@@ -4,48 +4,36 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JDialog;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.JTextField;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import java.awt.FlowLayout;
 
-public class AñadirContactos extends JFrame {
+public class AñadirContactos extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField textField;
-	private JTextField textField_1;
+	private JTextField phoneField;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					AñadirContactos frame = new AñadirContactos();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
-	 * Create the frame.
-	 */
-	public AñadirContactos() {
-		setTitle("Añadir contacto");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	public AñadirContactos(JFrame parent) {
+		super(parent, "Añadir contacto", true);
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
+		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -59,7 +47,6 @@ public class AñadirContactos extends JFrame {
 		JLabel lblNewLabel_2 = new JLabel("Introduzca el nombre del contacto y su teléfono");
 		lblNewLabel_2.setIcon(new ImageIcon(AñadirContactos.class.getResource("/umu/tds/resources/peligro-2.png")));
 		panel.add(lblNewLabel_2, BorderLayout.WEST);
-		
 		
 		
 		JPanel panel_1 = new JPanel();
@@ -104,14 +91,15 @@ public class AñadirContactos extends JFrame {
 		gbc_lblNewLabel_1.gridy = 2;
 		panel_4.add(lblNewLabel_1, gbc_lblNewLabel_1);
 		
-		textField_1 = new JTextField();
+		phoneField = new JTextField();
 		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
 		gbc_textField_1.insets = new Insets(0, 0, 5, 0);
 		gbc_textField_1.fill = GridBagConstraints.HORIZONTAL;
 		gbc_textField_1.gridx = 2;
 		gbc_textField_1.gridy = 2;
-		panel_4.add(textField_1, gbc_textField_1);
-		textField_1.setColumns(10);
+		panel_4.add(phoneField, gbc_textField_1);
+		phoneField.setColumns(10);
+		
 		
 		JPanel panel_6 = new JPanel();
 		GridBagConstraints gbc_panel_6 = new GridBagConstraints();
@@ -126,15 +114,54 @@ public class AñadirContactos extends JFrame {
 		
 		JButton btnNewButton_2 = new JButton("Add");
 		panel_7.add(btnNewButton_2);
+		btnNewButton_2.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		        String name = textField.getText().trim();
+		        String phone = phoneField.getText().trim();
+
+		        // Validación del campo de nombre
+		        if (name.isEmpty()) {
+		            JOptionPane.showMessageDialog(AñadirContactos.this, 
+		                "El campo 'Name' no puede estar vacío.", 
+		                "Advertencia", 
+		                JOptionPane.WARNING_MESSAGE);
+		            return; // Salir del método si no pasa la validación
+		        }
+
+		        // Validación del campo de teléfono
+		        if (phone.isEmpty() || !phone.matches("\\d+")) {
+		            JOptionPane.showMessageDialog(AñadirContactos.this, 
+		                "El campo 'Phone' debe contener solo números y no puede estar vacío.", 
+		                "Advertencia", 
+		                JOptionPane.WARNING_MESSAGE);
+		            return; // Salir del método si no pasa la validación
+		        }
+
+		        // Si pasa las validaciones, mostrar un mensaje de éxito o realizar otra acción
+		        JOptionPane.showMessageDialog(AñadirContactos.this, 
+		            "Contacto añadido correctamente.", 
+		            "Éxito", 
+		            JOptionPane.INFORMATION_MESSAGE);
+
+		        dispose();
+		    }
+		});
+
 		
 		JButton btnNewButton_3 = new JButton("Cancel");
+		btnNewButton_3.addActionListener( new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
 		panel_7.add(btnNewButton_3);
-		
 		
 			
 		setSize(400, 200); // Configura un tamaño fijo que permita mostrar todo
 		setResizable(false);
 		
+		
 	}
+	
 
 }
