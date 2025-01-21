@@ -31,11 +31,9 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	
 	private static AdaptadorGrupoTDS unicaInstancia = null;
 	
-	private static AdaptadorUsuarioDAO adapterU;
 	private static ServicioPersistencia servPersistencia;
 	
 	private AdaptadorGrupoTDS() {
-		adapterU = DAOFactory.getInstance().getUsuarioDAO();
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 	}
 	
@@ -57,6 +55,8 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		
 		/* Asegurar MIEMBROS registrados */
 		List<Usuario> miembros = grupo.getMiembros();
+		
+		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
 		
 		for (Usuario miembro : miembros)
 			adapterU.registrarUsuario(miembro);
@@ -128,11 +128,15 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	            .collect(Collectors.joining(", "));
 	}
 	
-	private List<Contacto> getUsersFromConcatenatedIdss(String concatenatedIds) {
+	private List<Contacto> getUsersFromConcatenatedIds(String concatenatedIds) {
 		if (concatenatedIds == null || concatenatedIds.trim().isEmpty()) {
 	        return new ArrayList<>(); // Retorna una lista vacía si la cadena está vacía
 	    }
+		
+		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
 
+		/* TODO: ¿Esta función debe devolver Contactos, o Usuarios?  */
+		
 	    return Arrays.stream(concatenatedIds.split(", "))
 	            .map(id -> adapterU.recuperarUsuario(Integer.parseInt(id.trim()))) // Asegura que no haya espacios en blanco
 	            .collect(Collectors.toList());

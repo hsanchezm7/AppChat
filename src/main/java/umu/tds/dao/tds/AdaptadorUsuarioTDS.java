@@ -37,17 +37,12 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 
 	private static AdaptadorUsuarioTDS unicaInstancia = null;
 	
-	private static AdaptadorContactoIndividualDAO adapterCI;
-	private static AdaptadorGrupoDAO adapterG;
 	private static ServicioPersistencia servPersistencia;
 	
 	private DateTimeFormatter dateFormat;
 
 	private AdaptadorUsuarioTDS() {
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
-		
-		adapterCI = DAOFactory.getInstance().getContactoIndividualDAO();
-		adapterG = DAOFactory.getInstance().getGrupoDAO();
 		
 		dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	}
@@ -69,6 +64,9 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 		
 		/* Asegurar contactos registrados */
 		List<Contacto> contactos = usuario.getContactos();
+		
+		AdaptadorGrupoDAO adapterG = DAOFactory.getInstance().getGrupoDAO();
+		AdaptadorContactoIndividualDAO adapterCI = DAOFactory.getInstance().getContactoIndividualDAO();
 		
         for (Contacto contacto : contactos) {
             if (contacto instanceof ContactoIndividual) {
@@ -152,6 +150,8 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 		if (concatenatedIds == null || concatenatedIds.trim().isEmpty()) {
 	        return new ArrayList<>(); // Retorna una lista vacía si la cadena está vacía
 	    }
+		
+		AdaptadorContactoIndividualDAO adapterCI = DAOFactory.getInstance().getContactoIndividualDAO();
 
 	    return Arrays.stream(concatenatedIds.split(", "))
 	            .map(id -> adapterCI.recuperarContactoIndividual(Integer.parseInt(id.trim()))) // Asegura que no haya espacios en blanco
