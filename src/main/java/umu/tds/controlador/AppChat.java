@@ -4,15 +4,12 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import umu.tds.dao.AdaptadorContactoDAO;
 import umu.tds.dao.AdaptadorContactoIndividualDAO;
 import umu.tds.dao.AdaptadorGrupoDAO;
 import umu.tds.dao.AdaptadorMensajeDAO;
 import umu.tds.dao.AdaptadorUsuarioDAO;
 import umu.tds.dao.DAOFactory;
-import umu.tds.dao.tds.AdaptadorContactoIndividualTDS;
-import umu.tds.dao.tds.AdaptadorGrupoTDS;
-import umu.tds.dao.tds.AdaptadorMensajeTDS;
-import umu.tds.dao.tds.AdaptadorUsuarioTDS;
 import umu.tds.model.Mensaje;
 import umu.tds.model.RepositorioUsuarios;
 import umu.tds.model.Usuario;
@@ -22,25 +19,44 @@ import umu.tds.model.Usuario;
  */
 public class AppChat {
 
+	public static List<Mensaje> obtenerMensajesRecientesPorUsuario;
+
 	/* Instancia Singleton */
 	private static AppChat unicaInstancia = null;
 
+	/**
+	 * Obtiene la instancia única de la clase {@code AppChat}.
+	 *
+	 * Si la instancia aún no ha sido creada, se inicializa en este momento.
+	 *
+	 * @param repoUsuarios El repositorio de usuarios.
+	 * @return La instancia única de AppChat.
+	 */
+	public static AppChat getInstance() {
+		if (unicaInstancia == null) {
+			unicaInstancia = new AppChat();
+		}
+
+		return unicaInstancia;
+	}
+
 	/* Atributos */
+	private DAOFactory daoFactory;
+	
+	private AdaptadorUsuarioDAO usuarioDAO;
+	private AdaptadorMensajeDAO mensajeDAO;
+	private AdaptadorContactoDAO contactoDAO;
+	private AdaptadorGrupoDAO grupoDAO;
+	private AdaptadorContactoIndividualDAO contactoIndividualDAO;
+
 	private Usuario user;
+	
 	private RepositorioUsuarios repoUsuarios;
 
-	private AdaptadorUsuarioDAO usuarioDao;
-	private AdaptadorMensajeDAO mensajeDao;
-	private AdaptadorGrupoDAO grupoDao;
-	private AdaptadorContactoIndividualDAO contactoIndividualDao;
-
 	/* Constructor */
-	private AppChat(RepositorioUsuarios repoUsuarios, DAOFactory daoFactory) {
-		this.repoUsuarios = repoUsuarios;
-		this.usuarioDao = daoFactory.getUsuarioDAO();
-		this.mensajeDao = daoFactory.getMensajeDAO();
-		this.grupoDao = daoFactory.getGrupoDAO();
-		this.contactoIndividualDao = daoFactory.getContactoIndividualDAO();
+	private AppChat() {
+		initializeAdapters();
+		initializeRepos();
 
 		this.user = null;
 	}
@@ -51,72 +67,26 @@ public class AppChat {
 	}
 
 	/**
-	 * Obtiene la instancia única de la clase {@code AppChat}.
-	 *
-	 * Si la instancia aún no ha sido creada, se inicializa en este momento.
-	 *
-	 * @param repoUsuarios El repositorio de usuarios.
-	 * @return La instancia única de AppChat.
+	 * Inicializa los atributos de los adaptadores.
 	 */
-	public static AppChat getInstance(RepositorioUsuarios repoUsuarios, DAOFactory daoFactory) {
-		if (unicaInstancia == null) {
-			unicaInstancia = new AppChat(repoUsuarios, daoFactory);
-		}
-		
-		return unicaInstancia;
+	private void initializeAdapters() {
+		// TODO: Añadir try-catch
+		this.daoFactory = DAOFactory.getInstance();
+
+		this.usuarioDAO = daoFactory.getUsuarioDAO();
+		this.mensajeDAO = daoFactory.getMensajeDAO();
+		this.contactoDAO = daoFactory.getContactoDAO();
+		this.grupoDAO = daoFactory.getGrupoDAO();
+		this.contactoIndividualDAO = daoFactory.getContactoIndividualDAO();
 	}
 
 	/**
-	 * Obtiene la instancia única de la clase {@code AppChat}.
-	 *
-	 * @return La instancia única de AppChat.
+	 * Inicializa el repositorio de usuarios.
 	 */
-	public static AppChat getInstance() {
-		if (unicaInstancia == null) {
-			throw new IllegalStateException("No existe ninguna instancia de AppChat.");
-		}
-		return unicaInstancia;
-	}
+	private void initializeRepos() {
+		// TODO: ¿Añadir try-catch? Creo que aquí no
+		this.repoUsuarios = RepositorioUsuarios.getInstance();
 
-	/* Métodos */
-	/**
-	 * Inicia sesión en la aplicación.
-	 * 
-	 * @param phone    el número de teléfono.
-	 * @param password la contraseña del usuario.
-	 * @return {@code false} si no existe un usuario registrado con ese nombre o la
-	 *         contraseña es incorrecta, {@code true} si se ha iniciado sesión
-	 *         exitosamente.
-	 */
-	public boolean login(String phone, char[] password) {
-		if (!isPhoneRegistered(phone))
-			return false;
-
-		Usuario usuarioRegistrado = repoUsuarios.getUserByPhone(phone);
-		if (!Arrays.equals(password, usuarioRegistrado.getPassword())) {
-			return false;
-		}
-
-		this.user = usuarioRegistrado;
-
-		return true;
-	}
-
-	public boolean register(String phone, String firstName, String lastName, char[] password, LocalDate fechaNacim,
-			String imagenURL, String saludo) {
-		if (isPhoneRegistered(phone))
-			return false;
-
-		Usuario usuario = new Usuario(phone, password, firstName + lastName, fechaNacim, imagenURL, saludo,
-				LocalDate.now());
-		
-		if (!repoUsuarios.addUserToRepo(usuario)) {
-			return false;
-		}
-		
-		usuarioDao.registrarUsuario(usuario);
-
-		return true;
 	}
 
 	/**
@@ -130,6 +100,47 @@ public class AppChat {
 		return repoUsuarios.getUserByPhone(phone) != null;
 	}
 
-	public static List<Mensaje> obtenerMensajesRecientesPorUsuario;
+	/* Métodos */
+	/**
+	 * Inicia sesión en la aplicación.
+	 *
+	 * @param phone    el número de teléfono.
+	 * @param password la contraseña del usuario.
+	 * @return {@code false} si no existe un usuario registrado con ese nombre o la
+	 *         contraseña es incorrecta, {@code true} si se ha iniciado sesión
+	 *         exitosamente.
+	 */
+	public boolean login(String phone, char[] password) {
+		if (!isPhoneRegistered(phone)) {
+			return false;
+		}
+
+		Usuario usuarioRegistrado = repoUsuarios.getUserByPhone(phone);
+		if (!Arrays.equals(password, usuarioRegistrado.getPassword())) {
+			return false;
+		}
+
+		this.user = usuarioRegistrado;
+
+		return true;
+	}
+
+	public boolean register(String phone, String firstName, String lastName, char[] password, LocalDate fechaNacim,
+			String imagenURL, String saludo) {
+		if (isPhoneRegistered(phone)) {
+			return false;
+		}
+
+		Usuario usuario = new Usuario(phone, password, firstName + lastName, fechaNacim, imagenURL, saludo,
+				LocalDate.now());
+
+		if (!repoUsuarios.addUserToRepo(usuario)) {
+			return false;
+		}
+
+		usuarioDAO.registrarUsuario(usuario);
+
+		return true;
+	}
 
 }

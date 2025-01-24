@@ -12,6 +12,7 @@ import beans.Entidad;
 import beans.Propiedad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
+import umu.tds.dao.AdaptadorContactoDAO;
 import umu.tds.dao.AdaptadorContactoIndividualDAO;
 import umu.tds.dao.AdaptadorGrupoDAO;
 import umu.tds.dao.AdaptadorUsuarioDAO;
@@ -23,7 +24,7 @@ import umu.tds.model.Usuario;
 
 public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 
-	private static final String ENTITY_TYPE = "Usuario";
+	public static final String ENTITY_TYPE = "Usuario";
 
 	private static final String PHONE_FIELD = "phone";
 	private static final String PASSWORD_FIELD = "password";
@@ -146,16 +147,16 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 		        .collect(Collectors.joining(", "));
 	}
 
+  
 	private List<Contacto> getContactsFromConcatenatedIds(String concatenatedIds) {
 		if (concatenatedIds == null || concatenatedIds.trim().isEmpty()) {
 	        return new ArrayList<>(); // Retorna una lista vacía si la cadena está vacía
 	    }
 		
-		AdaptadorContactoIndividualDAO adapterCI = DAOFactory.getInstance().getContactoIndividualDAO();
-
-	    return Arrays.stream(concatenatedIds.split(", "))
-	            .map(id -> adapterCI.recuperarContactoIndividual(Integer.parseInt(id.trim()))) // Asegura que no haya espacios en blanco
-	            .collect(Collectors.toList());
+		AdaptadorContactoDAO adapterC = DAOFactory.getInstance().getContactoDAO();
+		
+		return Arrays.stream(concatenatedIds.split(", "))
+			    .map(id -> adapterC.recuperarContacto(Integer.parseInt(id.trim())))
+			    .collect(Collectors.toList());
 	}
-
 }

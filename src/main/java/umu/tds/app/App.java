@@ -1,15 +1,9 @@
 package umu.tds.app;
 
-import java.util.List;
-
 import javax.swing.UIManager;
 
-import umu.tds.vista.VentanaLogin;
 import umu.tds.controlador.AppChat;
-import umu.tds.dao.AdaptadorUsuarioDAO;
-import umu.tds.dao.DAOFactory;
-import umu.tds.model.RepositorioUsuarios;
-import umu.tds.model.Usuario;
+import umu.tds.vista.VentanaLogin;
 
 public class App {
 	public static void main(String[] args) {
@@ -20,13 +14,8 @@ public class App {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-			DAOFactory factoriaDAO = DAOFactory.getInstance();
-			AdaptadorUsuarioDAO usuarioDAO = factoriaDAO.getUsuarioDAO();
-
-			List<Usuario> usuarios = usuarioDAO.recuperarAllUsuarios();
-			RepositorioUsuarios userRepo = new RepositorioUsuarios(usuarios);
-
-			AppChat.getInstance(userRepo, factoriaDAO); // Crea la única instancia de AppChat
+			/* Inicializar la instancia-controlador única de AppChat */
+			AppChat.getInstance();
 
 			VentanaLogin ventanaLogin = new VentanaLogin();
 			ventanaLogin.setVisible(true);

@@ -24,6 +24,8 @@ public abstract class DAOFactory {
 	public abstract AdaptadorUsuarioDAO getUsuarioDAO();
 
 	public abstract AdaptadorMensajeDAO getMensajeDAO();
+	
+	public abstract AdaptadorContactoDAO getContactoDAO();
 
 	public abstract AdaptadorGrupoDAO getGrupoDAO();
 

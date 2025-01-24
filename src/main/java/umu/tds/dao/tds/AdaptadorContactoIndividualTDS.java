@@ -16,8 +16,9 @@ import umu.tds.model.Mensaje;
 import umu.tds.model.Usuario;
 
 
-
 public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividualDAO {
+	
+	public static final String ENTITY_TYPE = "ContactoIndividual";
 	
 	private static AdaptadorContactoIndividualTDS unicaInstancia = null;
 	private static ServicioPersistencia servPersistencia;

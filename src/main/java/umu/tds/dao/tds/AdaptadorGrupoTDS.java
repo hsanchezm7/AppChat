@@ -20,7 +20,7 @@ import umu.tds.model.Usuario;
 
 public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	
-	private static final String ENTITY_TYPE = "Grupo";
+	public static final String ENTITY_TYPE = "Grupo";
 	
     private static final String ADMIN_FIELD = "administrador";
     private static final String MIEMBROS_FIELD = "miembros";
@@ -64,7 +64,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		/* TODO: REGISTRAR MENSAJES ASOCIADOS */
 		
 		Entidad entGrupo = new Entidad();
-		entGrupo.setNombre("Grupo");
+		entGrupo.setNombre(ENTITY_TYPE);
 
 		entGrupo.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(
 		        new Propiedad(ADMIN_FIELD, String.valueOf(grupo.getAdministrador().getId())),
@@ -90,11 +90,11 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	}
 	
 	@Override
-	public Grupo recuperarGrupo(int id) {
+	public Grupo recuperarGrupo(int id) {		
 		Entidad entGrupo = servPersistencia.recuperarEntidad(id);
 		
 		String administradorId = servPersistencia.recuperarPropiedadEntidad(entGrupo, ADMIN_FIELD);
-		Usuario administrador = adapterU.recuperarUsuario(Integer.parseInt(administradorId));
+		Usuario administrador = DAOFactory.getInstance().getUsuarioDAO().recuperarUsuario(Integer.parseInt(administradorId));
 
 		String miembrosIds = servPersistencia.recuperarPropiedadEntidad(entGrupo, MIEMBROS_FIELD);
 		List<Usuario> miembros = getMembersFromConcatenatedIds(Arrays.stream(miembrosIds.split(","))

@@ -1,5 +1,6 @@
 package umu.tds.dao.tds;
 
+import umu.tds.dao.AdaptadorContactoDAO;
 import umu.tds.dao.AdaptadorContactoIndividualDAO;
 import umu.tds.dao.AdaptadorGrupoDAO;
 import umu.tds.dao.AdaptadorMensajeDAO;
@@ -21,6 +22,11 @@ public class DAOFactoryTDS extends DAOFactory {
 	}
 	
 	@Override
+	public AdaptadorContactoDAO getContactoDAO() {
+		return AdaptadorContactoTDS.getInstance();
+	}
+	
+	@Override
 	public AdaptadorGrupoDAO getGrupoDAO() {
 		return AdaptadorGrupoTDS.getInstance();
 	}
@@ -29,6 +35,8 @@ public class DAOFactoryTDS extends DAOFactory {
 	public AdaptadorContactoIndividualDAO getContactoIndividualDAO() {
 		return AdaptadorContactoIndividualTDS.getInstance();
 	}
+
+	
 
 	
 
