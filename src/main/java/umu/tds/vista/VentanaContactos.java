@@ -17,6 +17,8 @@ import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 public class VentanaContactos extends JFrame {
 
@@ -43,7 +45,7 @@ public class VentanaContactos extends JFrame {
 	 * Create the frame.
 	 */
 	public VentanaContactos() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 682, 506);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -59,35 +61,29 @@ public class VentanaContactos extends JFrame {
 		JPanel panel_1 = new JPanel();
 		panel.add(panel_1, BorderLayout.CENTER);
 		GridBagLayout gbl_panel_1 = new GridBagLayout();
-		gbl_panel_1.columnWidths = new int[]{276, 0, 0, 0, 0};
+		gbl_panel_1.columnWidths = new int[]{276, 0, 0, 0};
 		gbl_panel_1.rowHeights = new int[]{0, 0, 0};
-		gbl_panel_1.columnWeights = new double[]{1.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_1.columnWeights = new double[]{1.0, 0.0, 1.0, Double.MIN_VALUE};
 		gbl_panel_1.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
 		panel_1.setLayout(gbl_panel_1);
 		
-		JPanel panel_2 = new JPanel();
-		panel_2.setBorder(new LineBorder(new Color(0, 0, 0)));
-		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
-		gbc_panel_2.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_2.fill = GridBagConstraints.BOTH;
-		gbc_panel_2.gridx = 0;
-		gbc_panel_2.gridy = 0;
-		panel_1.add(panel_2, gbc_panel_2);
-		panel_2.setLayout(new BorderLayout(0, 0));
+		///
 		
-		JScrollBar scrollBar_1 = new JScrollBar();
-		GridBagConstraints gbc_scrollBar_1 = new GridBagConstraints();
-		gbc_scrollBar_1.fill = GridBagConstraints.VERTICAL;
-		gbc_scrollBar_1.insets = new Insets(0, 0, 5, 5);
-		gbc_scrollBar_1.gridx = 1;
-		gbc_scrollBar_1.gridy = 0;
-		panel_1.add(scrollBar_1, gbc_scrollBar_1);
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
+		gbc_scrollPane.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane.gridx = 0;
+		gbc_scrollPane.gridy = 0;
+		panel_1.add(scrollPane, gbc_scrollPane);
 		
 		JPanel panel_6 = new JPanel();
 		GridBagConstraints gbc_panel_6 = new GridBagConstraints();
 		gbc_panel_6.insets = new Insets(0, 0, 5, 5);
 		gbc_panel_6.fill = GridBagConstraints.HORIZONTAL;
-		gbc_panel_6.gridx = 2;
+		gbc_panel_6.gridx = 1;
 		gbc_panel_6.gridy = 0;
 		panel_1.add(panel_6, gbc_panel_6);
 		GridBagLayout gbl_panel_6 = new GridBagLayout();
@@ -119,7 +115,7 @@ public class VentanaContactos extends JFrame {
 		GridBagConstraints gbc_panel_3 = new GridBagConstraints();
 		gbc_panel_3.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_3.fill = GridBagConstraints.BOTH;
-		gbc_panel_3.gridx = 3;
+		gbc_panel_3.gridx = 2;
 		gbc_panel_3.gridy = 0;
 		panel_1.add(panel_3, gbc_panel_3);
 		panel_3.setLayout(new BorderLayout(0, 0));
@@ -128,36 +124,27 @@ public class VentanaContactos extends JFrame {
 		panel_4.setBorder(new TitledBorder(null, "Grupo", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_3.add(panel_4, BorderLayout.CENTER);
 		GridBagLayout gbl_panel_4 = new GridBagLayout();
-		gbl_panel_4.columnWidths = new int[]{0, 0, 0};
+		gbl_panel_4.columnWidths = new int[]{0, 0};
 		gbl_panel_4.rowHeights = new int[]{0, 0};
-		gbl_panel_4.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_4.columnWeights = new double[]{1.0, Double.MIN_VALUE};
 		gbl_panel_4.rowWeights = new double[]{1.0, Double.MIN_VALUE};
 		panel_4.setLayout(gbl_panel_4);
 		
-		JPanel panel_5 = new JPanel();
-		panel_5.setBorder(new LineBorder(new Color(0, 0, 0)));
-		GridBagConstraints gbc_panel_5 = new GridBagConstraints();
-		gbc_panel_5.insets = new Insets(0, 0, 0, 5);
-		gbc_panel_5.fill = GridBagConstraints.BOTH;
-		gbc_panel_5.gridx = 0;
-		gbc_panel_5.gridy = 0;
-		panel_4.add(panel_5, gbc_panel_5);
-		
-		JScrollBar scrollBar = new JScrollBar();
-		GridBagConstraints gbc_scrollBar = new GridBagConstraints();
-		gbc_scrollBar.fill = GridBagConstraints.VERTICAL;
-		gbc_scrollBar.gridx = 1;
-		gbc_scrollBar.gridy = 0;
-		panel_4.add(scrollBar, gbc_scrollBar);
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
+		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_1.gridx = 0;
+		gbc_scrollPane_1.gridy = 0;
+		panel_4.add(scrollPane_1, gbc_scrollPane_1);
 		
 		
 		
 		
 		JButton btnAddContact = new JButton("Add Contact");
-		btnAddContact.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
+		btnAddContact.addActionListener(e -> openContacts());
+			
 		GridBagConstraints gbc_btnAddContact = new GridBagConstraints();
 		gbc_btnAddContact.insets = new Insets(0, 0, 0, 5);
 		gbc_btnAddContact.gridx = 0;
@@ -170,7 +157,7 @@ public class VentanaContactos extends JFrame {
 			}
 		});
 		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
-		gbc_btnNewButton.gridx = 3;
+		gbc_btnNewButton.gridx = 2;
 		gbc_btnNewButton.gridy = 1;
 		panel_1.add(btnNewButton, gbc_btnNewButton);
 		
@@ -178,6 +165,11 @@ public class VentanaContactos extends JFrame {
 		setResizable(true);
 		setMinimumSize(getSize());
 		setLocationRelativeTo(null);
+	}
+	
+	private void openContacts() {
+		AñadirContactos ventanaContactos = new AñadirContactos(this);
+		ventanaContactos.setVisible(true);
 	}
 
 }

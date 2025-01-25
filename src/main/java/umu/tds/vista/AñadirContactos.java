@@ -1,13 +1,11 @@
 package umu.tds.vista;
 
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JDialog;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -20,7 +18,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
-import java.awt.FlowLayout;
 
 public class AñadirContactos extends JDialog {
 
