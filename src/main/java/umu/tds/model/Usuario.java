@@ -202,7 +202,7 @@ public class Usuario {
 	public String toString() {
 		return "Usuario [phone=" + phone + ", password=" + Arrays.toString(password) + ", name=" + name
 				+ ", fechaNacim=" + fechaNacim + ", imagenURL=" + imagenURL + ", saludo=" + saludo + ", contactos="
-				+ contactos + ", premium=" + premium + ", fechaRegistro=" + fechaRegistro + ", codigo=" + id + "]";
+				+ contactos + ", premium=" + premium + ", fechaRegistro=" + fechaRegistro + ", id=" + id + "]";
 	}
 	
 

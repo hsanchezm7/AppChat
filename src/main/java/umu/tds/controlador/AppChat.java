@@ -10,6 +10,7 @@ import umu.tds.dao.AdaptadorGrupoDAO;
 import umu.tds.dao.AdaptadorMensajeDAO;
 import umu.tds.dao.AdaptadorUsuarioDAO;
 import umu.tds.dao.DAOFactory;
+import umu.tds.model.ContactoIndividual;
 import umu.tds.model.Mensaje;
 import umu.tds.model.RepositorioUsuarios;
 import umu.tds.model.Usuario;
@@ -139,6 +140,21 @@ public class AppChat {
 		}
 
 		usuarioDAO.registrarUsuario(usuario);
+
+		return true;
+	}
+	
+	public boolean addContacto(String name, String phone) {
+		// Comprobar que el número no está asociado ya a un contacto del usuario principal
+		
+		Usuario userToAdd = repoUsuarios.getUserByPhone(phone);
+
+		ContactoIndividual contacto = new ContactoIndividual(name, phone, userToAdd);
+		
+		user.addContacto(contacto);
+
+		contactoDAO.registrarContacto(contacto);
+		usuarioDAO.modificarUsuario(user);
 
 		return true;
 	}

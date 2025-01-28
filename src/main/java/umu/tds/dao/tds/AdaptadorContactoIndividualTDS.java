@@ -11,6 +11,8 @@ import beans.Propiedad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
 import umu.tds.dao.AdaptadorContactoIndividualDAO;
+import umu.tds.dao.AdaptadorUsuarioDAO;
+import umu.tds.dao.DAOFactory;
 import umu.tds.model.ContactoIndividual;
 import umu.tds.model.Mensaje;
 import umu.tds.model.Usuario;
@@ -19,6 +21,13 @@ import umu.tds.model.Usuario;
 public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividualDAO {
 	
 	public static final String ENTITY_TYPE = "ContactoIndividual";
+	
+	
+	
+	private static final String NAME_FIELD = "name";
+	private static final String PHONE_FIELD = "phone";
+	private static final String USER_FIELD = "user";
+	private static final String MENSAJES_FIELD = "mensaje";
 	
 	private static AdaptadorContactoIndividualTDS unicaInstancia = null;
 	private static ServicioPersistencia servPersistencia;
@@ -44,28 +53,33 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		if (servPersistencia.recuperarEntidad(contactoIndividual.getId()) != null)
 			return;
 		
-		Entidad eContactoIndividual;
+		AdaptadorUsuarioTDS adapterU = AdaptadorUsuarioTDS.getInstance();
+		AdaptadorMensajeTDS adapterM = AdaptadorMensajeTDS.getUnicaInstancia();
 		
-		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getInstance();
-		AdaptadorMensajeTDS adaptadorMensaje = AdaptadorMensajeTDS.getUnicaInstancia();
+		/* Asegurar usuario y mensajes registrados
+		 
+		adapterU.registrarUsuario(contactoIndividual.getUsuario());
 		
-		adaptadorUsuario.registrarUsuario(contactoIndividual.getUsuario());
 		for (Mensaje mensaje : contactoIndividual.getMensajes()) {
-			adaptadorMensaje.registrarMensaje(mensaje);
+			adapterM.registrarMensaje(mensaje);
 		}
 		
-		eContactoIndividual = new Entidad();
-		eContactoIndividual.setNombre("contactoIndividual");
-		eContactoIndividual.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(
-				new Propiedad("nombre", contactoIndividual.getNombre()),
-				new Propiedad("movil", contactoIndividual.getMovil()),
-				new Propiedad("usuario", String.valueOf(contactoIndividual.getUsuario().getId())),
-				new Propiedad("mensajes", obtenerCodigosMensajes(contactoIndividual.getMensajes()))
+		*/
+		
+		Entidad entContactoIndividual = new Entidad();
+		entContactoIndividual.setNombre(ENTITY_TYPE);
+		
+		entContactoIndividual.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(
+				new Propiedad(NAME_FIELD, contactoIndividual.getNombre()),
+				new Propiedad(PHONE_FIELD, contactoIndividual.getMovil()),
+				new Propiedad(USER_FIELD, String.valueOf(contactoIndividual.getUsuario().getId())),
+				new Propiedad(MENSAJES_FIELD, obtenerCodigosMensajes(contactoIndividual.getMensajes()))
 		))
 		);
 		
-		eContactoIndividual = servPersistencia.registrarEntidad(eContactoIndividual);
-		contactoIndividual.setId(eContactoIndividual.getId());
+		entContactoIndividual = servPersistencia.registrarEntidad(entContactoIndividual);
+		
+		contactoIndividual.setId(entContactoIndividual.getId());
 		
 	}
 	
@@ -108,41 +122,29 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 	}
 	
 	@Override
-	public ContactoIndividual recuperarContactoIndividual(int codigo) {
-		
+	public ContactoIndividual recuperarContactoIndividual(int id) {
 		//Cambiar cuando tengamos Pool hecho
 		
 		/*if ( PoolDAO.getUnicaInstancia().contiene(codigo)) {
 			return PoolDAO.getObjeto(codigo);
 		}*/
 		
-		String nombre;
-		String movil;
-		Usuario usuario;
-		List<Mensaje> mensajes;
+		Entidad entContactoIndividual = servPersistencia.recuperarEntidad(id);
 		
-		Entidad eContactoIndividual = servPersistencia.recuperarEntidad(codigo);
+		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
 		
-		nombre = servPersistencia.recuperarPropiedadEntidad(eContactoIndividual, "nombre");
-		movil = servPersistencia.recuperarPropiedadEntidad(eContactoIndividual, "movil");
+		String name = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, NAME_FIELD);
+		String phone = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, PHONE_FIELD);	
 		
-		ContactoIndividual contactoIndividual = new ContactoIndividual(nombre, movil, null);
-		contactoIndividual.setId(codigo);
+		String userContactId = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, USER_FIELD);	
+		Usuario userContact = adapterU.recuperarUsuario(Integer.valueOf(userContactId));
 		
-		//PoolDAO.addObjeto(codigo, contactoIndividual);
+		// TODO: Recuperar mensajes
 		
-		int idUsuario = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(eContactoIndividual, "usuario"));
+		ContactoIndividual contacto = new ContactoIndividual(name, phone, userContact);
+		contacto.setId(id);
 		
-		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getInstance();
-		usuario = adaptadorUsuario.recuperarUsuario(idUsuario);
-		contactoIndividual.setUsuario(usuario);
-		
-		mensajes =  obtenerMensajesDesdeIds(servPersistencia.recuperarPropiedadEntidad(eContactoIndividual, "mensajes"));
-		for (Mensaje mensaje : mensajes) {
-			contactoIndividual.addMensaje(mensaje);;
-		}
-		
-		return contactoIndividual;
+		return contacto;
 		
 	}
 	
@@ -150,12 +152,8 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 	//Método para obtener ids a partir de la lista de objetos al registrar
 	
 	private String obtenerCodigosMensajes(List<Mensaje> listaMensajes) {
-		// líneas de venta ya tienen el código dado por el servicio de persistencia
-		String lineas = "";
-		for (Mensaje mensaje: listaMensajes)
-				lineas += mensaje.getId() + " ";
-		return lineas.trim();
-		}
+		return "";
+	}
 	
 	//Método para obtener lista de objetos a partir de un string con una lista de ids al recuperar
 	

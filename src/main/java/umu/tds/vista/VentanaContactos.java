@@ -7,6 +7,10 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import javax.swing.border.TitledBorder;
+
+import umu.tds.controlador.AppChat;
+import umu.tds.model.Contacto;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -16,9 +20,12 @@ import javax.swing.BoxLayout;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.JList;
 
 public class VentanaContactos extends JFrame {
 
@@ -133,6 +140,16 @@ public class VentanaContactos extends JFrame {
 		JScrollPane scrollPane_1 = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		
+		List<Contacto> contactos = AppChat.getInstance().getCurrentUser().getContactos();
+		
+		List<String> nombresContactos = contactos.stream()
+                .map(Contacto::getNombre) // Extraer el atributo "name" de cada contacto
+                .collect(Collectors.toList()); // Convertir el stream en una lista
+		
+		JList<String> list = new JList<>(nombresContactos.toArray(new String[0]));
+		
+		scrollPane.setViewportView(list);
 		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
 		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane_1.gridx = 0;

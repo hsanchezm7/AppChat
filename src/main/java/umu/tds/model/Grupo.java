@@ -6,11 +6,11 @@ public class Grupo extends Contacto {
 	
 	/* Atributos */
 	private Usuario administrador;
-	private List<Usuario> miembros;
+	private List<ContactoIndividual> miembros;
 	private String imagenGrupoURL;
 	
 	/* Constructor */
-	public Grupo(String nombre, Usuario administrador, List<Usuario> miembros, String imagenGrupoURL) {
+	public Grupo(String nombre, Usuario administrador, List<ContactoIndividual> miembros, String imagenGrupoURL) {
 		super(nombre);
 		this.administrador = administrador;
 		this.miembros = miembros;
@@ -25,12 +25,11 @@ public class Grupo extends Contacto {
 		this.administrador = administrador;
 	}
 
-	// ¿Usuario o contacto?
-	public List<Usuario> getMiembros() {
+	public List<ContactoIndividual> getMiembros() {
 		return miembros;
 	}
 
-	public void setMiembros(List<Usuario> miembros) {
+	public void setMiembros(List<ContactoIndividual> miembros) {
 		this.miembros = miembros;
 	}
 

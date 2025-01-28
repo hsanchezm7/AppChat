@@ -1,6 +1,7 @@
 package umu.tds.dao.tds;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,7 +91,7 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 				new Propiedad(PREMIUM_FIELD, String.valueOf(usuario.isPremium())),
 				new Propiedad(FECHAREG_FIELD, usuario.getFechaRegistro().format(dateFormat)))));
 
-		servPersistencia.registrarEntidad(entUsuario);
+		entUsuario = servPersistencia.registrarEntidad(entUsuario);
 		
 		usuario.setId(entUsuario.getId());
 	}
@@ -105,7 +106,43 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 
 	@Override
 	public void modificarUsuario(Usuario usuario) {
-
+		Entidad entUsuario = servPersistencia.recuperarEntidad(usuario.getId());
+		
+		for (Propiedad prop : entUsuario.getPropiedades()) {
+			switch (prop.getNombre()) {
+	        case PHONE_FIELD:
+	            prop.setValor(usuario.getPhone());
+	            break;
+	        case PASSWORD_FIELD:
+	            prop.setValor(new String(usuario.getPassword()));
+	            break;
+	        case NAME_FIELD:
+	            prop.setValor(usuario.getName());
+	            break;
+	        case BIRTH_FIELD:
+	            prop.setValor(usuario.getFechaNacimiento().format(dateFormat));
+	            break;
+	        case IMAGENURL_FIELD:
+	            prop.setValor(usuario.getImagenURL());
+	            break;
+	        case SALUDO_FIELD:
+	            prop.setValor(usuario.getSaludo());
+	            break;
+	        case CONTACTOS_FIELD:
+	            prop.setValor(getIdsFromContacts(usuario.getContactos()));
+	            break;
+	        case PREMIUM_FIELD:
+	            prop.setValor(String.valueOf(usuario.isPremium()));
+	            break;
+	        case FECHAREG_FIELD:
+	            prop.setValor(usuario.getFechaRegistro().format(dateFormat));
+	            break;
+	        default:
+	            break;
+	    }
+		    servPersistencia.modificarPropiedad(prop);
+		}
+		
 	}
 	
 	@Override
@@ -129,6 +166,7 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 		usuario.setPremium(premium);
 		/* TODO: CREAR CONSTRUCTOR QUE ACEPTE CONTACTOS */
 		usuario.setContactos(contactos);
+		usuario.setId(id);
 
 		return usuario;
 	}

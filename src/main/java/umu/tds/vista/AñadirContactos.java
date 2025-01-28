@@ -5,6 +5,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JDialog;
 import javax.swing.border.EmptyBorder;
+
+import umu.tds.controlador.AppChat;
+
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -133,14 +136,15 @@ public class AñadirContactos extends JDialog {
 		                JOptionPane.WARNING_MESSAGE);
 		            return; // Salir del método si no pasa la validación
 		        }
+		        
+		        boolean addContacto = AppChat.getInstance().addContacto(name, phone);
 
-		        // Si pasa las validaciones, mostrar un mensaje de éxito o realizar otra acción
-		        JOptionPane.showMessageDialog(AñadirContactos.this, 
-		            "Contacto añadido correctamente.", 
-		            "Éxito", 
-		            JOptionPane.INFORMATION_MESSAGE);
-
-		        dispose();
+		        if (addContacto) {
+					// Si pasa las validaciones, mostrar un mensaje de éxito o realizar otra acción
+					JOptionPane.showMessageDialog(AñadirContactos.this, "Contacto añadido correctamente.", "Éxito",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+				dispose();
 		    }
 		});
 

@@ -9,7 +9,10 @@ import beans.Entidad;
 import beans.Propiedad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
+import umu.tds.dao.AdaptadorContactoDAO;
+import umu.tds.dao.AdaptadorContactoIndividualDAO;
 import umu.tds.dao.AdaptadorGrupoDAO;
+import umu.tds.dao.AdaptadorMensajeDAO;
 import umu.tds.dao.AdaptadorUsuarioDAO;
 import umu.tds.dao.DAOFactory;
 import umu.tds.model.Contacto;
@@ -53,25 +56,39 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		if (servPersistencia.recuperarEntidad(grupo.getId()) != null)
 			return;
 		
-		/* Asegurar MIEMBROS registrados */
-		List<Usuario> miembros = grupo.getMiembros();
-		
+		/* Asegurar ADMINISTRADOR registrado */
 		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
 		
-		for (Usuario miembro : miembros)
-			adapterU.registrarUsuario(miembro);
+		Usuario administrador = grupo.getAdministrador();
+		adapterU.registrarUsuario(administrador);
+		
+		/* Asegurar MIEMBROS registrados */
+		AdaptadorContactoIndividualDAO adapterCI = DAOFactory.getInstance().getContactoIndividualDAO();
+		
+		List<ContactoIndividual> miembros = grupo.getMiembros();
+		
+		for (ContactoIndividual miembro : miembros)
+			adapterCI.registrarContactoIndividual(miembro);
 				
 		/* TODO: REGISTRAR MENSAJES ASOCIADOS */
+		AdaptadorMensajeDAO adapterM = DAOFactory.getInstance().getMensajeDAO();
 		
+		// ¿Usar LinkedList<>?
+		List<Mensaje> mensajes = grupo.getMensajes();
+		
+		for (Mensaje m : mensajes)
+			adapterM.registrarMensaje(m);
+		
+		/* Crear y registrar entidad */
 		Entidad entGrupo = new Entidad();
 		entGrupo.setNombre(ENTITY_TYPE);
 
 		entGrupo.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(
 		        new Propiedad(ADMIN_FIELD, String.valueOf(grupo.getAdministrador().getId())),
-		        new Propiedad(MIEMBROS_FIELD, getIdsFromUsuarios(miembros)), // Convertir lista de miembros a IDs
+		        new Propiedad(MIEMBROS_FIELD, getIdsFromMembers(miembros)), // Convertir lista de miembros a IDs
 		        new Propiedad(IMAGENURL_FIELD, grupo.getImagenGrupoURL()),
 		        new Propiedad(NOMBRE_FIELD, grupo.getNombre()),
-		        new Propiedad(MENSAJES_FIELD, getIdsFromMensajes(grupo.getMensajes())) // Convertir lista de mensajes a IDs
+		        new Propiedad(MENSAJES_FIELD, getIdsFromMensajes(mensajes)) // Convertir lista de mensajes a IDs
 		)));
 
 		servPersistencia.registrarEntidad(entGrupo);
@@ -93,32 +110,28 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	public Grupo recuperarGrupo(int id) {		
 		Entidad entGrupo = servPersistencia.recuperarEntidad(id);
 		
-		String administradorId = servPersistencia.recuperarPropiedadEntidad(entGrupo, ADMIN_FIELD);
-		Usuario administrador = DAOFactory.getInstance().getUsuarioDAO().recuperarUsuario(Integer.parseInt(administradorId));
-
-		String miembrosIds = servPersistencia.recuperarPropiedadEntidad(entGrupo, MIEMBROS_FIELD);
-		List<Usuario> miembros = getMembersFromConcatenatedIds(Arrays.stream(miembrosIds.split(","))
-		        .map(Integer::parseInt)
-		        .collect(Collectors.toList())); // Método auxiliar para obtener usuarios por sus IDs
-
-		String imagenGrupoURL = servPersistencia.recuperarPropiedadEntidad(entGrupo, IMAGENURL_FIELD);
 		String nombre = servPersistencia.recuperarPropiedadEntidad(entGrupo, NOMBRE_FIELD);
+		
+		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
+		Usuario administrador = adapterU.recuperarUsuario(Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entGrupo, ADMIN_FIELD)));
 
-		String mensajesIds = servPersistencia.recuperarPropiedadEntidad(entGrupo, MENSAJES_FIELD);
-		List<Mensaje> mensajes = obtenerMensajesPorIds(Arrays.stream(mensajesIds.split(","))
-		        .map(Integer::parseInt)
-		        .collect(Collectors.toList())); // Método auxiliar para obtener mensajes por sus IDs
-
-		int id = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entGrupo, ID_FIELD));
-
-		// Crear el objeto Grupo con las propiedades recuperadas
-		Grupo grupo = new Grupo(administrador, miembros, imagenGrupoURL, nombre, mensajes, id);
-
+		List<ContactoIndividual> miembros = getMembersFromConcatenatedIds(servPersistencia.recuperarPropiedadEntidad(entGrupo, MIEMBROS_FIELD));
+		
+		List<Mensaje> mensajes = getMessagesFromConcatenatedIds(servPersistencia.recuperarPropiedadEntidad(entGrupo, MENSAJES_FIELD));
+		
+		String imagenGrupoURL = servPersistencia.recuperarPropiedadEntidad(entGrupo, IMAGENURL_FIELD);
+		
+		/* Crear el objeto Grupo con las propiedades recuperadas */
+		Grupo grupo = new Grupo(nombre, administrador, miembros, imagenGrupoURL);
+		grupo.setMensajes(mensajes);
+		grupo.setId(id);
+		
+		return grupo;
 	}
-	
-	private String getIdsFromUsuarios(List<Usuario> usuarios) {
-	    return usuarios.stream()
-	            .map(usuario -> String.valueOf(usuario.getId()))
+
+	private String getIdsFromMembers(List<ContactoIndividual> miembros) {
+	    return miembros.stream()
+	            .map(miembro -> String.valueOf(miembro.getId()))
 	            .collect(Collectors.joining(", "));
 	}
 	
@@ -128,19 +141,27 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	            .collect(Collectors.joining(", "));
 	}
 	
-	private List<Contacto> getUsersFromConcatenatedIds(String concatenatedIds) {
+	private List<ContactoIndividual> getMembersFromConcatenatedIds(String concatenatedIds) {
 		if (concatenatedIds == null || concatenatedIds.trim().isEmpty()) {
 	        return new ArrayList<>(); // Retorna una lista vacía si la cadena está vacía
 	    }
 		
-		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
-
-		/* TODO: ¿Esta función debe devolver Contactos, o Usuarios?  */
+		AdaptadorContactoIndividualDAO adapterCI = DAOFactory.getInstance().getContactoIndividualDAO();
 		
 	    return Arrays.stream(concatenatedIds.split(", "))
-	            .map(id -> adapterU.recuperarUsuario(Integer.parseInt(id.trim()))) // Asegura que no haya espacios en blanco
+	            .map(id -> adapterCI.recuperarContactoIndividual(Integer.parseInt(id.trim()))) // Asegura que no haya espacios en blanco
 	            .collect(Collectors.toList());
 	}
-
-
+	
+	private List<Mensaje> getMessagesFromConcatenatedIds(String concatenatedIds) {
+		if (concatenatedIds == null || concatenatedIds.trim().isEmpty()) {
+	        return new ArrayList<>(); // Retorna una lista vacía si la cadena está vacía
+	    }
+		
+		AdaptadorMensajeDAO adapterM = DAOFactory.getInstance().getMensajeDAO();
+		
+	    return Arrays.stream(concatenatedIds.split(", "))
+	            .map(id -> adapterM.recuperarMensaje(Integer.parseInt(id.trim()))) // Asegura que no haya espacios en blanco
+	            .collect(Collectors.toList());
+	}
 }
