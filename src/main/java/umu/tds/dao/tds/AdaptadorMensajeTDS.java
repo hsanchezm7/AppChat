@@ -70,6 +70,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		// lo mismo con el grupo
 		AdaptadorContactoIndividualTDS adaptadorContactoIndividual = AdaptadorContactoIndividualTDS.getInstance();
 		AdaptadorGrupoTDS adaptadorGrupo = AdaptadorGrupoTDS.getInstance();
+		
 		Contacto contacto = mensaje.getReceptor();
 		if (contacto instanceof ContactoIndividual) {
 			adaptadorContactoIndividual.registrarContactoIndividual((ContactoIndividual) contacto);
@@ -87,6 +88,8 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 
 		entMensaje = servPersistencia.registrarEntidad(entMensaje);
 		mensaje.setId(entMensaje.getId()); // mirar esto
+		
+		PoolDAO.getInstance().addObject(mensaje.getId(), mensaje);
 
 	}
 
@@ -122,6 +125,10 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 
 	@Override
 	public Mensaje recuperarMensaje(int id) {
+		if (PoolDAO.getInstance().contains(id)) {
+			return (Mensaje) PoolDAO.getInstance().getObject(id);
+		}
+		
 		Entidad entMensaje = servPersistencia.recuperarEntidad(id);
 
 		String texto = servPersistencia.recuperarPropiedadEntidad(entMensaje, TEXT_FIELD);
@@ -131,10 +138,14 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 				.parse(servPersistencia.recuperarPropiedadEntidad(entMensaje, FECHAHORA_FIELD), dateTimeFormat);
 		int emoticono = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, EMOTICONO_FIELD));
 
+		Mensaje mensaje = new Mensaje(texto, null, null, fechaHora, emoticono);
+		
 		Usuario emisor = DAOFactory.getInstance().getUsuarioDAO().recuperarUsuario(idEmisor);
 		Contacto receptor = DAOFactory.getInstance().getContactoIndividualDAO().recuperarContactoIndividual(idReceptor);
 
-		Mensaje mensaje = new Mensaje(texto, emisor, receptor, fechaHora, emoticono);
+		mensaje.setEmisor(emisor);
+		mensaje.setReceptor(receptor);
+		
 		mensaje.setId(id);
 
 		return mensaje;

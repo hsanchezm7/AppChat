@@ -5,8 +5,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 import beans.Entidad;
@@ -38,14 +42,14 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 	private static final String FECHAREG_FIELD = "fechaRegistro";
 
 	private static AdaptadorUsuarioTDS unicaInstancia = null;
-	
+
 	private static ServicioPersistencia servPersistencia;
-	
+
 	private DateTimeFormatter dateFormat;
 
 	private AdaptadorUsuarioTDS() {
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
-		
+
 		dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	}
 
@@ -63,20 +67,19 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 	public void registrarUsuario(Usuario usuario) {
 		if (servPersistencia.recuperarEntidad(usuario.getId()) != null)
 			return;
-		
+
 		/* Asegurar contactos registrados */
 		List<Contacto> contactos = usuario.getContactos();
-		
 		AdaptadorGrupoDAO adapterG = DAOFactory.getInstance().getGrupoDAO();
 		AdaptadorContactoIndividualDAO adapterCI = DAOFactory.getInstance().getContactoIndividualDAO();
-		
-        for (Contacto contacto : contactos) {
-            if (contacto instanceof ContactoIndividual) {
-                adapterCI.registrarContactoIndividual((ContactoIndividual) contacto);
-            } else if (contacto instanceof Grupo) {
-            	adapterG.registrarGrupo((Grupo) contacto);
-            }
-        }
+
+		for (Contacto contacto : contactos) {
+			if (contacto instanceof ContactoIndividual) {
+				adapterCI.registrarContactoIndividual((ContactoIndividual) contacto);
+			} else if (contacto instanceof Grupo) {
+				adapterG.registrarGrupo((Grupo) contacto);
+			}
+		}
 
 		Entidad entUsuario = new Entidad();
 		entUsuario.setNombre(ENTITY_TYPE);
@@ -92,8 +95,10 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 				new Propiedad(FECHAREG_FIELD, usuario.getFechaRegistro().format(dateFormat)))));
 
 		entUsuario = servPersistencia.registrarEntidad(entUsuario);
-		
 		usuario.setId(entUsuario.getId());
+
+		PoolDAO.getInstance().addObject(usuario.getId(), usuario);
+		
 	}
 
 	@Override
@@ -107,46 +112,52 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 	@Override
 	public void modificarUsuario(Usuario usuario) {
 		Entidad entUsuario = servPersistencia.recuperarEntidad(usuario.getId());
-		
+
 		for (Propiedad prop : entUsuario.getPropiedades()) {
 			switch (prop.getNombre()) {
-	        case PHONE_FIELD:
-	            prop.setValor(usuario.getPhone());
-	            break;
-	        case PASSWORD_FIELD:
-	            prop.setValor(new String(usuario.getPassword()));
-	            break;
-	        case NAME_FIELD:
-	            prop.setValor(usuario.getName());
-	            break;
-	        case BIRTH_FIELD:
-	            prop.setValor(usuario.getFechaNacimiento().format(dateFormat));
-	            break;
-	        case IMAGENURL_FIELD:
-	            prop.setValor(usuario.getImagenURL());
-	            break;
-	        case SALUDO_FIELD:
-	            prop.setValor(usuario.getSaludo());
-	            break;
-	        case CONTACTOS_FIELD:
-	            prop.setValor(getIdsFromContacts(usuario.getContactos()));
-	            break;
-	        case PREMIUM_FIELD:
-	            prop.setValor(String.valueOf(usuario.isPremium()));
-	            break;
-	        case FECHAREG_FIELD:
-	            prop.setValor(usuario.getFechaRegistro().format(dateFormat));
-	            break;
-	        default:
-	            break;
-	    }
-		    servPersistencia.modificarPropiedad(prop);
+			case PHONE_FIELD:
+				prop.setValor(usuario.getPhone());
+				break;
+			case PASSWORD_FIELD:
+				prop.setValor(new String(usuario.getPassword()));
+				break;
+			case NAME_FIELD:
+				prop.setValor(usuario.getName());
+				break;
+			case BIRTH_FIELD:
+				prop.setValor(usuario.getFechaNacimiento().format(dateFormat));
+				break;
+			case IMAGENURL_FIELD:
+				prop.setValor(usuario.getImagenURL());
+				break;
+			case SALUDO_FIELD:
+				prop.setValor(usuario.getSaludo());
+				break;
+			case CONTACTOS_FIELD:
+				prop.setValor(getIdsFromContacts(usuario.getContactos()));
+				break;
+			case PREMIUM_FIELD:
+				prop.setValor(String.valueOf(usuario.isPremium()));
+				break;
+			case FECHAREG_FIELD:
+				prop.setValor(usuario.getFechaRegistro().format(dateFormat));
+				break;
+			default:
+				break;
+			}
+
+			servPersistencia.modificarPropiedad(prop);
 		}
-		
+
 	}
-	
+
 	@Override
 	public Usuario recuperarUsuario(int id) {
+		
+		if(PoolDAO.getInstance().contains(id)) {
+			return (Usuario) PoolDAO.getInstance().getObject(id);
+		}
+		
 		Entidad entUsuario = servPersistencia.recuperarEntidad(id);
 
 		String phone = servPersistencia.recuperarPropiedadEntidad(entUsuario, PHONE_FIELD);
@@ -159,42 +170,45 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 		boolean premium = Boolean.parseBoolean(servPersistencia.recuperarPropiedadEntidad(entUsuario, PREMIUM_FIELD));
 		LocalDate fechaReg = LocalDate.parse(servPersistencia.recuperarPropiedadEntidad(entUsuario, FECHAREG_FIELD),
 				dateFormat);
-		List<Contacto> contactos = getContactsFromConcatenatedIds(servPersistencia.recuperarPropiedadEntidad(entUsuario, CONTACTOS_FIELD));
-		
-
+//
+		//
 		Usuario usuario = new Usuario(phone, password, name, birthDate, imagenURL, saludo, fechaReg);
 		usuario.setPremium(premium);
 		/* TODO: CREAR CONSTRUCTOR QUE ACEPTE CONTACTOS */
-		usuario.setContactos(contactos);
+		
 		usuario.setId(id);
 
+		PoolDAO.getInstance().addObject(id, usuario);
+		
+		List<Contacto> contactos = getContactsFromConcatenatedIds(
+				servPersistencia.recuperarPropiedadEntidad(entUsuario, CONTACTOS_FIELD));
+
+		usuario.setContactos(contactos);//
+		
 		return usuario;
 	}
 
 	@Override
 	public List<Usuario> recuperarAllUsuarios() {
-	    return servPersistencia.recuperarEntidades(ENTITY_TYPE).stream()
-	            .map(entidad -> recuperarUsuario(entidad.getId()))
-	            .collect(Collectors.toCollection(LinkedList::new));
+		return servPersistencia.recuperarEntidades(ENTITY_TYPE).stream()
+				.map(entidad -> recuperarUsuario(entidad.getId())).collect(Collectors.toCollection(LinkedList::new));
 	}
 
 	/* ¿DEBERÍA IR EN LA CLASE USUARIO? */
 	private String getIdsFromContacts(List<Contacto> contactos) {
-		return contactos.stream()
-		        .map(contacto -> String.valueOf(contacto.getId()))
-		        .collect(Collectors.joining(", "));
+		return contactos.stream().map(contacto -> String.valueOf(contacto.getId())).collect(Collectors.joining(" "));
 	}
 
-  
+	/////
 	private List<Contacto> getContactsFromConcatenatedIds(String concatenatedIds) {
-		if (concatenatedIds == null || concatenatedIds.trim().isEmpty()) {
-	        return new ArrayList<>(); // Retorna una lista vacía si la cadena está vacía
-	    }
-		
-		AdaptadorContactoDAO adapterC = DAOFactory.getInstance().getContactoDAO();
-		
-		return Arrays.stream(concatenatedIds.split(", "))
-			    .map(id -> adapterC.recuperarContacto(Integer.parseInt(id.trim())))
-			    .collect(Collectors.toList());
+
+		List<Contacto> contactos = new LinkedList<>();
+		StringTokenizer strTok = new StringTokenizer(concatenatedIds, " ");
+		AdaptadorContactoTDS adaptadorC = AdaptadorContactoTDS.getInstance();
+		while(strTok.hasMoreTokens()) {
+			contactos.add(adaptadorC.recuperarContacto(Integer.valueOf((String) strTok.nextElement())));
+		}
+		return contactos;
 	}
+
 }

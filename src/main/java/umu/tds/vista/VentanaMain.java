@@ -3,36 +3,30 @@ package umu.tds.vista;
 import java.awt.EventQueue;
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
-import javax.swing.JButton;
 import java.awt.GridBagConstraints;
-import javax.swing.JComboBox;
 import java.awt.Insets;
-import javax.swing.ImageIcon;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
+
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 
 import javax.swing.border.TitledBorder;
-import javax.swing.JScrollBar;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import umu.tds.controlador.AppChat;
+import umu.tds.model.Contacto;
 import umu.tds.model.ContactoIndividual;
+import umu.tds.model.Mensaje;
 
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
 
 import tds.BubbleText;
 import java.awt.event.ActionListener;
@@ -50,6 +44,10 @@ public class VentanaMain extends JFrame {
 	private JTextField txtUsuarioActual;
 	private JTextField textField;
 	private JTextField textField_1;
+	private List<Contacto> contactos;
+	private DefaultListModel<Contacto> modeloSeleccionado = new DefaultListModel<>();
+	private JList<Contacto> listaContactos;
+	private JPanel panelChat;
 
 	/**
 	 * Launch the application.
@@ -82,6 +80,13 @@ public class VentanaMain extends JFrame {
 		
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
+		//Devuelvo los contactos del usuario actual
+		contactos = AppChat.getInstance().getCurrentUser().getContactos();
+		//Los añado al modelo
+		contactos.stream().forEach(c -> modeloSeleccionado.addElement(c));
+		
+		listaContactos = new JList<>(modeloSeleccionado);
+		
 		
 		//quitar cuando funcione
 		DefaultListModel<ContactoIndividual> modelo = new DefaultListModel<>();
@@ -90,10 +95,10 @@ public class VentanaMain extends JFrame {
 		modelo.addElement(new ContactoIndividual("Maria", "634567890", null));
 		
 		
-		JPanel panelNorte = crearPanelNorte(modelo);
+		JPanel panelNorte = crearPanelNorte(modeloSeleccionado);
 		getContentPane().add(panelNorte, BorderLayout.NORTH);
 		
-		JPanel panelMain = crearPanelMain(modelo);
+		JPanel panelMain = crearPanelMain(modeloSeleccionado);
 		getContentPane().add(panelMain, BorderLayout.CENTER);
 		
 		pack();
@@ -102,7 +107,7 @@ public class VentanaMain extends JFrame {
 		setLocationRelativeTo(null);
 	}
 	
-	public JPanel crearPanelNorte(DefaultListModel<ContactoIndividual> modelo) {
+	public JPanel crearPanelNorte(DefaultListModel<Contacto> modeloSeleccionado2) {
 	
 		JPanel panelNorte = new JPanel();
 		panelNorte.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -114,8 +119,8 @@ public class VentanaMain extends JFrame {
 		panelNorte.setLayout(gbl1);
 		
 		JComboBox comboBox = new JComboBox();
-		for (int i = 0; i < modelo.size(); i++) {
-		    ContactoIndividual contacto = modelo.getElementAt(i);  // Obtener el contacto
+		for (int i = 0; i < modeloSeleccionado2.size(); i++) {
+		    Contacto contacto = modeloSeleccionado2.getElementAt(i);  // Obtener el contacto
 		    comboBox.addItem(contacto.getNombre());  // Añadir el nombre al JComboBox
 		}
 		
@@ -182,7 +187,7 @@ public class VentanaMain extends JFrame {
 		
 	}
 	
-	public JPanel crearPanelMain(DefaultListModel<ContactoIndividual> modelo) {
+	public JPanel crearPanelMain(DefaultListModel<Contacto> modelo) {
 		
 		JPanel panelMain = new JPanel();
 		GridBagLayout gbl4 = new GridBagLayout();
@@ -204,7 +209,7 @@ public class VentanaMain extends JFrame {
 		panelIzq.setLayout(new BorderLayout(0, 0));
 		
 		// Crear el JList basado en el modelo
-		JList<ContactoIndividual> lista = new JList<>(modelo);
+		JList<Contacto> lista = new JList<>(modelo);
 		lista.setCellRenderer(new ContactoIndividualCellRenderer());
 		
 		
@@ -243,6 +248,7 @@ public class VentanaMain extends JFrame {
 		    }
 		});
 		
+		
 		JScrollPane scrollPane = new JScrollPane(lista);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -264,25 +270,24 @@ public class VentanaMain extends JFrame {
 		panelDer.setLayout(gbl_panel_5);
 		
 		
-		JPanel chat = new JPanel();
-		GridBagConstraints gbc7 = new GridBagConstraints();
-		gbc7.gridwidth = 2;
-		gbc7.insets = new Insets(0, 0, 5, 5);
-		gbc7.fill = GridBagConstraints.BOTH;
-		gbc7.gridx = 0;
-		gbc7.gridy = 0;
-		panelDer.add(chat, gbc7);
-		chat.setLayout(new BoxLayout(chat,BoxLayout.Y_AXIS)); chat.setSize(400,700);
-		chat.setMinimumSize(new Dimension(400,700)); chat.setMaximumSize(new Dimension(400,700)); chat.setPreferredSize(new Dimension(400,700));
+		JScrollPane chat = new JScrollPane();
+		chat.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		chat.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		chat.setBorder(null);
+		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
+		gbc_scrollPane_1.gridwidth = 2;
+		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_1.insets = new Insets(0, 0, 5, 0);
+		gbc_scrollPane_1.gridx = 0;
+		gbc_scrollPane_1.gridy = 0;
+		panelDer.add(chat, gbc_scrollPane_1);
 		
-		BubbleText burbuja;
-		burbuja=new BubbleText(chat,"Hola grupo!!", Color.GREEN, "J.Ramón", BubbleText.SENT); chat.add(burbuja);
+		listaContactos.setSelectedIndex(0);
 		
-		BubbleText burbuja2; burbuja2=new BubbleText(chat,
-				"Hola, ¿Está seguro de que la burbuja usa varias lineas si es necesario?",
-				Color.LIGHT_GRAY, "Alumno", BubbleText.RECEIVED); chat.add(burbuja2);
-				
-		BubbleText burbuja3=new BubbleText(chat, 0, Color.GREEN, "J.Ramón", BubbleText.SENT,18); chat.add(burbuja3);
+		panelChat = new JPanel();
+        panelChat.setLayout(new BoxLayout(panelChat, BoxLayout.Y_AXIS));
+        chat.add(panelChat);
+		
 		
 		textField_1 = new JTextField();
 		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
@@ -302,6 +307,12 @@ public class VentanaMain extends JFrame {
 		gbcB4.gridy = 1;
 		panelDer.add(btnSend, gbcB4);
 		
+		btnSend.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				enviarMensajes(panelChat, textField_1, listaContactos.getSelectedValue());
+			}
+		});
+		
 		return panelMain;
 		
 	}
@@ -316,7 +327,25 @@ public class VentanaMain extends JFrame {
 		ventanaContactos.setVisible(true);
 	}
 	
-	private class ContactoIndividualCellRenderer extends JPanel implements ListCellRenderer<ContactoIndividual> {
+	private void enviarMensajes(JPanel chat, JTextField texto, Contacto contacto) {
+		
+		boolean enviado = AppChat.getInstance().sendMessage(texto.getText(), contacto);
+		
+		if (enviado) {
+			JOptionPane.showMessageDialog(this, "Mensaje enviado correctamente", "Éxito",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
+		BubbleText burbuja;
+		burbuja=new BubbleText(chat, texto.getText(), Color.GREEN, "Yo", BubbleText.SENT);
+		chat.add(burbuja);
+		texto.setText(null);
+		listaContactos.updateUI();//
+		
+	}
+	
+	
+	
+	private class ContactoIndividualCellRenderer extends JPanel implements ListCellRenderer<Contacto> {
 		private JLabel nameLabel;
 		private JLabel imageLabel;
 		private JButton btnPlus;
@@ -374,7 +403,7 @@ public class VentanaMain extends JFrame {
 		}
 
 		@Override
-		public Component getListCellRendererComponent(JList<? extends ContactoIndividual> list, ContactoIndividual persona, int index,
+		public Component getListCellRendererComponent(JList<? extends Contacto> list, Contacto persona, int index,
 				boolean isSelected, boolean cellHasFocus) {
 			// Set the text
 			nameLabel.setText(persona.getNombre());

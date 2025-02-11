@@ -1,8 +1,10 @@
 package umu.tds.dao.tds;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
@@ -80,7 +82,8 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		entContactoIndividual = servPersistencia.registrarEntidad(entContactoIndividual);
 		
 		contactoIndividual.setId(entContactoIndividual.getId());
-		
+	
+		PoolDAO.getInstance().addObject(contactoIndividual.getId(), contactoIndividual);
 	}
 	
 	@Override
@@ -123,11 +126,9 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 	
 	@Override
 	public ContactoIndividual recuperarContactoIndividual(int id) {
-		//Cambiar cuando tengamos Pool hecho
-		
-		/*if ( PoolDAO.getUnicaInstancia().contiene(codigo)) {
-			return PoolDAO.getObjeto(codigo);
-		}*/
+		if(PoolDAO.getInstance().contains(id)) {
+			return (ContactoIndividual) PoolDAO.getInstance().getObject(id);
+		}
 		
 		Entidad entContactoIndividual = servPersistencia.recuperarEntidad(id);
 		
@@ -143,6 +144,8 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		
 		ContactoIndividual contacto = new ContactoIndividual(name, phone, userContact);
 		contacto.setId(id);
+		
+		PoolDAO.getInstance().addObject(id, contacto);
 		
 		return contacto;
 		

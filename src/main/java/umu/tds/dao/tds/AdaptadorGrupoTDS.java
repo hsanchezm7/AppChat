@@ -2,7 +2,11 @@ package umu.tds.dao.tds;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 import beans.Entidad;
@@ -53,12 +57,15 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	
 	@Override
 	public void registrarGrupo(Grupo grupo) {
-		if (servPersistencia.recuperarEntidad(grupo.getId()) != null)
+		
+		//Verificar si el grupo está ya registrado en el sistema
+		if (servPersistencia.recuperarEntidad(grupo.getId()) != null) {
+			System.out.println("El grupo ya estaba registrado"); //Para depurar
 			return;
+		}
 		
 		/* Asegurar ADMINISTRADOR registrado */
 		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
-		
 		Usuario administrador = grupo.getAdministrador();
 		adapterU.registrarUsuario(administrador);
 		
@@ -91,9 +98,11 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		        new Propiedad(MENSAJES_FIELD, getIdsFromMensajes(mensajes)) // Convertir lista de mensajes a IDs
 		)));
 
-		servPersistencia.registrarEntidad(entGrupo);
+		entGrupo = servPersistencia.registrarEntidad(entGrupo);
 
-		grupo.setId(entGrupo.getId());		
+		grupo.setId(entGrupo.getId());	
+		
+		PoolDAO.getInstance().addObject(grupo.getId(), grupo);
 	}
 	
 	@Override
@@ -107,24 +116,44 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	}
 	
 	@Override
-	public Grupo recuperarGrupo(int id) {		
+	public Grupo recuperarGrupo(int id) {
+		if(PoolDAO.getInstance().contains(id)) {
+			return (Grupo) PoolDAO.getInstance().getObject(id);
+		}
+		
+		
+		
+	//Se recupera la entidad del grupo utilizando su id
 		Entidad entGrupo = servPersistencia.recuperarEntidad(id);
 		
+		
+		//Se recupera el nombre del grupo
 		String nombre = servPersistencia.recuperarPropiedadEntidad(entGrupo, NOMBRE_FIELD);
 		
-		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
-		Usuario administrador = adapterU.recuperarUsuario(Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entGrupo, ADMIN_FIELD)));
-
-		List<ContactoIndividual> miembros = getMembersFromConcatenatedIds(servPersistencia.recuperarPropiedadEntidad(entGrupo, MIEMBROS_FIELD));
 		
-		List<Mensaje> mensajes = getMessagesFromConcatenatedIds(servPersistencia.recuperarPropiedadEntidad(entGrupo, MENSAJES_FIELD));
-		
+		//Se recupera la imagen del grupo
 		String imagenGrupoURL = servPersistencia.recuperarPropiedadEntidad(entGrupo, IMAGENURL_FIELD);
 		
 		/* Crear el objeto Grupo con las propiedades recuperadas */
-		Grupo grupo = new Grupo(nombre, administrador, miembros, imagenGrupoURL);
-		grupo.setMensajes(mensajes);
+		Grupo grupo = new Grupo(nombre, null, new LinkedList<ContactoIndividual>(), imagenGrupoURL);
 		grupo.setId(id);
+		
+		PoolDAO.getInstance().addObject(id, grupo);
+		
+		//Se recupera el administrador del grupo
+				AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
+				Usuario administrador = adapterU.recuperarUsuario(Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entGrupo, ADMIN_FIELD)));
+				
+				//Se recupera los miembros del grupo
+				List<ContactoIndividual> miembros = getMembersFromConcatenatedIds(servPersistencia.recuperarPropiedadEntidad(entGrupo, MIEMBROS_FIELD));
+				
+				//Se recupera los mensajes del grupo
+				List<Mensaje> mensajes = getMessagesFromConcatenatedIds(servPersistencia.recuperarPropiedadEntidad(entGrupo, MENSAJES_FIELD));
+				
+		grupo.setAdministrador(administrador);
+		grupo.setMensajes(mensajes);
+		grupo.setMiembros(miembros);
+		
 		
 		return grupo;
 	}
@@ -132,25 +161,23 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	private String getIdsFromMembers(List<ContactoIndividual> miembros) {
 	    return miembros.stream()
 	            .map(miembro -> String.valueOf(miembro.getId()))
-	            .collect(Collectors.joining(", "));
+	            .collect(Collectors.joining(" "));
 	}
 	
 	private String getIdsFromMensajes(List<Mensaje> mensajes) {
 	    return mensajes.stream()
 	            .map(mensaje -> String.valueOf(mensaje.getId()))
-	            .collect(Collectors.joining(", "));
+	            .collect(Collectors.joining(" "));
 	}
 	
 	private List<ContactoIndividual> getMembersFromConcatenatedIds(String concatenatedIds) {
-		if (concatenatedIds == null || concatenatedIds.trim().isEmpty()) {
-	        return new ArrayList<>(); // Retorna una lista vacía si la cadena está vacía
-	    }
-		
-		AdaptadorContactoIndividualDAO adapterCI = DAOFactory.getInstance().getContactoIndividualDAO();
-		
-	    return Arrays.stream(concatenatedIds.split(", "))
-	            .map(id -> adapterCI.recuperarContactoIndividual(Integer.parseInt(id.trim()))) // Asegura que no haya espacios en blanco
-	            .collect(Collectors.toList());
+		List<ContactoIndividual> contactos = new LinkedList<>();
+		StringTokenizer strTok = new StringTokenizer(concatenatedIds, " ");
+		AdaptadorContactoIndividualTDS adaptadorCI = AdaptadorContactoIndividualTDS.getInstance();
+		while (strTok.hasMoreTokens()) {
+			contactos.add(adaptadorCI.recuperarContactoIndividual(Integer.valueOf((String) strTok.nextElement())));
+		}
+		return contactos;
 	}
 	
 	private List<Mensaje> getMessagesFromConcatenatedIds(String concatenatedIds) {
@@ -160,7 +187,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		
 		AdaptadorMensajeDAO adapterM = DAOFactory.getInstance().getMensajeDAO();
 		
-	    return Arrays.stream(concatenatedIds.split(", "))
+	    return Arrays.stream(concatenatedIds.split(" "))
 	            .map(id -> adapterM.recuperarMensaje(Integer.parseInt(id.trim()))) // Asegura que no haya espacios en blanco
 	            .collect(Collectors.toList());
 	}

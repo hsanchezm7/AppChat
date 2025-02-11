@@ -22,11 +22,13 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
 
+import umu.tds.model.ContactoIndividual;
+
 public class AñadirContactos extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField textField;
+	private JTextField nameField;
 	private JTextField phoneField;
 
 	public AñadirContactos(JFrame parent) {
@@ -40,21 +42,21 @@ public class AñadirContactos extends JDialog {
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
-		JPanel panel = new JPanel();
-		contentPane.add(panel, BorderLayout.NORTH);
-		panel.setLayout(new BorderLayout(0, 0));
+		JPanel panelMensaje = new JPanel();
+		contentPane.add(panelMensaje, BorderLayout.NORTH);
+		panelMensaje.setLayout(new BorderLayout(0, 0));
 		
-		JLabel lblNewLabel_2 = new JLabel("Introduzca el nombre del contacto y su teléfono");
-		lblNewLabel_2.setIcon(new ImageIcon(AñadirContactos.class.getResource("/umu/tds/resources/peligro-2.png")));
-		panel.add(lblNewLabel_2, BorderLayout.WEST);
+		JLabel Mensaje = new JLabel("Introduzca el nombre del contacto y su teléfono");
+		Mensaje.setIcon(new ImageIcon(AñadirContactos.class.getResource("/umu/tds/resources/peligro-2.png")));
+		panelMensaje.add(Mensaje, BorderLayout.WEST);
 		
 		
-		JPanel panel_1 = new JPanel();
-		contentPane.add(panel_1, BorderLayout.CENTER);
-		panel_1.setLayout(new BorderLayout(0, 0));
+		JPanel panelMain = new JPanel();
+		contentPane.add(panelMain, BorderLayout.CENTER);
+		panelMain.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel_3 = new JPanel();
-		panel_1.add(panel_3, BorderLayout.CENTER);
+		panelMain.add(panel_3, BorderLayout.CENTER);
 		panel_3.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel_4 = new JPanel();
@@ -66,30 +68,30 @@ public class AñadirContactos extends JDialog {
 		gbl_panel_4.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		panel_4.setLayout(gbl_panel_4);
 		
-		JLabel lblNewLabel = new JLabel("Name");
-		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel.anchor = GridBagConstraints.EAST;
-		gbc_lblNewLabel.gridx = 1;
-		gbc_lblNewLabel.gridy = 1;
-		panel_4.add(lblNewLabel, gbc_lblNewLabel);
+		JLabel NameLabel = new JLabel("Name");
+		GridBagConstraints gbc_NameLabel = new GridBagConstraints();
+		gbc_NameLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_NameLabel.anchor = GridBagConstraints.EAST;
+		gbc_NameLabel.gridx = 1;
+		gbc_NameLabel.gridy = 1;
+		panel_4.add(NameLabel, gbc_NameLabel);
 		
-		textField = new JTextField();
-		GridBagConstraints gbc_textField = new GridBagConstraints();
-		gbc_textField.insets = new Insets(0, 0, 5, 0);
-		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField.gridx = 2;
-		gbc_textField.gridy = 1;
-		panel_4.add(textField, gbc_textField);
-		textField.setColumns(10);
+		nameField = new JTextField();
+		GridBagConstraints gbc_nameField = new GridBagConstraints();
+		gbc_nameField.insets = new Insets(0, 0, 5, 0);
+		gbc_nameField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_nameField.gridx = 2;
+		gbc_nameField.gridy = 1;
+		panel_4.add(nameField, gbc_nameField);
+		nameField.setColumns(10);
 		
-		JLabel lblNewLabel_1 = new JLabel("Phone");
-		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
-		gbc_lblNewLabel_1.anchor = GridBagConstraints.EAST;
-		gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_1.gridx = 1;
-		gbc_lblNewLabel_1.gridy = 2;
-		panel_4.add(lblNewLabel_1, gbc_lblNewLabel_1);
+		JLabel PhoneLabel = new JLabel("Phone");
+		GridBagConstraints gbc_PhoneLabel = new GridBagConstraints();
+		gbc_PhoneLabel.anchor = GridBagConstraints.EAST;
+		gbc_PhoneLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_PhoneLabel.gridx = 1;
+		gbc_PhoneLabel.gridy = 2;
+		panel_4.add(PhoneLabel, gbc_PhoneLabel);
 		
 		phoneField = new JTextField();
 		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
@@ -101,22 +103,22 @@ public class AñadirContactos extends JDialog {
 		phoneField.setColumns(10);
 		
 		
-		JPanel panel_6 = new JPanel();
-		GridBagConstraints gbc_panel_6 = new GridBagConstraints();
-		gbc_panel_6.fill = GridBagConstraints.BOTH;
-		gbc_panel_6.gridx = 2;
-		gbc_panel_6.gridy = 3;
-		panel_4.add(panel_6, gbc_panel_6);
-		panel_6.setLayout(new BorderLayout(0, 0));
+		JPanel panelBotones = new JPanel();
+		GridBagConstraints gbc_panelBotones = new GridBagConstraints();
+		gbc_panelBotones.fill = GridBagConstraints.BOTH;
+		gbc_panelBotones.gridx = 2;
+		gbc_panelBotones.gridy = 3;
+		panel_4.add(panelBotones, gbc_panelBotones);
+		panelBotones.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel_7 = new JPanel();
-		panel_6.add(panel_7, BorderLayout.EAST);
+		panelBotones.add(panel_7, BorderLayout.EAST);
 		
-		JButton btnNewButton_2 = new JButton("Add");
-		panel_7.add(btnNewButton_2);
-		btnNewButton_2.addActionListener(new ActionListener() {
+		JButton btnAdd = new JButton("Add");
+		panel_7.add(btnAdd);
+		btnAdd.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
-		        String name = textField.getText().trim();
+		        String name = nameField.getText().trim();
 		        String phone = phoneField.getText().trim();
 
 		        // Validación del campo de nombre
@@ -137,6 +139,18 @@ public class AñadirContactos extends JDialog {
 		            return; // Salir del método si no pasa la validación
 		        }
 		        
+		        boolean contactoExiste = AppChat.getInstance().getCurrentUser().getContactos().stream()
+		                .anyMatch(contacto -> contacto.getNombre().equals(name) || 
+		                		(contacto instanceof ContactoIndividual && ((ContactoIndividual) contacto).getMovil().equals(phone)));
+
+		            if (contactoExiste) {
+		                JOptionPane.showMessageDialog(AñadirContactos.this, 
+		                    "El contacto ya existe en la lista.", 
+		                    "Advertencia", 
+		                    JOptionPane.WARNING_MESSAGE);
+		                return; // Salir del método si el contacto ya existe
+		            }
+		        
 		        boolean addContacto = AppChat.getInstance().addContacto(name, phone);
 
 		        if (addContacto) {
@@ -148,14 +162,15 @@ public class AñadirContactos extends JDialog {
 		    }
 		});
 
+		getRootPane().setDefaultButton(btnAdd);
 		
-		JButton btnNewButton_3 = new JButton("Cancel");
-		btnNewButton_3.addActionListener( new ActionListener() {
+		JButton btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				dispose();
 			}
 		});
-		panel_7.add(btnNewButton_3);
+		panel_7.add(btnCancel);
 		
 			
 		setSize(400, 200); // Configura un tamaño fijo que permita mostrar todo

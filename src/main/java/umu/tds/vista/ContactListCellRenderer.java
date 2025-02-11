@@ -10,6 +10,8 @@ import javax.swing.ListCellRenderer;
 import umu.tds.model.ContactoIndividual;
 
 public class ContactListCellRenderer extends JLabel implements ListCellRenderer<ContactoIndividual> {
+	public ContactListCellRenderer() {
+	}
 	/**
 	 * 
 	 */

@@ -1,6 +1,7 @@
 package umu.tds.controlador;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,10 +11,12 @@ import umu.tds.dao.AdaptadorGrupoDAO;
 import umu.tds.dao.AdaptadorMensajeDAO;
 import umu.tds.dao.AdaptadorUsuarioDAO;
 import umu.tds.dao.DAOFactory;
+import umu.tds.model.Contacto;
 import umu.tds.model.ContactoIndividual;
 import umu.tds.model.Mensaje;
 import umu.tds.model.RepositorioUsuarios;
 import umu.tds.model.Usuario;
+import umu.tds.model.Grupo;
 
 /**
  * Clase controlador de la aplicación.
@@ -43,7 +46,7 @@ public class AppChat {
 
 	/* Atributos */
 	private DAOFactory daoFactory;
-	
+
 	private AdaptadorUsuarioDAO usuarioDAO;
 	private AdaptadorMensajeDAO mensajeDAO;
 	private AdaptadorContactoDAO contactoDAO;
@@ -51,7 +54,7 @@ public class AppChat {
 	private AdaptadorContactoIndividualDAO contactoIndividualDAO;
 
 	private Usuario user;
-	
+
 	private RepositorioUsuarios repoUsuarios;
 
 	/* Constructor */
@@ -143,20 +146,52 @@ public class AppChat {
 
 		return true;
 	}
-	
+
 	public boolean addContacto(String name, String phone) {
-		// Comprobar que el número no está asociado ya a un contacto del usuario principal
-		
+		// Comprobar que el número no está asociado ya a un contacto del usuario
+		// principal
+
 		Usuario userToAdd = repoUsuarios.getUserByPhone(phone);
 
 		ContactoIndividual contacto = new ContactoIndividual(name, phone, userToAdd);
-		
+
 		user.addContacto(contacto);
 
 		contactoDAO.registrarContacto(contacto);
 		usuarioDAO.modificarUsuario(user);
 
 		return true;
+	}
+
+	public boolean addGrupo(String nombre, List<ContactoIndividual> miembros, String imagenGrupoURL) {
+		
+		Grupo grupo = new Grupo(nombre, user, miembros, imagenGrupoURL);
+
+		user.addContacto(grupo); //Para el usuario administrador añadir el grupo a su lista de contactos
+
+		contactoDAO.registrarContacto(grupo); //Registrar el grupo mediante el adaptador
+		usuarioDAO.modificarUsuario(user); //Modificar el usuario en la base de datos para que queden reflejados los cambios
+		
+		
+		//Un usuario supongo que para añadirlo a un grupo previamente tmb debía estar registrado en el sistema
+		miembros.stream().forEach(m -> {
+			m.getUsuario().addContacto(grupo); //Añadir a la lista de contactos de cada contacto individual el grupo
+			usuarioDAO.modificarUsuario(m.getUsuario()); //Modificar el usuario en la base de datos para que queden reflejados los cambios
+		});
+		
+		return true;
+	}
+	
+	public boolean sendMessage(String texto, Contacto contacto) {
+		Mensaje mensaje = new Mensaje(texto, user, contacto, LocalDateTime.now(), 0);
+		contacto.addMensaje(mensaje);
+		
+		mensajeDAO.registrarMensaje(mensaje);
+		
+		contactoDAO.modificarContacto(contacto);
+		
+		return true;
+		
 	}
 
 }
