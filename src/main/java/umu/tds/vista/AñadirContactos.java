@@ -139,6 +139,14 @@ public class AñadirContactos extends JDialog {
 		            return; // Salir del método si no pasa la validación
 		        }
 		        
+		        if(phone.equals(AppChat.getInstance().getCurrentUser().getPhone())) {
+		        	JOptionPane.showMessageDialog(AñadirContactos.this, 
+			                "Eres tú cabron.", 
+			                "Advertencia", 
+			                JOptionPane.WARNING_MESSAGE);
+			            return; // Salir del método si no pasa la validación
+		        }
+		        
 		        boolean contactoExiste = AppChat.getInstance().getCurrentUser().getContactos().stream()
 		                .anyMatch(contacto -> contacto.getNombre().equals(name) || 
 		                		(contacto instanceof ContactoIndividual && ((ContactoIndividual) contacto).getMovil().equals(phone)));

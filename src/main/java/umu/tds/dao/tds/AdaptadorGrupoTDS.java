@@ -26,150 +26,145 @@ import umu.tds.model.Mensaje;
 import umu.tds.model.Usuario;
 
 public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
-	
+
 	public static final String ENTITY_TYPE = "Grupo";
-	
-    private static final String ADMIN_FIELD = "administrador";
-    private static final String MIEMBROS_FIELD = "miembros";
-    private static final String IMAGENURL_FIELD = "imagenURL";
-    private static final String NOMBRE_FIELD = "nombre";
-    private static final String MENSAJES_FIELD = "mensajes";
-    private static final String ID_FIELD = "id";
-	
+
+	private static final String ADMIN_FIELD = "administrador";
+	private static final String MIEMBROS_FIELD = "miembros";
+	private static final String IMAGENURL_FIELD = "imagenURL";
+	private static final String NOMBRE_FIELD = "nombre";
+	private static final String MENSAJES_FIELD = "mensajes";
+	private static final String ID_FIELD = "id"; //Hace falta para algo??
+
 	private static AdaptadorGrupoTDS unicaInstancia = null;
-	
+
 	private static ServicioPersistencia servPersistencia;
-	
+
 	private AdaptadorGrupoTDS() {
 		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 	}
-	
+
 	public static AdaptadorGrupoTDS getInstance() {
-		
+
 		if (unicaInstancia == null) {
 			return new AdaptadorGrupoTDS();
-		}
-		else {
+		} else {
 			return unicaInstancia;
 		}
-		
+
 	}
-	
+
 	@Override
 	public void registrarGrupo(Grupo grupo) {
-		
-		//Verificar si el grupo está ya registrado en el sistema
+
+		// Verificar si el grupo está ya registrado en el sistema
 		if (servPersistencia.recuperarEntidad(grupo.getId()) != null) {
-			System.out.println("El grupo ya estaba registrado"); //Para depurar
+			System.out.println("El grupo ya estaba registrado"); // Para depurar
 			return;
 		}
-		
+
 		/* Asegurar ADMINISTRADOR registrado */
 		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
 		Usuario administrador = grupo.getAdministrador();
 		adapterU.registrarUsuario(administrador);
-		
+
 		/* Asegurar MIEMBROS registrados */
 		AdaptadorContactoIndividualDAO adapterCI = DAOFactory.getInstance().getContactoIndividualDAO();
-		
+
 		List<ContactoIndividual> miembros = grupo.getMiembros();
-		
+
 		for (ContactoIndividual miembro : miembros)
 			adapterCI.registrarContactoIndividual(miembro);
-				
+
 		/* TODO: REGISTRAR MENSAJES ASOCIADOS */
 		AdaptadorMensajeDAO adapterM = DAOFactory.getInstance().getMensajeDAO();
-		
+
 		// ¿Usar LinkedList<>?
 		List<Mensaje> mensajes = grupo.getMensajes();
-		
+
 		for (Mensaje m : mensajes)
 			adapterM.registrarMensaje(m);
-		
+
 		/* Crear y registrar entidad */
 		Entidad entGrupo = new Entidad();
 		entGrupo.setNombre(ENTITY_TYPE);
 
-		entGrupo.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(
-		        new Propiedad(ADMIN_FIELD, String.valueOf(grupo.getAdministrador().getId())),
-		        new Propiedad(MIEMBROS_FIELD, getIdsFromMembers(miembros)), // Convertir lista de miembros a IDs
-		        new Propiedad(IMAGENURL_FIELD, grupo.getImagenGrupoURL()),
-		        new Propiedad(NOMBRE_FIELD, grupo.getNombre()),
-		        new Propiedad(MENSAJES_FIELD, getIdsFromMensajes(mensajes)) // Convertir lista de mensajes a IDs
-		)));
+		entGrupo.setPropiedades(new ArrayList<Propiedad>(
+				Arrays.asList(new Propiedad(ADMIN_FIELD, String.valueOf(grupo.getAdministrador().getId())),
+						new Propiedad(MIEMBROS_FIELD, getIdsFromMembers(miembros)), // Convertir lista de miembros a IDs
+						new Propiedad(IMAGENURL_FIELD, grupo.getImagenGrupoURL()),
+						new Propiedad(NOMBRE_FIELD, grupo.getNombre()),
+						new Propiedad(MENSAJES_FIELD, getIdsFromMensajes(mensajes)) // Convertir lista de mensajes a IDs
+				)));
 
 		entGrupo = servPersistencia.registrarEntidad(entGrupo);
 
-		grupo.setId(entGrupo.getId());	
-		
+		grupo.setId(entGrupo.getId());
+
 		PoolDAO.getInstance().addObject(grupo.getId(), grupo);
 	}
-	
+
 	@Override
 	public void borrarGrupo(Grupo grupo) {
-		
+
 	}
-	
+
 	@Override
 	public void modificarGrupo(Grupo grupo) {
-		
+
 	}
-	
+
 	@Override
 	public Grupo recuperarGrupo(int id) {
-		if(PoolDAO.getInstance().contains(id)) {
+		if (PoolDAO.getInstance().contains(id)) {
 			return (Grupo) PoolDAO.getInstance().getObject(id);
 		}
-		
-		
-		
-	//Se recupera la entidad del grupo utilizando su id
+
+		// Se recupera la entidad del grupo utilizando su id
 		Entidad entGrupo = servPersistencia.recuperarEntidad(id);
-		
-		
-		//Se recupera el nombre del grupo
+
+		// Se recupera el nombre del grupo
 		String nombre = servPersistencia.recuperarPropiedadEntidad(entGrupo, NOMBRE_FIELD);
-		
-		
-		//Se recupera la imagen del grupo
+
+		// Se recupera la imagen del grupo
 		String imagenGrupoURL = servPersistencia.recuperarPropiedadEntidad(entGrupo, IMAGENURL_FIELD);
-		
+
 		/* Crear el objeto Grupo con las propiedades recuperadas */
 		Grupo grupo = new Grupo(nombre, null, new LinkedList<ContactoIndividual>(), imagenGrupoURL);
 		grupo.setId(id);
-		
+
 		PoolDAO.getInstance().addObject(id, grupo);
-		
-		//Se recupera el administrador del grupo
-				AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
-				Usuario administrador = adapterU.recuperarUsuario(Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entGrupo, ADMIN_FIELD)));
-				
-				//Se recupera los miembros del grupo
-				List<ContactoIndividual> miembros = getMembersFromConcatenatedIds(servPersistencia.recuperarPropiedadEntidad(entGrupo, MIEMBROS_FIELD));
-				
-				//Se recupera los mensajes del grupo
-				List<Mensaje> mensajes = getMessagesFromConcatenatedIds(servPersistencia.recuperarPropiedadEntidad(entGrupo, MENSAJES_FIELD));
-				
+
+		// Se recupera el administrador del grupo
+		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
+		Usuario administrador = adapterU
+				.recuperarUsuario(Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entGrupo, ADMIN_FIELD)));
+
+		// Se recupera los miembros del grupo
+		List<ContactoIndividual> miembros = getMembersFromConcatenatedIds(
+				servPersistencia.recuperarPropiedadEntidad(entGrupo, MIEMBROS_FIELD));
+
+		// Se recupera los mensajes del grupo
+		List<Mensaje> mensajes = obtenerMensajesDesdeIds(
+				servPersistencia.recuperarPropiedadEntidad(entGrupo, MENSAJES_FIELD));
+		for (Mensaje message : mensajes) {
+			grupo.addMensaje(message);
+		}
 		grupo.setAdministrador(administrador);
 		grupo.setMensajes(mensajes);
 		grupo.setMiembros(miembros);
-		
-		
+
 		return grupo;
 	}
 
 	private String getIdsFromMembers(List<ContactoIndividual> miembros) {
-	    return miembros.stream()
-	            .map(miembro -> String.valueOf(miembro.getId()))
-	            .collect(Collectors.joining(" "));
+		return miembros.stream().map(miembro -> String.valueOf(miembro.getId())).collect(Collectors.joining(" "));
 	}
-	
+
 	private String getIdsFromMensajes(List<Mensaje> mensajes) {
-	    return mensajes.stream()
-	            .map(mensaje -> String.valueOf(mensaje.getId()))
-	            .collect(Collectors.joining(" "));
+		return mensajes.stream().map(mensaje -> String.valueOf(mensaje.getId())).collect(Collectors.joining(" "));
 	}
-	
+
 	private List<ContactoIndividual> getMembersFromConcatenatedIds(String concatenatedIds) {
 		List<ContactoIndividual> contactos = new LinkedList<>();
 		StringTokenizer strTok = new StringTokenizer(concatenatedIds, " ");
@@ -179,16 +174,14 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		}
 		return contactos;
 	}
-	
-	private List<Mensaje> getMessagesFromConcatenatedIds(String concatenatedIds) {
-		if (concatenatedIds == null || concatenatedIds.trim().isEmpty()) {
-	        return new ArrayList<>(); // Retorna una lista vacía si la cadena está vacía
-	    }
-		
-		AdaptadorMensajeDAO adapterM = DAOFactory.getInstance().getMensajeDAO();
-		
-	    return Arrays.stream(concatenatedIds.split(" "))
-	            .map(id -> adapterM.recuperarMensaje(Integer.parseInt(id.trim()))) // Asegura que no haya espacios en blanco
-	            .collect(Collectors.toList());
+
+	private List<Mensaje> obtenerMensajesDesdeIds(String mensajes) {
+		List<Mensaje> listaMensajes = new LinkedList<Mensaje>();
+		StringTokenizer strTok = new StringTokenizer(mensajes, " ");
+		AdaptadorMensajeTDS adaptadorMensaje = AdaptadorMensajeTDS.getUnicaInstancia();
+		while (strTok.hasMoreTokens()) {
+			listaMensajes.add(adaptadorMensaje.recuperarMensaje(Integer.valueOf((String) strTok.nextElement())));
+		}
+		return listaMensajes;
 	}
 }

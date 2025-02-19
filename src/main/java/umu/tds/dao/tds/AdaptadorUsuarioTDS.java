@@ -20,11 +20,13 @@ import tds.driver.ServicioPersistencia;
 import umu.tds.dao.AdaptadorContactoDAO;
 import umu.tds.dao.AdaptadorContactoIndividualDAO;
 import umu.tds.dao.AdaptadorGrupoDAO;
+import umu.tds.dao.AdaptadorMensajeDAO;
 import umu.tds.dao.AdaptadorUsuarioDAO;
 import umu.tds.dao.DAOFactory;
 import umu.tds.model.Contacto;
 import umu.tds.model.ContactoIndividual;
 import umu.tds.model.Grupo;
+import umu.tds.model.Mensaje;
 import umu.tds.model.Usuario;
 
 public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
@@ -80,6 +82,7 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 				adapterG.registrarGrupo((Grupo) contacto);
 			}
 		}
+		
 
 		Entidad entUsuario = new Entidad();
 		entUsuario.setNombre(ENTITY_TYPE);
@@ -184,6 +187,11 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 				servPersistencia.recuperarPropiedadEntidad(entUsuario, CONTACTOS_FIELD));
 
 		usuario.setContactos(contactos);//
+		
+		// Recuperar mensajes
+	    AdaptadorMensajeTDS adaptadorM = AdaptadorMensajeTDS.getUnicaInstancia();
+	    List<Mensaje> mensajes = adaptadorM.recuperarAllMensajes();
+	    usuario.setMensajes(mensajes);
 		
 		return usuario;
 	}

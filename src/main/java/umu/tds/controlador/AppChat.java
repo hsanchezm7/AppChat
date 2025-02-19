@@ -125,6 +125,9 @@ public class AppChat {
 		}
 
 		this.user = usuarioRegistrado;
+		
+		List<Mensaje> mensajes = mensajeDAO.recuperarAllMensajes();
+	    user.setMensajes(mensajes);
 
 		return true;
 	}
@@ -185,13 +188,17 @@ public class AppChat {
 	public boolean sendMessage(String texto, Contacto contacto) {
 		Mensaje mensaje = new Mensaje(texto, user, contacto, LocalDateTime.now(), 0);
 		contacto.addMensaje(mensaje);
+		user.addMensaje(mensaje);
 		
 		mensajeDAO.registrarMensaje(mensaje);
 		
 		contactoDAO.modificarContacto(contacto);
+		usuarioDAO.modificarUsuario(user);
 		
 		return true;
 		
 	}
+	
+	
 
 }

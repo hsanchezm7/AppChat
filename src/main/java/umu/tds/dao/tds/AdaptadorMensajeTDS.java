@@ -87,7 +87,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 				new Propiedad("emoticono", String.valueOf(mensaje.getEmoticono())))));
 
 		entMensaje = servPersistencia.registrarEntidad(entMensaje);
-		mensaje.setId(entMensaje.getId()); // mirar esto
+		mensaje.setId(entMensaje.getId());
 		
 		PoolDAO.getInstance().addObject(mensaje.getId(), mensaje);
 
@@ -139,6 +139,9 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		int emoticono = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, EMOTICONO_FIELD));
 
 		Mensaje mensaje = new Mensaje(texto, null, null, fechaHora, emoticono);
+		mensaje.setId(id);
+		
+		PoolDAO.getInstance().addObject(id, mensaje);
 		
 		Usuario emisor = DAOFactory.getInstance().getUsuarioDAO().recuperarUsuario(idEmisor);
 		Contacto receptor = DAOFactory.getInstance().getContactoIndividualDAO().recuperarContactoIndividual(idReceptor);
@@ -146,7 +149,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		mensaje.setEmisor(emisor);
 		mensaje.setReceptor(receptor);
 		
-		mensaje.setId(id);
+		
 
 		return mensaje;
 	}
@@ -157,5 +160,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 	            .map(entidad -> recuperarMensaje(entidad.getId()))
 	            .collect(Collectors.toCollection(LinkedList::new));
 	}
+	
+	
 
 }

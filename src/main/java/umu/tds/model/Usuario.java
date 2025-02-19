@@ -3,8 +3,10 @@ package umu.tds.model;
 //Haría falta poner un atributo de premium para ver si el username es premium o no??
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Clase que modela los usuarios de AppChat.
@@ -17,33 +19,38 @@ public class Usuario {
 	private static final int NUM_MIN_MENSAJES_ULT_MES = 200;
 	private static final double PORCENTAJE_FECHAS = 35;
 	private static final double PORCENTAJE_MENSAJES = 40;
-	
+
 	/* Atributos */
-	
-	private String phone;	// string o int?
+
+	private String phone; // string o int?
 	private char[] password;
 	private String name;
 	private LocalDate fechaNacim;
 	private String imagenURL;
 	private String saludo;
 	private List<Contacto> contactos;
+	private List<Mensaje> mensajes;
 
 	private boolean premium;
-	private LocalDate fechaRegistro; //Este atributro se podría hacer de alguna forma que cuando el usuario se registre se guarde la fecha en vez
-	//de tener que pasarlo como parametro al constructor?? Si se pone como LocalDate.now() funcionaría como quiero??
+	private LocalDate fechaRegistro; // Este atributro se podría hacer de alguna forma que cuando el usuario se
+										// registre se guarde la fecha en vez
+	// de tener que pasarlo como parametro al constructor?? Si se pone como
+	// LocalDate.now() funcionaría como quiero??
 	private int id;
 
 	/* Constructores */
 	/**
 	 * Crea un username con una lista de contactos vacía.
-	 * @param phone número de teléfono.
-	 * @param password contraseña.
-	 * @param name nombre completo del usuario.
+	 * 
+	 * @param phone           número de teléfono.
+	 * @param password        contraseña.
+	 * @param name            nombre completo del usuario.
 	 * @param fechaNacimiento fecha de nacimiento.
-	 * @param imagenURL URL de la imagen de perfil.
-	 * @param saludo texto de saludo (opcional).
+	 * @param imagenURL       URL de la imagen de perfil.
+	 * @param saludo          texto de saludo (opcional).
 	 */
-	public Usuario(String phone, char[] password, String name, LocalDate fechaNacimiento, String imagenURL, String saludo, LocalDate fechaRegistro) {
+	public Usuario(String phone, char[] password, String name, LocalDate fechaNacimiento, String imagenURL,
+			String saludo, LocalDate fechaRegistro) {
 		this.phone = phone;
 		this.password = password;
 		this.name = name;
@@ -52,22 +59,25 @@ public class Usuario {
 		this.saludo = saludo;
 		this.premium = false;
 		this.fechaRegistro = fechaRegistro;
-		
+
 		this.contactos = new LinkedList<>();
-	}
-	
-	/**
-	 * Crea un usuario con una lista de contactos vacía y con un mensaje de saludo por defecto.
-	 * @param telefono número de teléfono.
-	 * @param password contraseña.
-	 * @param name nombre completo del usuario.
-	 * @param fechaNacimiento fecha de nacimiento.
-	 * @param imagenURL URL de la imagen de perfil.
-	 */
-	public Usuario(String telefono, char[] password, String name, LocalDate fechaNacimiento, String imagenURL, LocalDate fechaRegistro) {
-		this(telefono, password, name, fechaNacimiento, imagenURL, DEFAULT_SALUDO, fechaRegistro);
+		this.mensajes = new LinkedList<>();
 	}
 
+	/**
+	 * Crea un usuario con una lista de contactos vacía y con un mensaje de saludo
+	 * por defecto.
+	 * 
+	 * @param telefono        número de teléfono.
+	 * @param password        contraseña.
+	 * @param name            nombre completo del usuario.
+	 * @param fechaNacimiento fecha de nacimiento.
+	 * @param imagenURL       URL de la imagen de perfil.
+	 */
+	public Usuario(String telefono, char[] password, String name, LocalDate fechaNacimiento, String imagenURL,
+			LocalDate fechaRegistro) {
+		this(telefono, password, name, fechaNacimiento, imagenURL, DEFAULT_SALUDO, fechaRegistro);
+	}
 
 	/* Consulta */
 	public String getPhone() {
@@ -77,7 +87,7 @@ public class Usuario {
 	public void setPhone(String telefono) {
 		this.phone = telefono;
 	}
-	
+
 	public char[] getPassword() {
 		return password;
 	}
@@ -85,7 +95,7 @@ public class Usuario {
 	public void setPassword(char[] password) {
 		this.password = password;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -125,11 +135,11 @@ public class Usuario {
 	public void setPremium(boolean premium) {
 		this.premium = premium;
 	}
-	
+
 	public static double getPrecioOriginal() {
 		return PRECIO_ORIGINAL;
 	}
-	
+
 	public LocalDate getFechaRegistro() {
 		return fechaRegistro;
 	}
@@ -141,12 +151,19 @@ public class Usuario {
 	public void setId(int codigo) {
 		this.id = codigo;
 	}
+	
+	
+
+	public void setMensajes(List<Mensaje> mensajes) {
+		this.mensajes = mensajes;
+	}
 
 	/* Métodos */
 	// ¿Está contando todos los mensajes, tanto enviados como recibididos?
 	/**
-	 * Obtiene el número de mensajes enviados por el usuario en el último mes. El último mes no se refiere
-	 * sólo al mes acutal, sino a los últimos 30 o 31 días, dependiendo del mes.
+	 * Obtiene el número de mensajes enviados por el usuario en el último mes. El
+	 * último mes no se refiere sólo al mes acutal, sino a los últimos 30 o 31 días,
+	 * dependiendo del mes.
 	 * 
 	 * @return número de mensajes enviados.
 	 */
@@ -156,26 +173,28 @@ public class Usuario {
 		for (Contacto contacto : contactos) {
 			nMensajesSent += contacto.contarMensajesDesdeFecha(fechaUltimoMes);
 		}
-		
+
 		return nMensajesSent;
 	}
-	
-	
-	//Método para calcular, en caso de que tenga algún tipo de descuento por cumplir unas condiciones, el precio a pagar por el usuario premium más barato posible
+
+	// Método para calcular, en caso de que tenga algún tipo de descuento por
+	// cumplir unas condiciones, el precio a pagar por el usuario premium más barato
+	// posible
 	public double calcularPrecioMasBarato() {
 		DescuentoFecha descFecha = new DescuentoFecha(FECHA_INICIO_INTERVALO, FECHA_FIN_INTERVALO, PORCENTAJE_FECHAS);
 		DescuentoMensajes descMensaje = new DescuentoMensajes(NUM_MIN_MENSAJES_ULT_MES, PORCENTAJE_MENSAJES);
-		
-		if(descFecha.calcularDescuento(this) < descMensaje.calcularDescuento(this)) {
+
+		if (descFecha.calcularDescuento(this) < descMensaje.calcularDescuento(this)) {
 			return descFecha.calcularDescuento(this);
 		} else {
 			return descMensaje.calcularDescuento(this);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Añade el contacto pasado como parámetro a la lista de contactos del usuario.
+	 * 
 	 * @param contacto
 	 */
 	public void addContacto(Contacto contacto) {
@@ -183,13 +202,15 @@ public class Usuario {
 	}
 
 	/**
-	 * Elimina el contacto pasado como parámetro de la lista de contactos del usuario.
+	 * Elimina el contacto pasado como parámetro de la lista de contactos del
+	 * usuario.
+	 * 
 	 * @param contacto
 	 */
 	public void deleteContacto(Contacto contacto) {
 		contactos.remove(contacto);
 	}
-	
+
 	public List<Contacto> getContactos() {
 		return contactos;
 	}
@@ -198,12 +219,35 @@ public class Usuario {
 		this.contactos = contactos;
 	}
 
+	public List<Mensaje> getMensajes() {
+		return mensajes;
+	}
+
+	public void addMensaje(Mensaje mensaje) {
+		mensajes.add(mensaje);
+	}
+
+	// Método para obtener mensajes con un contacto específico
+	public List<Mensaje> getMensajesConContacto(Contacto contacto) {
+
+		// Asegúrate de que la lista de mensajes no sea null
+		if (mensajes == null) {
+			System.out.println("La lista de mensajes es null");
+			return Collections.emptyList(); // O lanzar una excepción si prefieres
+		}
+		// Lógica para filtrar mensajes por contacto
+		 List<Mensaje> mensajesConContacto = mensajes.stream().filter(m -> m.getReceptor().equals(contacto) || (m.getEmisor().equals(this) && m.getReceptor().equals(contacto)))
+				.collect(Collectors.toList());
+		
+		System.out.println("Mensajes recuperados para el contacto " + contacto.getNombre() + ": " + mensajesConContacto.size());
+		return mensajesConContacto;
+	}
+
 	@Override
 	public String toString() {
 		return "Usuario [phone=" + phone + ", password=" + Arrays.toString(password) + ", name=" + name
 				+ ", fechaNacim=" + fechaNacim + ", imagenURL=" + imagenURL + ", saludo=" + saludo + ", contactos="
 				+ contactos + ", premium=" + premium + ", fechaRegistro=" + fechaRegistro + ", id=" + id + "]";
 	}
-	
 
 }

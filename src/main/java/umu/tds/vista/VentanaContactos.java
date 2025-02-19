@@ -193,9 +193,9 @@ public class VentanaContactos extends JFrame {
 		        .filter(Objects::nonNull) // Filter out any null elements
 		        .map(contacto -> {
 		            if (contacto instanceof ContactoIndividual) {
-		                return contacto.getNombre(); // For individual contacts, return the name
+		                return contacto.getNombre(); 
 		            } else {
-		                return contacto.getNombre(); // For groups, prefix the name with "[Grupo]"
+		                return contacto.getNombre(); 
 		            } 
 		        })
 		        .collect(Collectors.toList()); // Convert the stream into a list
