@@ -61,7 +61,6 @@ public class Usuario {
 		this.fechaRegistro = fechaRegistro;
 
 		this.contactos = new LinkedList<>();
-		this.mensajes = new LinkedList<>();
 	}
 
 	/**
@@ -229,18 +228,7 @@ public class Usuario {
 
 	// Método para obtener mensajes con un contacto específico
 	public List<Mensaje> getMensajesConContacto(Contacto contacto) {
-
-		// Asegúrate de que la lista de mensajes no sea null
-		if (mensajes == null) {
-			System.out.println("La lista de mensajes es null");
-			return Collections.emptyList(); // O lanzar una excepción si prefieres
-		}
-		// Lógica para filtrar mensajes por contacto
-		 List<Mensaje> mensajesConContacto = mensajes.stream().filter(m -> m.getReceptor().equals(contacto) || (m.getEmisor().equals(this) && m.getReceptor().equals(contacto)))
-				.collect(Collectors.toList());
-		
-		System.out.println("Mensajes recuperados para el contacto " + contacto.getNombre() + ": " + mensajesConContacto.size());
-		return mensajesConContacto;
+		return contacto.getMensajes();
 	}
 
 	@Override

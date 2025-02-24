@@ -19,6 +19,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JScrollBar;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.border.LineBorder;
@@ -33,35 +34,24 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 
-public class VentanaContactos extends JFrame {
+public class VentanaContactos extends JDialog {
 
 	private static final long serialVersionUID = 1L;
+	private static final String NOMBRE_VENTANA = "Gestionar contactos";
+	
 	private JPanel contentPane;
 	private JScrollPane scrollPane;
 	private JScrollPane scrollPaneSeleccionados;
 	private DefaultListModel<String> modeloSeleccionados = new DefaultListModel<>();
 	private List<String> seleccionados;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					VentanaContactos frame = new VentanaContactos();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the frame.
 	 */
-	public VentanaContactos() {
+	public VentanaContactos(JFrame owner) {
+		super(owner, NOMBRE_VENTANA, true); // Bloquea la ventana padre hasta que ésta se cierre
+		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 682, 506);
 		contentPane = new JPanel();

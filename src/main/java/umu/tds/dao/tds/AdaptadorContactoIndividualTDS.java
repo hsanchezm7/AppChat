@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import beans.Entidad;
 import beans.Propiedad;
@@ -26,7 +27,7 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 	private static final String NAME_FIELD = "name";
 	private static final String PHONE_FIELD = "phone";
 	private static final String USER_FIELD = "user";
-	private static final String MENSAJES_FIELD = "mensaje";
+	private static final String MENSAJES_FIELD = "mensajes";
 
 	private static AdaptadorContactoIndividualTDS unicaInstancia = null;
 	private static ServicioPersistencia servPersistencia;
@@ -94,6 +95,8 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 
 	@Override
 	public void modificarContactoIndividual(ContactoIndividual contactoIndividual) {
+		
+		System.out.println("Modificando contacto con id " + contactoIndividual.getId());
 
 		Entidad eContactoIndividual = servPersistencia.recuperarEntidad(contactoIndividual.getId());
 
@@ -110,11 +113,14 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 			}
 			servPersistencia.modificarPropiedad(prop);
 		}
+		
+		System.out.println("La nueva lista de mensajes es ..." + obtenerCodigosMensajes(contactoIndividual.getMensajes()));
 
 	}
 
 	@Override
 	public ContactoIndividual recuperarContactoIndividual(int id) {
+		System.out.println("Recuperando contacto " + id + "...");
 		if (PoolDAO.getInstance().contains(id)) {
 			return (ContactoIndividual) PoolDAO.getInstance().getObject(id);
 		}
@@ -125,7 +131,6 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 
 		String name = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, NAME_FIELD);
 		String phone = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, PHONE_FIELD);
-
 		String userContactId = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, USER_FIELD);
 		Usuario userContact = adapterU.recuperarUsuario(Integer.valueOf(userContactId));
 
@@ -133,9 +138,9 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		contacto.setId(id);
 		
 		PoolDAO.getInstance().addObject(id, contacto);
-
+		
+		System.out.println("Recuperando mensajes para el contacto " + id + "...");
 		// TODO: Recuperar mensajes
-
 		List<Mensaje> mensajes = obtenerMensajesDesdeIds(
 				servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, MENSAJES_FIELD));
 		for (Mensaje message : mensajes) {
@@ -150,14 +155,15 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 
 	// Método para obtener ids a partir de la lista de objetos al registrar
 
-	private String obtenerCodigosMensajes(List<Mensaje> listaMensajes) {
-		return "";
+	private String obtenerCodigosMensajes(List<Mensaje> mensajes) {
+		return mensajes.stream().map(mensaje -> String.valueOf(mensaje.getId())).collect(Collectors.joining(" "));
 	}
 
 	// Método para obtener lista de objetos a partir de un string con una lista de
 	// ids al recuperar
 
 	private List<Mensaje> obtenerMensajesDesdeIds(String mensajes) {
+		System.out.println("Mensajes del campo mensajes: " + mensajes);
 		List<Mensaje> listaMensajes = new LinkedList<Mensaje>();
 		StringTokenizer strTok = new StringTokenizer(mensajes, " ");
 		AdaptadorMensajeTDS adaptadorMensaje = AdaptadorMensajeTDS.getUnicaInstancia();

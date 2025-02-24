@@ -83,7 +83,6 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 			}
 		}
 		
-
 		Entidad entUsuario = new Entidad();
 		entUsuario.setNombre(ENTITY_TYPE);
 

@@ -16,6 +16,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.JTextField;
 import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -31,8 +32,8 @@ public class AñadirContactos extends JDialog {
 	private JTextField nameField;
 	private JTextField phoneField;
 
-	public AñadirContactos(JFrame parent) {
-		super(parent, "Añadir contacto", true);
+	public AñadirContactos(Window owner) {
+		super(owner);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		
@@ -136,15 +137,23 @@ public class AñadirContactos extends JDialog {
 		                "El campo 'Phone' debe contener solo números y no puede estar vacío.", 
 		                "Advertencia", 
 		                JOptionPane.WARNING_MESSAGE);
-		            return; // Salir del método si no pasa la validación
+		            return;
 		        }
 		        
 		        if(phone.equals(AppChat.getInstance().getCurrentUser().getPhone())) {
 		        	JOptionPane.showMessageDialog(AñadirContactos.this, 
-			                "Eres tú cabron.", 
+			                "No puedes añadirte como contacto.", 
 			                "Advertencia", 
 			                JOptionPane.WARNING_MESSAGE);
-			            return; // Salir del método si no pasa la validación
+			            return; 
+		        }
+		        
+		        if(!AppChat.getInstance().isPhoneRegistered(phone)) {
+		        	JOptionPane.showMessageDialog(AñadirContactos.this, 
+			                "El teléfono introducido no está registrado en AppChat.", 
+			                "Advertencia", 
+			                JOptionPane.WARNING_MESSAGE);
+			            return;
 		        }
 		        
 		        boolean contactoExiste = AppChat.getInstance().getCurrentUser().getContactos().stream()
@@ -156,7 +165,7 @@ public class AñadirContactos extends JDialog {
 		                    "El contacto ya existe en la lista.", 
 		                    "Advertencia", 
 		                    JOptionPane.WARNING_MESSAGE);
-		                return; // Salir del método si el contacto ya existe
+		                return;
 		            }
 		        
 		        boolean addContacto = AppChat.getInstance().addContacto(name, phone);

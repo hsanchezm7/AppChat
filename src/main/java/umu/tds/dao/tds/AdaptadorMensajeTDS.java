@@ -79,20 +79,25 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		} else if (contacto instanceof Grupo) {
 			adaptadorGrupo.registrarGrupo((Grupo) contacto);
 		}
-
+	
 		entMensaje = new Entidad();
-		entMensaje.setNombre("mensaje");
-		entMensaje.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad("texto", mensaje.getTexto()),
-				new Propiedad("emisor", String.valueOf(mensaje.getEmisor().getId())),
-				new Propiedad("receptor", String.valueOf(mensaje.getReceptor().getId())),
-				new Propiedad("fechaHora", dateTimeFormat.format(mensaje.getFechaHora())),
-				new Propiedad("emoticono", String.valueOf(mensaje.getEmoticono())))));
+		entMensaje.setNombre(ENTITY_TYPE);
+		entMensaje.setPropiedades(new ArrayList<>(Arrays.asList(
+		    new Propiedad(TEXT_FIELD, mensaje.getTexto()),
+		    new Propiedad(EMISOR_FIELD, String.valueOf(mensaje.getEmisor().getId())),
+		    new Propiedad(RECEPTOR_FIELD, String.valueOf(mensaje.getReceptor().getId())),
+		    new Propiedad(FECHAHORA_FIELD, dateTimeFormat.format(mensaje.getFechaHora())),
+		    new Propiedad(EMOTICONO_FIELD, String.valueOf(mensaje.getEmoticono()))
+		)));
+
 
 		entMensaje = servPersistencia.registrarEntidad(entMensaje);
 		
 		if (entMensaje == null) {
 		    throw new RuntimeException("Error al registrar el mensaje en la persistencia.");
 		}
+		
+		System.out.println("Mensaje " + mensaje.getTexto() + " de " + mensaje.getEmisor().getName() + " a " + mensaje.getReceptor().getNombre() + " enviado con éxito");
 		
 		mensaje.setId(entMensaje.getId());
 		
@@ -114,20 +119,27 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		Entidad entMensaje = servPersistencia.recuperarEntidad(mensaje.getId()); // mirar esto
 
 		for (Propiedad prop : entMensaje.getPropiedades()) {
-			if (prop.getNombre().equals("texto")) {
-				prop.setValor(String.valueOf(mensaje.getTexto()));
-			} else if (prop.getNombre().equals("emisor")) {
-				prop.setValor(String.valueOf(mensaje.getEmisor().getId()));
-			} else if (prop.getNombre().equals("receptor")) {
-				prop.setValor(String.valueOf(mensaje.getReceptor().getId()));
-			} else if (prop.getNombre().equals("fechaHora")) {
-				prop.setValor(dateTimeFormat.format(mensaje.getFechaHora()));
-			} else if (prop.getNombre().equals("emoticono")) {
-				prop.setValor(String.valueOf(mensaje.getEmoticono()));
-			}
-			servPersistencia.modificarPropiedad(prop);
+		    switch (prop.getNombre()) {
+		        case TEXT_FIELD:
+		            prop.setValor(String.valueOf(mensaje.getTexto()));
+		            break;
+		        case EMISOR_FIELD:
+		            prop.setValor(String.valueOf(mensaje.getEmisor().getId()));
+		            break;
+		        case RECEPTOR_FIELD:
+		            prop.setValor(String.valueOf(mensaje.getReceptor().getId()));
+		            break;
+		        case FECHAHORA_FIELD:
+		            prop.setValor(dateTimeFormat.format(mensaje.getFechaHora()));
+		            break;
+		        case EMOTICONO_FIELD:
+		            prop.setValor(String.valueOf(mensaje.getEmoticono()));
+		            break;
+		        default:
+		            break;
+		    }
+		    servPersistencia.modificarPropiedad(prop);
 		}
-
 	}
 
 	@Override
@@ -135,6 +147,8 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		if (PoolDAO.getInstance().contains(id)) {
 			return (Mensaje) PoolDAO.getInstance().getObject(id);
 		}
+		
+		System.out.println("Recuperando mensaje...");
 		
 		Entidad entMensaje = servPersistencia.recuperarEntidad(id);
 		if (entMensaje == null) return null;
@@ -165,8 +179,6 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 	        ContactoIndividual contacto = adaptadorContacto.recuperarContactoIndividual(idReceptor);
 	        mensaje.setReceptor(contacto);
 	    }
-		
-		
 
 		return mensaje;
 	}

@@ -22,6 +22,7 @@ import umu.tds.controlador.AppChat;
 import umu.tds.model.Contacto;
 import umu.tds.model.ContactoIndividual;
 import umu.tds.model.Mensaje;
+import umu.tds.model.Usuario;
 
 import java.awt.Image;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import java.awt.event.ActionEvent;
 public class VentanaMain extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	private static final String NOMBRE_VENTANA = "AppChat";
 	private static ImageIcon ICON = new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/logo128x128.png"));
 
 	private JPanel contentPane;
@@ -45,28 +47,11 @@ public class VentanaMain extends JFrame {
 	private JTextField textField;
 	private JTextField textField_1;
 	private List<Contacto> contactos;
-	private DefaultListModel<Contacto> modeloSeleccionado = new DefaultListModel<>();
+	private DefaultListModel<Contacto> modelo = new DefaultListModel<>();
 	private JList<Contacto> listaContactos;
 	private JPanel panelChat;
 	private JScrollPane chatScrollPane;
 	private JPanel panelDer;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					VentanaMain frame = new VentanaMain();
-					frame.setIconImage(ICON.getImage());
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	public VentanaMain() {
 		initComponents();
@@ -74,24 +59,19 @@ public class VentanaMain extends JFrame {
 
 	public void initComponents() {
 
-		setTitle("AppChat");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle(NOMBRE_VENTANA);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		setIconImage(ICON.getImage());
 
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
-		// Devuelvo los contactos del usuario actual
-		contactos = AppChat.getInstance().getCurrentUser().getContactos();
-		// Los añado al modelo
-		contactos.stream().forEach(c -> modeloSeleccionado.addElement(c));
+		crearModelosVista();
 
-		listaContactos = new JList<>(modeloSeleccionado);
-
-		JPanel panelNorte = crearPanelNorte(modeloSeleccionado);
+		JPanel panelNorte = crearPanelNorte();
 		getContentPane().add(panelNorte, BorderLayout.NORTH);
 
-		JPanel panelMain = crearPanelMain(modeloSeleccionado);
+		JPanel panelMain = crearPanelMain();
 		getContentPane().add(panelMain, BorderLayout.CENTER);
 
 		pack();
@@ -100,7 +80,19 @@ public class VentanaMain extends JFrame {
 		setLocationRelativeTo(null);
 	}
 
-	public JPanel crearPanelNorte(DefaultListModel<Contacto> modeloSeleccionado2) {
+	public void crearModelosVista() {
+		contactos = AppChat.getInstance().getCurrentUser().getContactos();
+				
+		/* Añadir contactos al ListModel */
+		contactos.stream()
+		    .filter(c -> !modelo.contains(c)) // Filtra solo los que no están en el modelo
+		    .forEach(modelo::addElement);
+		
+		listaContactos = new JList<>(modelo);
+		
+	}
+
+	public JPanel crearPanelNorte() {
 
 		JPanel panelNorte = new JPanel();
 		panelNorte.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -112,8 +104,8 @@ public class VentanaMain extends JFrame {
 		panelNorte.setLayout(gbl1);
 
 		JComboBox comboBox = new JComboBox();
-		for (int i = 0; i < modeloSeleccionado2.size(); i++) {
-			Contacto contacto = modeloSeleccionado2.getElementAt(i); // Obtener el contacto
+		for (int i = 0; i < modelo.size(); i++) {
+			Contacto contacto = modelo.getElementAt(i); // Obtener el contacto
 			comboBox.addItem(contacto.getNombre()); // Añadir el nombre al JComboBox
 		}
 
@@ -182,7 +174,7 @@ public class VentanaMain extends JFrame {
 
 	}
 
-	public JPanel crearPanelMain(DefaultListModel<Contacto> modelo) {
+	public JPanel crearPanelMain() {
 
 		JPanel panelMain = new JPanel();
 		GridBagLayout gbl4 = new GridBagLayout();
@@ -193,7 +185,7 @@ public class VentanaMain extends JFrame {
 		panelMain.setLayout(gbl4);
 
 		JPanel panelIzq = new JPanel();
-		panelIzq.setBorder(new TitledBorder(null, "mensajes", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelIzq.setBorder(new TitledBorder(null, " Contactos ", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc6 = new GridBagConstraints();
 		gbc6.insets = new Insets(0, 0, 0, 5);
 		gbc6.fill = GridBagConstraints.BOTH;
@@ -202,17 +194,47 @@ public class VentanaMain extends JFrame {
 		panelMain.add(panelIzq, gbc6);
 		panelIzq.setLayout(new BorderLayout(0, 0));
 
-		// Crear el JList basado en el modelo
-		JList<Contacto> lista = new JList<>(modelo);
-		lista.setCellRenderer(new ContactoIndividualCellRenderer());
+		listaContactos.setCellRenderer(new ContactoIndividualCellRenderer());
 
-		lista.addMouseListener(new MouseAdapter() {
+		panelDer = new JPanel();
+		GridBagConstraints gbc5 = new GridBagConstraints();
+		gbc5.fill = GridBagConstraints.BOTH;
+		gbc5.gridx = 1;
+		gbc5.gridy = 0;
+		panelMain.add(panelDer, gbc5);
+		GridBagLayout gbl_panel_5 = new GridBagLayout();
+		gbl_panel_5.columnWidths = new int[] { 0, 0, 0 };
+		gbl_panel_5.rowHeights = new int[] { 0, 0, 0 };
+		gbl_panel_5.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_5.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
+		panelDer.setLayout(gbl_panel_5);
+
+		TitledBorder titledBorder = new TitledBorder(null, " Chat ", TitledBorder.LEADING, TitledBorder.TOP,null, null);
+		panelDer.setBorder(titledBorder);
+
+		// Agregar un MouseListener para deseleccionar
+		listaContactos.addListSelectionListener(e -> {
+			if (!e.getValueIsAdjusting()) {
+				Contacto contactoSeleccionado = listaContactos.getSelectedValue();
+				if (contactoSeleccionado != null) {
+					cargarConversacion(contactoSeleccionado);
+					panelDer.repaint();
+					pack();
+				} else {
+					panelChat.setBackground(Color.WHITE); // Restaurar color original si no hay selección
+					titledBorder.setTitle(" Chat ");
+					panelDer.repaint(); // Actualiza el panel para reflejar el título original
+				}
+			}
+		});
+		
+		listaContactos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				// Obtener la celda donde ocurrió el clic
-				int index = lista.locationToIndex(e.getPoint());
+				int index = listaContactos.locationToIndex(e.getPoint());
 				if (index != -1) { // Si el clic fue en una celda válida
-					Rectangle cellBounds = lista.getCellBounds(index, index);
+					Rectangle cellBounds = listaContactos.getCellBounds(index, index);
 
 					if (cellBounds.contains(e.getPoint())) { // Verifica que el clic esté dentro de la celda
 						int x = e.getX(); // Coordenada X del clic
@@ -234,11 +256,12 @@ public class VentanaMain extends JFrame {
 						// Verifica si el clic fue dentro del botón "+"
 						if (botonArea.contains(x, y)) {
 							AñadirContactos ventanaContacto = new AñadirContactos(
-									(JFrame) SwingUtilities.getWindowAncestor(lista));
+									(JFrame) SwingUtilities.getWindowAncestor(listaContactos));
 							ventanaContacto.setVisible(true);
 						} else {
-							Contacto contacto = lista.getModel().getElementAt(index);
+							Contacto contacto = listaContactos.getModel().getElementAt(index);
 							cargarConversacion(contacto);
+							titledBorder.setTitle(" Chat con " + contacto.getNombre());
 							panelChat.setBackground(Color.BLUE);
 						}
 					}
@@ -246,43 +269,7 @@ public class VentanaMain extends JFrame {
 			}
 		});
 
-		panelDer = new JPanel();
-		panelDer.setBorder(
-				new TitledBorder(null, "mensajes con x", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		GridBagConstraints gbc5 = new GridBagConstraints();
-		gbc5.fill = GridBagConstraints.BOTH;
-		gbc5.gridx = 1;
-		gbc5.gridy = 0;
-		panelMain.add(panelDer, gbc5);
-		GridBagLayout gbl_panel_5 = new GridBagLayout();
-		gbl_panel_5.columnWidths = new int[] { 0, 0, 0 };
-		gbl_panel_5.rowHeights = new int[] { 0, 0, 0 };
-		gbl_panel_5.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		gbl_panel_5.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		panelDer.setLayout(gbl_panel_5);
-
-		TitledBorder titledBorder = new TitledBorder(null, "mensajes con x", TitledBorder.LEADING, TitledBorder.TOP,
-				null, null);
-		panelDer.setBorder(titledBorder);
-
-		// Agregar un MouseListener para deseleccionar
-		lista.addListSelectionListener(e -> {
-			if (!e.getValueIsAdjusting()) {
-				Contacto contactoSeleccionado = lista.getSelectedValue();
-				if (contactoSeleccionado != null) {
-					System.out.println("Contacto seleccionado: " + contactoSeleccionado.getNombre());
-					cargarConversacion(contactoSeleccionado);
-					titledBorder.setTitle("mensajes con " + contactoSeleccionado.getNombre());
-					panelDer.repaint();
-				} else {
-					panelChat.setBackground(Color.WHITE); // Restaurar color original si no hay selección
-					titledBorder.setTitle("mensajes con x");
-					panelDer.repaint(); // Actualiza el panel para reflejar el título original
-				}
-			}
-		});
-
-		JScrollPane scrollPane = new JScrollPane(lista);
+		JScrollPane scrollPane = new JScrollPane(listaContactos);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		panelIzq.add(scrollPane, BorderLayout.CENTER);
@@ -329,6 +316,15 @@ public class VentanaMain extends JFrame {
 		btnSend.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				enviarMensajes(panelChat, textField_1, listaContactos.getSelectedValue());
+				Usuario uact = AppChat.getInstance().getCurrentUser();
+				List<Contacto> contactos_usr = uact.getContactos();
+				for (Contacto contacto : contactos_usr) {
+					List<Mensaje> mensajes = contacto.getMensajes();
+					
+					for (Mensaje msj : mensajes) {
+						System.out.println(msj.getTexto());
+					}
+				}
 			}
 		});
 
@@ -342,8 +338,10 @@ public class VentanaMain extends JFrame {
 	}
 
 	private void openContacts() {
-		VentanaContactos ventanaContactos = new VentanaContactos();
+		VentanaContactos ventanaContactos = new VentanaContactos(this);
 		ventanaContactos.setVisible(true);
+		
+		crearModelosVista();
 	}
 
 	private void enviarMensajes(JPanel chat, JTextField texto, Contacto contacto) {
