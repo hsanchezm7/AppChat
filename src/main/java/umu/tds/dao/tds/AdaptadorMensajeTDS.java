@@ -65,7 +65,9 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		// volver a registrar un usuario? debería ser persistente y estar ya registrado.
 		// lo hace el repoUsuarios llamando a su adaptador
 		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getInstance();
-		adaptadorUsuario.registrarUsuario(mensaje.getEmisor());
+		if (servPersistencia.recuperarEntidad(mensaje.getEmisor().getId()) == null) {
+            adaptadorUsuario.registrarUsuario(mensaje.getEmisor());
+        }
 
 		// lo mismo con el grupo
 		AdaptadorContactoIndividualTDS adaptadorContactoIndividual = AdaptadorContactoIndividualTDS.getInstance();
@@ -87,6 +89,11 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 				new Propiedad("emoticono", String.valueOf(mensaje.getEmoticono())))));
 
 		entMensaje = servPersistencia.registrarEntidad(entMensaje);
+		
+		if (entMensaje == null) {
+		    throw new RuntimeException("Error al registrar el mensaje en la persistencia.");
+		}
+		
 		mensaje.setId(entMensaje.getId());
 		
 		PoolDAO.getInstance().addObject(mensaje.getId(), mensaje);
@@ -130,6 +137,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		}
 		
 		Entidad entMensaje = servPersistencia.recuperarEntidad(id);
+		if (entMensaje == null) return null;
 
 		String texto = servPersistencia.recuperarPropiedadEntidad(entMensaje, TEXT_FIELD);
 		int idEmisor = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, EMISOR_FIELD));
@@ -143,11 +151,20 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		
 		PoolDAO.getInstance().addObject(id, mensaje);
 		
-		Usuario emisor = DAOFactory.getInstance().getUsuarioDAO().recuperarUsuario(idEmisor);
-		Contacto receptor = DAOFactory.getInstance().getContactoIndividualDAO().recuperarContactoIndividual(idReceptor);
-
-		mensaje.setEmisor(emisor);
-		mensaje.setReceptor(receptor);
+		AdaptadorUsuarioTDS userDAO = AdaptadorUsuarioTDS.getInstance();
+		Usuario user = userDAO.recuperarUsuario(idEmisor);
+		mensaje.setEmisor(user);
+	
+	    Entidad entidadReceptor = servPersistencia.recuperarEntidad(idReceptor);
+	    if (entidadReceptor != null && AdaptadorGrupoTDS.ENTITY_TYPE.equals(entidadReceptor.getNombre())) {
+	        AdaptadorGrupoTDS adaptadorGrupo = AdaptadorGrupoTDS.getInstance();
+	        Grupo grupo = adaptadorGrupo.recuperarGrupo(idReceptor);
+	        mensaje.setReceptor(grupo);
+	    } else {
+	        AdaptadorContactoIndividualTDS adaptadorContacto = AdaptadorContactoIndividualTDS.getInstance();
+	        ContactoIndividual contacto = adaptadorContacto.recuperarContactoIndividual(idReceptor);
+	        mensaje.setReceptor(contacto);
+	    }
 		
 		
 
