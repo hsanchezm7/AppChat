@@ -37,42 +37,30 @@ import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
 
 public class VentanaMain extends JFrame {
-
 	private static final long serialVersionUID = 1L;
 	private static final String NOMBRE_VENTANA = "AppChat";
 	private static ImageIcon ICON = new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/logo128x128.png"));
 
-	private JPanel contentPane;
-	private JTextField txtUsuarioActual;
-	private JTextField textField;
+	private JPanel panelChat, panelDer;
 	private JTextField textField_1;
 	private List<Contacto> contactos;
 	private DefaultListModel<Contacto> modelo = new DefaultListModel<>();
 	private JList<Contacto> listaContactos;
-	private JPanel panelChat;
 	private JScrollPane chatScrollPane;
-	private JPanel panelDer;
 
 	public VentanaMain() {
 		initComponents();
 	}
 
 	public void initComponents() {
-
 		setTitle(NOMBRE_VENTANA);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-
 		setIconImage(ICON.getImage());
-
-		getContentPane().setLayout(new BorderLayout(0, 0));
+		setLayout(new BorderLayout(0, 0));
 
 		crearModelosVista();
-
-		JPanel panelNorte = crearPanelNorte();
-		getContentPane().add(panelNorte, BorderLayout.NORTH);
-
-		JPanel panelMain = crearPanelMain();
-		getContentPane().add(panelMain, BorderLayout.CENTER);
+		add(crearPanelNorte(), BorderLayout.NORTH);
+		add(crearPanelMain(), BorderLayout.CENTER);
 
 		pack();
 		setResizable(true);
@@ -81,21 +69,16 @@ public class VentanaMain extends JFrame {
 	}
 
 	public void crearModelosVista() {
-		contactos = AppChat.getInstance().getCurrentUser().getContactos();
-				
-		/* Añadir contactos al ListModel */
-		contactos.stream()
-		    .filter(c -> !modelo.contains(c)) // Filtra solo los que no están en el modelo
-		    .forEach(modelo::addElement);
-		
+		List<Contacto> contactos = AppChat.getInstance().getCurrentUser().getContactos();
+		modelo.clear(); // Limpiar el modelo antes de añadir los contactos
+		contactos.stream().filter(c -> !modelo.contains(c)).forEach(modelo::addElement);
 		listaContactos = new JList<>(modelo);
-		
 	}
 
 	public JPanel crearPanelNorte() {
-
 		JPanel panelNorte = new JPanel();
 		panelNorte.setBorder(new LineBorder(new Color(0, 0, 0)));
+
 		GridBagLayout gbl1 = new GridBagLayout();
 		gbl1.columnWidths = new int[] { 209, 0, 0, 0, 0, 0, 0 };
 		gbl1.rowHeights = new int[] { 0, 0, 0 };
@@ -103,7 +86,7 @@ public class VentanaMain extends JFrame {
 		gbl1.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
 		panelNorte.setLayout(gbl1);
 
-		JComboBox comboBox = new JComboBox();
+		JComboBox<String> comboBox = new JComboBox<>();
 		for (int i = 0; i < modelo.size(); i++) {
 			Contacto contacto = modelo.getElementAt(i); // Obtener el contacto
 			comboBox.addItem(contacto.getNombre()); // Añadir el nombre al JComboBox
@@ -160,15 +143,13 @@ public class VentanaMain extends JFrame {
 		panelNorte.add(panel_2, gbc2);
 
 		String user = AppChat.getInstance().getCurrentUser().getName();
-		JLabel lblNewLabel_1 = new JLabel(user);
-		panel_2.add(lblNewLabel_1);
+		JLabel labelUsuario = new JLabel(user);
+		panel_2.add(labelUsuario);
 
 		JButton btn5 = new JButton("");
 		btn5.setIcon(new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/usuario.png")));
 		panel_2.add(btn5);
 		btn5.addActionListener(e -> openRegister());
-		// Cambiar para crear una ventana en la que se muestre la info del usuario y la
-		// posibilidad de cambiar la foto de perfil
 
 		return panelNorte;
 
@@ -209,7 +190,8 @@ public class VentanaMain extends JFrame {
 		gbl_panel_5.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		panelDer.setLayout(gbl_panel_5);
 
-		TitledBorder titledBorder = new TitledBorder(null, " Chat ", TitledBorder.LEADING, TitledBorder.TOP,null, null);
+		TitledBorder titledBorder = new TitledBorder(null, " Chat ", TitledBorder.LEADING, TitledBorder.TOP, null,
+				null);
 		panelDer.setBorder(titledBorder);
 
 		// Agregar un MouseListener para deseleccionar
@@ -227,7 +209,7 @@ public class VentanaMain extends JFrame {
 				}
 			}
 		});
-		
+
 		listaContactos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -262,7 +244,6 @@ public class VentanaMain extends JFrame {
 							Contacto contacto = listaContactos.getModel().getElementAt(index);
 							cargarConversacion(contacto);
 							titledBorder.setTitle(" Chat con " + contacto.getNombre());
-							panelChat.setBackground(Color.BLUE);
 						}
 					}
 				}
@@ -320,7 +301,7 @@ public class VentanaMain extends JFrame {
 				List<Contacto> contactos_usr = uact.getContactos();
 				for (Contacto contacto : contactos_usr) {
 					List<Mensaje> mensajes = contacto.getMensajes();
-					
+
 					for (Mensaje msj : mensajes) {
 						System.out.println(msj.getTexto());
 					}
@@ -340,7 +321,7 @@ public class VentanaMain extends JFrame {
 	private void openContacts() {
 		VentanaContactos ventanaContactos = new VentanaContactos(this);
 		ventanaContactos.setVisible(true);
-		
+
 		crearModelosVista();
 	}
 
@@ -353,29 +334,31 @@ public class VentanaMain extends JFrame {
 
 		boolean enviado = AppChat.getInstance().sendMessage(texto.getText(), contacto);
 
-		/*if (enviado) {
-			JOptionPane.showMessageDialog(this, "Mensaje enviado correctamente", "Éxito",
-					JOptionPane.INFORMATION_MESSAGE);
-			// Actualizar la lista de mensajes del contacto
-			// cargarConversacion(contacto);
-		} else {
-			JOptionPane.showMessageDialog(this, "Error al enviar el mensaje", "Error", JOptionPane.ERROR_MESSAGE);
-			return;
+		if (enviado) {
+			BubbleText burbuja;
+			burbuja = new BubbleText(chat, texto.getText(), Color.GREEN, "Yo", BubbleText.SENT);
+			chat.add(burbuja);
+			texto.setText(null);
+
+			chat.revalidate();
+			chat.repaint();
+
+			SwingUtilities.invokeLater(() -> {
+				JScrollBar vertical = chatScrollPane.getVerticalScrollBar();
+				vertical.setValue(vertical.getMaximum());
+			});
+			
+			listaContactos.updateUI();
+			actualizarVista();
 		}
-	*/
-		BubbleText burbuja;
-		burbuja = new BubbleText(chat, texto.getText(), Color.GREEN, "Yo", BubbleText.SENT);
-		chat.add(burbuja);
-		texto.setText(null);
 
-		chat.revalidate();
-		chat.repaint();
-
-		SwingUtilities.invokeLater(() -> {
-			JScrollBar vertical = chatScrollPane.getVerticalScrollBar();
-			vertical.setValue(vertical.getMaximum());
-		});
-
+	}
+	
+	public void actualizarVista() {
+		crearModelosVista();
+		listaContactos.repaint();
+		panelChat.revalidate();
+		panelChat.repaint();
 	}
 
 	private void cargarConversacion(Contacto contacto) {
@@ -386,13 +369,20 @@ public class VentanaMain extends JFrame {
 		System.out.println("Cargando conversación con: " + contacto.getNombre());
 		panelChat.removeAll(); // Clear the existing chat panel
 
-		List<Mensaje> mensajes = AppChat.getInstance().getCurrentUser().getMensajesConContacto(contacto);
-		if (mensajes == null) {
-			System.out.println("No se encontraron mensajes");
-			mensajes = Collections.emptyList(); // Asegúrate de que la lista no sea null
-		} else {
-			System.out.println("Mensajes encontrados: " + mensajes.size());
-		}
+		List<Mensaje> mensajes = contacto.getMensajes();
+		if (mensajes == null || mensajes.isEmpty()) {
+	        System.out.println("No se encontraron mensajes");
+	        mensajes = Collections.emptyList(); // Asegúrate de que la lista no sea null
+	    } else {
+	        System.out.println("Mensajes encontrados: " + mensajes.size());
+	        
+	        // Imprimir mensajes para depuración
+	        for (Mensaje m : mensajes) {
+	            System.out.println("Mensaje: " + m.getTexto() + 
+	                             ", Emisor: " + m.getEmisor().getName() + 
+	                             ", Receptor: " + (m.getReceptor() != null ? m.getReceptor().getNombre() : "null"));
+	        }
+	    }
 
 		mensajes.stream().map(m -> {
 			if (m.getEmisor().equals(AppChat.getInstance().getCurrentUser())) {

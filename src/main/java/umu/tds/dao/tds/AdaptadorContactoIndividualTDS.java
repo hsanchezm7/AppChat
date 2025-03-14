@@ -127,17 +127,21 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 
 		Entidad entContactoIndividual = servPersistencia.recuperarEntidad(id);
 
-		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
+		
 
 		String name = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, NAME_FIELD);
 		String phone = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, PHONE_FIELD);
 		String userContactId = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, USER_FIELD);
-		Usuario userContact = adapterU.recuperarUsuario(Integer.valueOf(userContactId));
+		
 
-		ContactoIndividual contacto = new ContactoIndividual(name, phone, userContact);
+		ContactoIndividual contacto = new ContactoIndividual(name, phone, null);
 		contacto.setId(id);
 		
 		PoolDAO.getInstance().addObject(id, contacto);
+		
+		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
+		Usuario userContact = adapterU.recuperarUsuario(Integer.valueOf(userContactId));
+		contacto.setUsuario(userContact);
 		
 		System.out.println("Recuperando mensajes para el contacto " + id + "...");
 		// TODO: Recuperar mensajes

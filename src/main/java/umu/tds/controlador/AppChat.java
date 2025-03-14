@@ -40,28 +40,23 @@ public class AppChat {
 		if (unicaInstancia == null) {
 			unicaInstancia = new AppChat();
 		}
-
 		return unicaInstancia;
 	}
 
 	/* Atributos */
 	private DAOFactory daoFactory;
-
 	private AdaptadorUsuarioDAO usuarioDAO;
 	private AdaptadorMensajeDAO mensajeDAO;
 	private AdaptadorContactoDAO contactoDAO;
 	private AdaptadorGrupoDAO grupoDAO;
 	private AdaptadorContactoIndividualDAO contactoIndividualDAO;
-
 	private Usuario user;
-
 	private RepositorioUsuarios repoUsuarios;
 
 	/* Constructor */
 	private AppChat() {
 		initializeAdapters();
 		initializeRepos();
-
 		this.user = null;
 	}
 
@@ -76,7 +71,6 @@ public class AppChat {
 	private void initializeAdapters() {
 		// TODO: Añadir try-catch
 		this.daoFactory = DAOFactory.getInstance();
-
 		this.usuarioDAO = daoFactory.getUsuarioDAO();
 		this.mensajeDAO = daoFactory.getMensajeDAO();
 		this.contactoDAO = daoFactory.getContactoDAO();
@@ -125,9 +119,14 @@ public class AppChat {
 		}
 
 		this.user = usuarioRegistrado;
-		
-		List<Mensaje> mensajes = mensajeDAO.recuperarAllMensajes();
-	    user.setMensajes(mensajes);
+
+		// List<Mensaje> mensajes = mensajeDAO.recuperarAllMensajes();
+		// user.setMensajes(mensajes);
+
+		mensajeDAO.recuperarAllMensajes();
+		usuarioDAO.modificarUsuario(usuarioRegistrado);
+
+		cargarMensajesNoRegistrados();
 
 		return true;
 	}
@@ -167,38 +166,114 @@ public class AppChat {
 	}
 
 	public boolean addGrupo(String nombre, List<ContactoIndividual> miembros, String imagenGrupoURL) {
-		
+
 		Grupo grupo = new Grupo(nombre, user, miembros, imagenGrupoURL);
 
-		user.addContacto(grupo); //Para el usuario administrador añadir el grupo a su lista de contactos
+		user.addContacto(grupo); // Para el usuario administrador añadir el grupo a su lista de contactos
 
-		contactoDAO.registrarContacto(grupo); //Registrar el grupo mediante el adaptador
-		usuarioDAO.modificarUsuario(user); //Modificar el usuario en la base de datos para que queden reflejados los cambios
-		
-		
-		//Un usuario supongo que para añadirlo a un grupo previamente tmb debía estar registrado en el sistema
+		contactoDAO.registrarContacto(grupo); // Registrar el grupo mediante el adaptador
+		usuarioDAO.modificarUsuario(user); // Modificar el usuario en la base de datos para que queden reflejados los
+											// cambios
+
+		// Un usuario supongo que para añadirlo a un grupo previamente tmb debía estar
+		// registrado en el sistema
 		miembros.stream().forEach(m -> {
-			m.getUsuario().addContacto(grupo); //Añadir a la lista de contactos de cada contacto individual el grupo
-			usuarioDAO.modificarUsuario(m.getUsuario()); //Modificar el usuario en la base de datos para que queden reflejados los cambios
+			m.getUsuario().addContacto(grupo); // Añadir a la lista de contactos de cada contacto individual el grupo
+			usuarioDAO.modificarUsuario(m.getUsuario()); // Modificar el usuario en la base de datos para que queden
+															// reflejados los cambios
 		});
-		
+
 		return true;
 	}
-	
+
 	public boolean sendMessage(String texto, Contacto contacto) {
 		Mensaje mensaje = new Mensaje(texto, user, contacto, LocalDateTime.now(), 0);
+
+		// Añado mensaje a lista de mensajes del contacto
 		contacto.addMensaje(mensaje);
-		user.addMensaje(mensaje);
-		
-		mensajeDAO.registrarMensaje(mensaje);
-		
-		contactoDAO.modificarContacto(contacto);
-		usuarioDAO.modificarUsuario(user);
-		
+
+		// user.addMensaje(mensaje);
+
+		mensajeDAO.registrarMensaje(mensaje); // registro mensaje enviado
+
+		contactoDAO.modificarContacto(contacto); // modifico el contacto
+		// usuarioDAO.modificarUsuario(user);
+
+		/*
+		 * if (contacto instanceof ContactoIndividual) { ContactoIndividual receptor =
+		 * (ContactoIndividual) contacto; Usuario usuarioReceptor =
+		 * receptor.getUsuario();
+		 * 
+		 * // Verificar si el receptor ya tiene al emisor como contacto boolean
+		 * emisorYaExiste = usuarioReceptor.getContactos().stream() .filter(c -> c
+		 * instanceof ContactoIndividual).map(c -> (ContactoIndividual) c) .anyMatch(c
+		 * -> c.getUsuario().getPhone().equals(user.getPhone()));
+		 * 
+		 * if (!emisorYaExiste) {
+		 * System.out.println("Añadiendo emisor a la lista de contactos del receptor");
+		 * ContactoIndividual nuevoContacto = new ContactoIndividual(user.getName(),
+		 * user.getPhone(), user); usuarioReceptor.addContacto(nuevoContacto);
+		 * 
+		 * // Añadir el mensaje al contacto del receptor también
+		 * nuevoContacto.addMensaje(mensaje);
+		 * 
+		 * contactoDAO.registrarContacto(nuevoContacto);
+		 * usuarioDAO.modificarUsuario(usuarioReceptor); } else { // El receptor ya //
+		 * tiene al emisor como contacto, buscar ese contacto y añadir el mensaje
+		 * ContactoIndividual contactoExistente =
+		 * usuarioReceptor.getContactos().stream() .filter(c -> c instanceof
+		 * ContactoIndividual).map(c -> (ContactoIndividual) c) .filter(c ->
+		 * c.getUsuario().getPhone().equals(user.getPhone())).findFirst().orElse(null);
+		 * 
+		 * if (contactoExistente != null) { contactoExistente.addMensaje(mensaje);
+		 * contactoDAO.modificarContacto(contactoExistente);
+		 * usuarioDAO.modificarUsuario(usuarioReceptor); } } }
+		 * 
+		 * 
+		 */
 		return true;
-		
+
 	}
-	
-	
+
+	public void cargarMensajesNoRegistrados() {
+		List<Mensaje> todosLosMensajes = mensajeDAO.recuperarAllMensajes();
+
+		for (Mensaje mensaje : todosLosMensajes) {
+			if (mensaje.getReceptor() instanceof ContactoIndividual) {
+				ContactoIndividual contactoReceptor = (ContactoIndividual) mensaje.getReceptor();
+
+				if (contactoReceptor.getUsuario().equals(user)) {
+					Usuario emisor = mensaje.getEmisor();
+
+					// Verificar si el contacto ya existe
+					ContactoIndividual contactoExistente = user.getContactos().stream()
+							.filter(c -> c instanceof ContactoIndividual).map(c -> (ContactoIndividual) c)
+							.filter(c -> c.getUsuario().equals(emisor)).findFirst().orElse(null);
+
+					if (contactoExistente == null) {
+						// Si el contacto no existe, crearlo y agregar el mensaje
+						ContactoIndividual nuevoContacto = new ContactoIndividual(emisor.getName(), emisor.getPhone(),
+								emisor);
+						user.addContacto(nuevoContacto);
+
+						// Solo agregar mensaje si aún no está en la lista del contacto
+						if (!nuevoContacto.getMensajes().contains(mensaje)) {
+							nuevoContacto.addMensaje(mensaje);
+						}
+
+						contactoDAO.registrarContacto(nuevoContacto);
+						usuarioDAO.modificarUsuario(user);
+					} else {
+						// Si el contacto ya existe, solo agregar el mensaje si aún no está en la
+						// conversación
+						if (!contactoExistente.getMensajes().contains(mensaje)) {
+							contactoExistente.addMensaje(mensaje);
+							contactoDAO.modificarContacto(contactoExistente);
+						}
+					}
+				}
+			}
+		}
+	}
 
 }

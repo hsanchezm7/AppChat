@@ -94,7 +94,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 						new Propiedad(MIEMBROS_FIELD, getIdsFromMembers(miembros)), // Convertir lista de miembros a IDs
 						new Propiedad(IMAGENURL_FIELD, grupo.getImagenGrupoURL()),
 						new Propiedad(NOMBRE_FIELD, grupo.getNombre()),
-						new Propiedad(MENSAJES_FIELD, getIdsFromMensajes(mensajes)) // Convertir lista de mensajes a IDs
+						new Propiedad(MENSAJES_FIELD, obtenerCodigosMensajes(mensajes)) // Convertir lista de mensajes a IDs
 				)));
 
 		entGrupo = servPersistencia.registrarEntidad(entGrupo);
@@ -111,6 +111,26 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 
 	@Override
 	public void modificarGrupo(Grupo grupo) {
+		
+		System.out.println("Modificando grupo con id " + grupo.getId());
+
+		Entidad eGrupo = servPersistencia.recuperarEntidad(grupo.getId());
+
+		for (Propiedad prop : eGrupo.getPropiedades()) {
+			if (prop.getNombre().equals("nombre")) {
+				prop.setValor(grupo.getNombre());
+			} else if (prop.getNombre().equals("miembros")) {
+				prop.setValor(getIdsFromMembers(grupo.getMiembros()));
+			} else if (prop.getNombre().equals("administrador")) {
+				prop.setValor(String.valueOf(grupo.getAdministrador().getId()));
+			} else if (prop.getNombre().equals("mensajes")) {
+				String mensajes = obtenerCodigosMensajes(grupo.getMensajes());
+				prop.setValor(mensajes);
+			}
+			servPersistencia.modificarPropiedad(prop);
+		}
+		
+		System.out.println("La nueva lista de mensajes es ..." + obtenerCodigosMensajes(grupo.getMensajes()));
 
 	}
 
@@ -161,7 +181,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		return miembros.stream().map(miembro -> String.valueOf(miembro.getId())).collect(Collectors.joining(" "));
 	}
 
-	private String getIdsFromMensajes(List<Mensaje> mensajes) {
+	private String obtenerCodigosMensajes(List<Mensaje> mensajes) {
 		return mensajes.stream().map(mensaje -> String.valueOf(mensaje.getId())).collect(Collectors.joining(" "));
 	}
 

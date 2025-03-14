@@ -65,20 +65,14 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		// volver a registrar un usuario? debería ser persistente y estar ya registrado.
 		// lo hace el repoUsuarios llamando a su adaptador
 		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getInstance();
-		if (servPersistencia.recuperarEntidad(mensaje.getEmisor().getId()) == null) {
+		if (servPersistencia.recuperarEntidad(mensaje.getEmisor().getId()) == null) { //Esta comprobación es redundante??
             adaptadorUsuario.registrarUsuario(mensaje.getEmisor());
         }
 
-		// lo mismo con el grupo
-		AdaptadorContactoIndividualTDS adaptadorContactoIndividual = AdaptadorContactoIndividualTDS.getInstance();
-		AdaptadorGrupoTDS adaptadorGrupo = AdaptadorGrupoTDS.getInstance();
-		
-		Contacto contacto = mensaje.getReceptor();
-		if (contacto instanceof ContactoIndividual) {
-			adaptadorContactoIndividual.registrarContactoIndividual((ContactoIndividual) contacto);
-		} else if (contacto instanceof Grupo) {
-			adaptadorGrupo.registrarGrupo((Grupo) contacto);
-		}
+		// Registrar receptor(es) si no están registrados
+	    List<Contacto> contactos = obtenerContactosParaRegistro(mensaje.getReceptor());
+	    registrarContactosSiNoExisten(contactos);
+	    
 	
 		entMensaje = new Entidad();
 		entMensaje.setNombre(ENTITY_TYPE);
@@ -97,7 +91,7 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		    throw new RuntimeException("Error al registrar el mensaje en la persistencia.");
 		}
 		
-		System.out.println("Mensaje " + mensaje.getTexto() + " de " + mensaje.getEmisor().getName() + " a " + mensaje.getReceptor().getNombre() + " enviado con éxito");
+		//System.out.println("Mensaje " + mensaje.getTexto() + " de " + mensaje.getEmisor().getName() + " a " + mensaje.getReceptor().getNombre() + " enviado con éxito");
 		
 		mensaje.setId(entMensaje.getId());
 		
@@ -188,6 +182,36 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		return servPersistencia.recuperarEntidades(ENTITY_TYPE).stream()
 	            .map(entidad -> recuperarMensaje(entidad.getId()))
 	            .collect(Collectors.toCollection(LinkedList::new));
+	}
+	
+	/**
+	 * Registra los contactos si no están registrados en la base de datos.
+	 */
+	private void registrarContactosSiNoExisten(List<Contacto> contactos) {
+	    AdaptadorContactoIndividualTDS adaptadorContactoIndividual = AdaptadorContactoIndividualTDS.getInstance();
+	    AdaptadorGrupoTDS adaptadorGrupo = AdaptadorGrupoTDS.getInstance();
+
+	    for (Contacto contacto : contactos) {
+	        if (servPersistencia.recuperarEntidad(contacto.getId()) == null) {
+	            if (contacto instanceof ContactoIndividual) {
+	                adaptadorContactoIndividual.registrarContactoIndividual((ContactoIndividual) contacto);
+	            } else if (contacto instanceof Grupo) {
+	                adaptadorGrupo.registrarGrupo((Grupo) contacto);
+	            }
+	        }
+	    }
+	}
+	
+	/**
+	 * Devuelve una lista de contactos a registrar. Si el receptor es un grupo, devuelve todos sus miembros.
+	 */
+	private List<Contacto> obtenerContactosParaRegistro(Contacto receptor) {
+	    if (receptor instanceof Grupo) {
+	    	// Convertimos la lista de ContactoIndividual a List<Contacto> para compatibilidad
+	        return new ArrayList<>( ((Grupo) receptor).getMiembros() );
+	    } else {
+	        return List.of(receptor); // Solo el receptor individual
+	    }
 	}
 	
 	
