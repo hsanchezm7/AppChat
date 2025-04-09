@@ -131,7 +131,9 @@ public class VentanaMain extends JFrame {
 		gbcB4.insets = new Insets(0, 0, 5, 5);
 		gbcB4.gridx = 4;
 		gbcB4.gridy = 0;
+		btnPremium.addActionListener(e -> openPremium());
 		panelNorte.add(btnPremium, gbcB4);
+		
 
 		JPanel panel_2 = new JPanel();
 		GridBagConstraints gbc2 = new GridBagConstraints();
@@ -400,6 +402,11 @@ public class VentanaMain extends JFrame {
 			JScrollBar vertical = chatScrollPane.getVerticalScrollBar();
 			vertical.setValue(vertical.getMaximum());
 		});
+	}
+	
+	private void openPremium() {
+		VentanaPremium ventanaPremium = new VentanaPremium(this);
+		ventanaPremium.setVisible(true);
 	}
 
 	private class ContactoIndividualCellRenderer extends JPanel implements ListCellRenderer<Contacto> {

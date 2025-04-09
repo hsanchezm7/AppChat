@@ -98,7 +98,6 @@ public class AppChat {
 		return repoUsuarios.getUserByPhone(phone) != null;
 	}
 
-	/* Métodos */
 	/**
 	 * Inicia sesión en la aplicación.
 	 *
@@ -130,7 +129,21 @@ public class AppChat {
 
 		return true;
 	}
-
+	
+	/**
+	 * Registra un nuevo usuario en la aplicación.
+	 *
+	 * @param phone       el número de teléfono del nuevo usuario.
+	 * @param firstName   el nombre del usuario.
+	 * @param lastName    los apellidos del usuario.
+	 * @param password    la contraseña del usuario.
+	 * @param fechaNacim  la fecha de nacimiento del usuario.
+	 * @param imagenURL   la URL de la imagen de perfil.
+	 * @param saludo      el mensaje de saludo personalizado.
+	 * @return {@code true} si el registro se realiza con éxito, {@code false} si
+	 *         ya existe un usuario con ese número de teléfono o si no se pudo
+	 *         añadir al repositorio.
+	 */
 	public boolean register(String phone, String firstName, String lastName, char[] password, LocalDate fechaNacim,
 			String imagenURL, String saludo) {
 		if (isPhoneRegistered(phone)) {
@@ -164,7 +177,16 @@ public class AppChat {
 
 		return true;
 	}
-
+	
+	/**
+	 * Crea un nuevo grupo con los contactos especificados y lo añade tanto al
+	 * usuario actual como a los miembros.
+	 *
+	 * @param nombre         el nombre del grupo.
+	 * @param miembros       la lista de contactos individuales que formarán parte del grupo.
+	 * @param imagenGrupoURL la URL de la imagen asociada al grupo.
+	 * @return {@code true} si el grupo se crea y registra correctamente, {@code false} en caso contrario.
+	 */
 	public boolean addGrupo(String nombre, List<ContactoIndividual> miembros, String imagenGrupoURL) {
 
 		Grupo grupo = new Grupo(nombre, user, miembros, imagenGrupoURL);
@@ -274,6 +296,16 @@ public class AppChat {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Actualiza el estado {@code premium} de un usuario.
+	 *
+	 * @param premium    el nuevo estado {@code premium}.
+	 */
+	public void setUserPremiumStatus(boolean premium) {
+		user.setPremium(premium);
+		usuarioDAO.modificarUsuario(user);
 	}
 
 }

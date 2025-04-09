@@ -323,7 +323,7 @@ public class VentanaRegister extends JDialog {
 
 	private void handleCancel() {
 		int respuesta = JOptionPane.showConfirmDialog(this, "¿Estás seguro de que deseas cancelar el registro?",
-				"Confirmar cancelación", JOptionPane.YES_NO_OPTION);
+				"Confirmar cancelación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
 		if (respuesta == JOptionPane.YES_OPTION) {
 			dispose();
