@@ -47,6 +47,9 @@ public class VentanaMain extends JFrame {
 	private DefaultListModel<Contacto> modelo = new DefaultListModel<>();
 	private JList<Contacto> listaContactos;
 	private JScrollPane chatScrollPane;
+	private final Usuario usuarioAct = AppChat.getInstance().getCurrentUser();
+	private TitledBorder titledBorder;
+	private JComboBox<String> comboBox;
 
 	public VentanaMain() {
 		initComponents();
@@ -69,10 +72,13 @@ public class VentanaMain extends JFrame {
 	}
 
 	public void crearModelosVista() {
-		List<Contacto> contactos = AppChat.getInstance().getCurrentUser().getContactos();
+		List<Contacto> contactos = usuarioAct.getContactos();
 		modelo.clear(); // Limpiar el modelo antes de añadir los contactos
 		contactos.stream().filter(c -> !modelo.contains(c)).forEach(modelo::addElement);
-		listaContactos = new JList<>(modelo);
+		if (listaContactos == null) {
+			listaContactos = new JList<>(modelo);
+		}
+		//listaContactos = new JList<>(modelo);
 	}
 
 	public JPanel crearPanelNorte() {
@@ -86,11 +92,24 @@ public class VentanaMain extends JFrame {
 		gbl1.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
 		panelNorte.setLayout(gbl1);
 
-		JComboBox<String> comboBox = new JComboBox<>();
+		comboBox = new JComboBox<>();
 		for (int i = 0; i < modelo.size(); i++) {
 			Contacto contacto = modelo.getElementAt(i); // Obtener el contacto
 			comboBox.addItem(contacto.getNombre()); // Añadir el nombre al JComboBox
 		}
+		
+		comboBox.addActionListener(e -> {
+			String seleccionado = (String) comboBox.getSelectedItem();
+
+			for (int i = 0; i < modelo.getSize(); i++) {
+				Contacto contacto = modelo.getElementAt(i);
+				if (contacto.getNombre().equals(seleccionado)) {
+					listaContactos.setSelectedIndex(i);
+					cargarConversacion(contacto);
+					break;
+				}
+			}
+		});
 
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
@@ -144,7 +163,7 @@ public class VentanaMain extends JFrame {
 		gbc2.gridy = 0;
 		panelNorte.add(panel_2, gbc2);
 
-		String user = AppChat.getInstance().getCurrentUser().getName();
+		String user = usuarioAct.getName();
 		JLabel labelUsuario = new JLabel(user);
 		panel_2.add(labelUsuario);
 
@@ -192,13 +211,14 @@ public class VentanaMain extends JFrame {
 		gbl_panel_5.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		panelDer.setLayout(gbl_panel_5);
 
-		TitledBorder titledBorder = new TitledBorder(null, " Chat ", TitledBorder.LEADING, TitledBorder.TOP, null,
+		titledBorder = new TitledBorder(null, " Chat ", TitledBorder.LEADING, TitledBorder.TOP, null,
 				null);
 		panelDer.setBorder(titledBorder);
 
 		// Agregar un MouseListener para deseleccionar
 		listaContactos.addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting()) {
+				System.out.println("Contacto seleccionado: " + listaContactos.getSelectedValue().getNombre());
 				Contacto contactoSeleccionado = listaContactos.getSelectedValue();
 				if (contactoSeleccionado != null) {
 					cargarConversacion(contactoSeleccionado);
@@ -245,7 +265,6 @@ public class VentanaMain extends JFrame {
 						} else {
 							Contacto contacto = listaContactos.getModel().getElementAt(index);
 							cargarConversacion(contacto);
-							titledBorder.setTitle(" Chat con " + contacto.getNombre());
 						}
 					}
 				}
@@ -274,9 +293,6 @@ public class VentanaMain extends JFrame {
 		panelChat.setLayout(new BoxLayout(panelChat, BoxLayout.Y_AXIS));
 		chatScrollPane.setViewportView(panelChat); // Asegúrate de que el panelChat esté en el JScrollPane
 		panelChat.setBackground(Color.WHITE); // Establecer el color original
-		// chatScrollPane.add(panelChat);
-
-		listaContactos.setSelectedIndex(0);
 
 		textField_1 = new JTextField();
 		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
@@ -298,9 +314,9 @@ public class VentanaMain extends JFrame {
 
 		btnSend.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("Botón enviar pulsado");
 				enviarMensajes(panelChat, textField_1, listaContactos.getSelectedValue());
-				Usuario uact = AppChat.getInstance().getCurrentUser();
-				List<Contacto> contactos_usr = uact.getContactos();
+				List<Contacto> contactos_usr = usuarioAct.getContactos();
 				for (Contacto contacto : contactos_usr) {
 					List<Mensaje> mensajes = contacto.getMensajes();
 
@@ -325,6 +341,7 @@ public class VentanaMain extends JFrame {
 		ventanaContactos.setVisible(true);
 
 		crearModelosVista();
+		actualizarComboBox(comboBox);
 	}
 
 	private void enviarMensajes(JPanel chat, JTextField texto, Contacto contacto) {
@@ -350,14 +367,14 @@ public class VentanaMain extends JFrame {
 				vertical.setValue(vertical.getMaximum());
 			});
 			
-			listaContactos.updateUI();
+			//listaContactos.updateUI();
 			actualizarVista();
 		}
 
 	}
 	
 	public void actualizarVista() {
-		crearModelosVista();
+		//crearModelosVista();
 		listaContactos.repaint();
 		panelChat.revalidate();
 		panelChat.repaint();
@@ -369,7 +386,10 @@ public class VentanaMain extends JFrame {
 		}
 
 		System.out.println("Cargando conversación con: " + contacto.getNombre());
-		panelChat.removeAll(); // Clear the existing chat panel
+		panelChat.removeAll(); 
+		
+		titledBorder.setTitle(" Chat con " + contacto.getNombre());
+		panelDer.repaint();
 
 		List<Mensaje> mensajes = contacto.getMensajes();
 		if (mensajes == null || mensajes.isEmpty()) {
@@ -387,7 +407,7 @@ public class VentanaMain extends JFrame {
 	    }
 
 		mensajes.stream().map(m -> {
-			if (m.getEmisor().equals(AppChat.getInstance().getCurrentUser())) {
+			if (m.getEmisor().equals(usuarioAct)) {
 				return new BubbleText(panelChat, m.getTexto(), Color.GREEN, "Yo", BubbleText.SENT);
 			} else {
 				return new BubbleText(panelChat, m.getTexto(), Color.GREEN, m.getEmisor().getName(),
@@ -407,6 +427,13 @@ public class VentanaMain extends JFrame {
 	private void openPremium() {
 		VentanaPremium ventanaPremium = new VentanaPremium(this);
 		ventanaPremium.setVisible(true);
+	}
+	
+	private void actualizarComboBox(JComboBox<String> comboBox) {
+		comboBox.removeAllItems();
+		for (int i = 0; i < modelo.size(); i++) {
+			comboBox.addItem(modelo.getElementAt(i).getNombre());
+		}
 	}
 
 	private class ContactoIndividualCellRenderer extends JPanel implements ListCellRenderer<Contacto> {

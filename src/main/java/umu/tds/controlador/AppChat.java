@@ -119,13 +119,8 @@ public class AppChat {
 
 		this.user = usuarioRegistrado;
 
-		// List<Mensaje> mensajes = mensajeDAO.recuperarAllMensajes();
-		// user.setMensajes(mensajes);
-
 		mensajeDAO.recuperarAllMensajes();
 		usuarioDAO.modificarUsuario(usuarioRegistrado);
-
-		cargarMensajesNoRegistrados();
 
 		return true;
 	}
@@ -158,10 +153,15 @@ public class AppChat {
 		}
 
 		usuarioDAO.registrarUsuario(usuario);
-
 		return true;
 	}
 
+	/**
+	 * Función que añade un nuevo contacto individual al usuario actual, si aún no lo tiene registrado
+	 * @param name
+	 * @param phone
+	 * @return
+	 */
 	public boolean addContacto(String name, String phone) {
 		// Comprobar que el número no está asociado ya a un contacto del usuario
 		// principal
@@ -169,9 +169,8 @@ public class AppChat {
 		Usuario userToAdd = repoUsuarios.getUserByPhone(phone);
 
 		ContactoIndividual contacto = new ContactoIndividual(name, phone, userToAdd);
-
 		user.addContacto(contacto);
-
+		
 		contactoDAO.registrarContacto(contacto);
 		usuarioDAO.modificarUsuario(user);
 
@@ -191,111 +190,71 @@ public class AppChat {
 
 		Grupo grupo = new Grupo(nombre, user, miembros, imagenGrupoURL);
 
-		user.addContacto(grupo); // Para el usuario administrador añadir el grupo a su lista de contactos
+		//Añadir el grupo al usuario actual
+		user.addContacto(grupo);
+		contactoDAO.registrarContacto(grupo); 
+		usuarioDAO.modificarUsuario(user);
 
-		contactoDAO.registrarContacto(grupo); // Registrar el grupo mediante el adaptador
-		usuarioDAO.modificarUsuario(user); // Modificar el usuario en la base de datos para que queden reflejados los
-											// cambios
-
-		// Un usuario supongo que para añadirlo a un grupo previamente tmb debía estar
-		// registrado en el sistema
+		//Añadir el grupo a todos los miembros 
 		miembros.stream().forEach(m -> {
-			m.getUsuario().addContacto(grupo); // Añadir a la lista de contactos de cada contacto individual el grupo
-			usuarioDAO.modificarUsuario(m.getUsuario()); // Modificar el usuario en la base de datos para que queden
-															// reflejados los cambios
+			m.getUsuario().addContacto(grupo); 
+			usuarioDAO.modificarUsuario(m.getUsuario());
 		});
 
 		return true;
 	}
-
+	
+	
+	/**
+	 * Función que envía un mensaje a un contacto (indivual o grupo)
+	 * Se encarga de registrar el mensaje, actualizar los contactos involucrados y reflejar el mensaje también en el receptor
+	 * @param texto
+	 * @param contacto
+	 * @return
+	 */
 	public boolean sendMessage(String texto, Contacto contacto) {
+		
+		if (texto == null || contacto == null) return false; 
+		
+		//Se crea el mensaje original con la fecha actual, sin emoticono, usuario emisor el que ha iniciado sesión y receptor contacto
 		Mensaje mensaje = new Mensaje(texto, user, contacto, LocalDateTime.now(), 0);
-
-		// Añado mensaje a lista de mensajes del contacto
+		//Hay que registrar el mensaje en la base de datos y en el contacto del emisor
 		contacto.addMensaje(mensaje);
+		mensajeDAO.registrarMensaje(mensaje); 
+		contactoDAO.modificarContacto(contacto); //Se actualiza el contacto del emisor
 
-		// user.addMensaje(mensaje);
-
-		mensajeDAO.registrarMensaje(mensaje); // registro mensaje enviado
-
-		contactoDAO.modificarContacto(contacto); // modifico el contacto
-		// usuarioDAO.modificarUsuario(user);
-
-		/*
-		 * if (contacto instanceof ContactoIndividual) { ContactoIndividual receptor =
-		 * (ContactoIndividual) contacto; Usuario usuarioReceptor =
-		 * receptor.getUsuario();
-		 * 
-		 * // Verificar si el receptor ya tiene al emisor como contacto boolean
-		 * emisorYaExiste = usuarioReceptor.getContactos().stream() .filter(c -> c
-		 * instanceof ContactoIndividual).map(c -> (ContactoIndividual) c) .anyMatch(c
-		 * -> c.getUsuario().getPhone().equals(user.getPhone()));
-		 * 
-		 * if (!emisorYaExiste) {
-		 * System.out.println("Añadiendo emisor a la lista de contactos del receptor");
-		 * ContactoIndividual nuevoContacto = new ContactoIndividual(user.getName(),
-		 * user.getPhone(), user); usuarioReceptor.addContacto(nuevoContacto);
-		 * 
-		 * // Añadir el mensaje al contacto del receptor también
-		 * nuevoContacto.addMensaje(mensaje);
-		 * 
-		 * contactoDAO.registrarContacto(nuevoContacto);
-		 * usuarioDAO.modificarUsuario(usuarioReceptor); } else { // El receptor ya //
-		 * tiene al emisor como contacto, buscar ese contacto y añadir el mensaje
-		 * ContactoIndividual contactoExistente =
-		 * usuarioReceptor.getContactos().stream() .filter(c -> c instanceof
-		 * ContactoIndividual).map(c -> (ContactoIndividual) c) .filter(c ->
-		 * c.getUsuario().getPhone().equals(user.getPhone())).findFirst().orElse(null);
-		 * 
-		 * if (contactoExistente != null) { contactoExistente.addMensaje(mensaje);
-		 * contactoDAO.modificarContacto(contactoExistente);
-		 * usuarioDAO.modificarUsuario(usuarioReceptor); } } }
-		 * 
-		 * 
-		 */
+		//Si es contacto individual, se replica el mensaje en el receptor
+		if (contacto instanceof ContactoIndividual) {
+			ContactoIndividual receptorContacto = (ContactoIndividual) contacto;
+			Usuario receptor = receptorContacto.getUsuario();
+			
+			//Hay que buscar si el receptor tiene ya al emisor como contacto o no
+			ContactoIndividual contactoDelEmisor = receptor.getContactos().stream()
+					.filter(c -> c instanceof ContactoIndividual)
+					.map(c -> (ContactoIndividual) c)
+		            .filter(c -> c.getUsuario().equals(user))
+		            .findFirst()
+		            .orElse(null);
+			//Si no lo tiene, se crea el contacto y se registra
+			if (contactoDelEmisor == null) {
+				contactoDelEmisor = new ContactoIndividual(user.getName(), user.getPhone(), user);
+				receptor.addContacto(contactoDelEmisor);
+				contactoDAO.registrarContacto(contactoDelEmisor);
+			}
+			//Se crea una copia del mensaje para el recptor, apuntando a su contado del emisor
+			Mensaje copia = new Mensaje(texto, user, contactoDelEmisor, LocalDateTime.now(), 0);
+			mensajeDAO.registrarMensaje(copia);
+			contactoDelEmisor.addMensaje(copia);
+			//Actualizar el contacto del receptor y el propio usuario receptor
+			contactoDAO.modificarContacto(contactoDelEmisor);
+			usuarioDAO.modificarUsuario(receptor);
+		} else if (contacto instanceof Grupo) {
+			//Si el mensaje es para un grupo, se modifica directamente el grupo
+			contactoDAO.modificarContacto(contacto);
+		}
+		
 		return true;
 
-	}
-
-	public void cargarMensajesNoRegistrados() {
-		List<Mensaje> todosLosMensajes = mensajeDAO.recuperarAllMensajes();
-
-		for (Mensaje mensaje : todosLosMensajes) {
-			if (mensaje.getReceptor() instanceof ContactoIndividual) {
-				ContactoIndividual contactoReceptor = (ContactoIndividual) mensaje.getReceptor();
-
-				if (contactoReceptor.getUsuario().equals(user)) {
-					Usuario emisor = mensaje.getEmisor();
-
-					// Verificar si el contacto ya existe
-					ContactoIndividual contactoExistente = user.getContactos().stream()
-							.filter(c -> c instanceof ContactoIndividual).map(c -> (ContactoIndividual) c)
-							.filter(c -> c.getUsuario().equals(emisor)).findFirst().orElse(null);
-
-					if (contactoExistente == null) {
-						// Si el contacto no existe, crearlo y agregar el mensaje
-						ContactoIndividual nuevoContacto = new ContactoIndividual(emisor.getName(), emisor.getPhone(),
-								emisor);
-						user.addContacto(nuevoContacto);
-
-						// Solo agregar mensaje si aún no está en la lista del contacto
-						if (!nuevoContacto.getMensajes().contains(mensaje)) {
-							nuevoContacto.addMensaje(mensaje);
-						}
-
-						contactoDAO.registrarContacto(nuevoContacto);
-						usuarioDAO.modificarUsuario(user);
-					} else {
-						// Si el contacto ya existe, solo agregar el mensaje si aún no está en la
-						// conversación
-						if (!contactoExistente.getMensajes().contains(mensaje)) {
-							contactoExistente.addMensaje(mensaje);
-							contactoDAO.modificarContacto(contactoExistente);
-						}
-					}
-				}
-			}
-		}
 	}
 	
 	/**
