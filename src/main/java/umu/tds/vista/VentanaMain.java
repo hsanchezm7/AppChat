@@ -133,6 +133,7 @@ public class VentanaMain extends JFrame {
 		gbcB2.gridx = 2;
 		gbcB2.gridy = 0;
 		panelNorte.add(btnLupa, gbcB2);
+		btnLupa.addActionListener(e -> openBuscar());
 
 		JButton btnContacts = new JButton("Contactos");
 		btnContacts.addActionListener(e -> openContacts());
@@ -435,6 +436,12 @@ public class VentanaMain extends JFrame {
 			comboBox.addItem(modelo.getElementAt(i).getNombre());
 		}
 	}
+	
+	private void openBuscar() {
+		BuscarMensajes ventanaBuscar = new BuscarMensajes();
+		ventanaBuscar.setVisible(true);
+	}
+	
 
 	private class ContactoIndividualCellRenderer extends JPanel implements ListCellRenderer<Contacto> {
 		private JLabel nameLabel;
