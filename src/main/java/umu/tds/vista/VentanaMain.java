@@ -1,9 +1,7 @@
 package umu.tds.vista;
 
-import java.awt.EventQueue;
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -14,47 +12,60 @@ import java.awt.Color;
 
 import javax.swing.border.TitledBorder;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import umu.tds.controlador.AppChat;
 import umu.tds.model.Contacto;
-import umu.tds.model.ContactoIndividual;
 import umu.tds.model.Mensaje;
-import umu.tds.model.Usuario;
-
-import java.awt.Image;
-import java.io.IOException;
-import java.net.URL;
-
-import javax.imageio.ImageIO;
 
 import tds.BubbleText;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.ActionEvent;
 
+/**
+ * Ventana principal de la aplicación AppChat. Esta clase implementa la interfaz
+ * gráfica principal de la aplicación.
+ * 
+ * Responsabilidades -Mostrar la lista de contactos -Mostrar y gestionar las
+ * conversaciones de chat -Proporcionar acceso a otras funcionalidades
+ */
 public class VentanaMain extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static final String NOMBRE_VENTANA = "AppChat";
 	private static ImageIcon ICON = new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/logo128x128.png"));
 
-	private JPanel panelChat, panelDer;
-	private JTextField textField_1;
-	private List<Contacto> contactos;
+	// Panel donde se muestran los mensajes del chat actual
+	private JPanel panelChat;
+	// Panel derecho que contiene el chat y campo de texto
+	private JPanel panelDer;
+	// Campo para escribir nuevos mensajes
+	private JTextField mensajeTextField;
+	// Modelo de datos para la lista de contactos
 	private DefaultListModel<Contacto> modelo = new DefaultListModel<>();
+	// Lista visual de contactos
 	private JList<Contacto> listaContactos;
+	// Scroll para el panel de chat
 	private JScrollPane chatScrollPane;
-	private final Usuario usuarioAct = AppChat.getInstance().getCurrentUser();
+	// Borde con título para el panel de chat
 	private TitledBorder titledBorder;
+	// Selector despegable de contactos
 	private JComboBox<String> comboBox;
 
+	private AppChat controlador;
+
+	/**
+	 * Constructor de la ventana principal
+	 */
 	public VentanaMain() {
+		this.controlador = AppChat.getInstance();
 		initComponents();
 	}
 
+	/**
+	 * Se inicializan todos los componentes de la interfaz gráfica Se configuran los
+	 * paneles, layouts y listeners básicos
+	 */
 	public void initComponents() {
 		setTitle(NOMBRE_VENTANA);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -68,22 +79,33 @@ public class VentanaMain extends JFrame {
 		pack();
 		setResizable(true);
 		setMinimumSize(getSize());
-		setLocationRelativeTo(null);
+		setLocationRelativeTo(null); // Centrar la pantalla
 	}
 
+	/**
+	 * Crear los modelos para la vista de contactos (carga los contactos del usuario
+	 * en el modelo) Inicializa el modelo de datos para la lista de contactos
+	 */
 	public void crearModelosVista() {
-		List<Contacto> contactos = usuarioAct.getContactos();
-		modelo.clear(); // Limpiar el modelo antes de añadir los contactos
+		modelo.clear();
+		List<Contacto> contactos = controlador.getContactosUsuarioActual();
 		contactos.stream().filter(c -> !modelo.contains(c)).forEach(modelo::addElement);
+
 		if (listaContactos == null) {
 			listaContactos = new JList<>(modelo);
+			listaContactos.setCellRenderer(new ContactoIndividualCellRenderer());
+			configurarEventosListaContactos();
 		}
-		//listaContactos = new JList<>(modelo);
 	}
 
+	/**
+	 * Crear panel superior
+	 * 
+	 * @return
+	 */
 	public JPanel crearPanelNorte() {
 		JPanel panelNorte = new JPanel();
-		panelNorte.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelNorte.setBorder(new LineBorder(Color.BLACK));
 
 		GridBagLayout gbl1 = new GridBagLayout();
 		gbl1.columnWidths = new int[] { 209, 0, 0, 0, 0, 0, 0 };
@@ -92,24 +114,10 @@ public class VentanaMain extends JFrame {
 		gbl1.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
 		panelNorte.setLayout(gbl1);
 
+		// Combobox de contactos
 		comboBox = new JComboBox<>();
-		for (int i = 0; i < modelo.size(); i++) {
-			Contacto contacto = modelo.getElementAt(i); // Obtener el contacto
-			comboBox.addItem(contacto.getNombre()); // Añadir el nombre al JComboBox
-		}
-		
-		comboBox.addActionListener(e -> {
-			String seleccionado = (String) comboBox.getSelectedItem();
-
-			for (int i = 0; i < modelo.getSize(); i++) {
-				Contacto contacto = modelo.getElementAt(i);
-				if (contacto.getNombre().equals(seleccionado)) {
-					listaContactos.setSelectedIndex(i);
-					cargarConversacion(contacto);
-					break;
-				}
-			}
-		});
+		actualizarComboBox();
+		comboBox.addActionListener(e -> manejarSeleccionComboBox());
 
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
@@ -118,6 +126,7 @@ public class VentanaMain extends JFrame {
 		gbc_comboBox.gridy = 0;
 		panelNorte.add(comboBox, gbc_comboBox);
 
+		// Botón enviar
 		JButton btnEnviar = new JButton("");
 		btnEnviar.setIcon(new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/enviar.png")));
 		GridBagConstraints gbcB1 = new GridBagConstraints();
@@ -126,57 +135,53 @@ public class VentanaMain extends JFrame {
 		gbcB1.gridy = 0;
 		panelNorte.add(btnEnviar, gbcB1);
 
-		JButton btnLupa = new JButton("");
-		btnLupa.setIcon(new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/analisis-de-busqueda.png")));
-		GridBagConstraints gbcB2 = new GridBagConstraints();
-		gbcB2.insets = new Insets(0, 0, 5, 5);
-		gbcB2.gridx = 2;
-		gbcB2.gridy = 0;
-		panelNorte.add(btnLupa, gbcB2);
-		btnLupa.addActionListener(e -> openBuscar());
+		// Botones de la barra superior
+		agregarBotonBarra(panelNorte, "/umu/tds/resources/analisis-de-busqueda.png", "Buscar", 2, e -> openBuscar());
+		agregarBotonBarra(panelNorte, "/umu/tds/resources/contacto-2.png", "Contactos", 3, e -> openContacts());
+		agregarBotonBarra(panelNorte, "/umu/tds/resources/calidad-premium.png", "Premium", 4, e -> openPremium());
 
-		JButton btnContacts = new JButton("Contactos");
-		btnContacts.addActionListener(e -> openContacts());
-
-		btnContacts.setIcon(new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/contacto-2.png")));
-		GridBagConstraints gbcB3 = new GridBagConstraints();
-		gbcB3.insets = new Insets(0, 0, 5, 5);
-		gbcB3.gridx = 3;
-		gbcB3.gridy = 0;
-		panelNorte.add(btnContacts, gbcB3);
-
-		JButton btnPremium = new JButton("Premium");
-		btnPremium.setIcon(new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/calidad-premium.png")));
-		GridBagConstraints gbcB4 = new GridBagConstraints();
-		gbcB4.insets = new Insets(0, 0, 5, 5);
-		gbcB4.gridx = 4;
-		gbcB4.gridy = 0;
-		btnPremium.addActionListener(e -> openPremium());
-		panelNorte.add(btnPremium, gbcB4);
-		
-
-		JPanel panel_2 = new JPanel();
+		// Panel de información del usuario
+		JPanel panelUsuario = new JPanel();
 		GridBagConstraints gbc2 = new GridBagConstraints();
 		gbc2.anchor = GridBagConstraints.EAST;
 		gbc2.insets = new Insets(0, 0, 5, 0);
 		gbc2.fill = GridBagConstraints.VERTICAL;
 		gbc2.gridx = 5;
 		gbc2.gridy = 0;
-		panelNorte.add(panel_2, gbc2);
+		panelNorte.add(panelUsuario, gbc2);
 
-		String user = usuarioAct.getName();
-		JLabel labelUsuario = new JLabel(user);
-		panel_2.add(labelUsuario);
+		JLabel labelUsuario = new JLabel(controlador.getNombreUsuarioActual());
+		panelUsuario.add(labelUsuario);
 
-		JButton btn5 = new JButton("");
-		btn5.setIcon(new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/usuario.png")));
-		panel_2.add(btn5);
-		btn5.addActionListener(e -> openRegister());
+		// Botón usuario
+		JButton btnPerfil = new JButton("");
+		btnPerfil.setIcon(new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/usuario.png")));
+		panelUsuario.add(btnPerfil);
+		btnPerfil.addActionListener(e -> openRegister());
 
 		return panelNorte;
 
 	}
 
+	private void agregarBotonBarra(JPanel panel, String iconPath, String tooltip, int posX,
+			java.awt.event.ActionListener action) {
+		JButton boton = new JButton();
+		boton.setIcon(new ImageIcon(VentanaMain.class.getResource(iconPath)));
+		boton.setToolTipText(tooltip);
+		boton.addActionListener(action);
+
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.gridx = posX;
+		gbc.gridy = 0;
+		panel.add(boton, gbc);
+	}
+
+	/**
+	 * Crear el panel principal que contiene la lista de contactos y el chat
+	 * 
+	 * @return
+	 */
 	public JPanel crearPanelMain() {
 
 		JPanel panelMain = new JPanel();
@@ -187,6 +192,7 @@ public class VentanaMain extends JFrame {
 		gbl4.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
 		panelMain.setLayout(gbl4);
 
+		// Panel izquierdo (contactos)
 		JPanel panelIzq = new JPanel();
 		panelIzq.setBorder(new TitledBorder(null, " Contactos ", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc6 = new GridBagConstraints();
@@ -197,8 +203,7 @@ public class VentanaMain extends JFrame {
 		panelMain.add(panelIzq, gbc6);
 		panelIzq.setLayout(new BorderLayout(0, 0));
 
-		listaContactos.setCellRenderer(new ContactoIndividualCellRenderer());
-
+		// Panel derecho (chat)
 		panelDer = new JPanel();
 		GridBagConstraints gbc5 = new GridBagConstraints();
 		gbc5.fill = GridBagConstraints.BOTH;
@@ -212,19 +217,65 @@ public class VentanaMain extends JFrame {
 		gbl_panel_5.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		panelDer.setLayout(gbl_panel_5);
 
-		titledBorder = new TitledBorder(null, " Chat ", TitledBorder.LEADING, TitledBorder.TOP, null,
-				null);
+		titledBorder = new TitledBorder(null, " Chat ", TitledBorder.LEADING, TitledBorder.TOP, null, null);
 		panelDer.setBorder(titledBorder);
 
-		// Agregar un MouseListener para deseleccionar
+		// Scroll para la lista de contactos
+		JScrollPane scrollPane = new JScrollPane(listaContactos);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		panelIzq.add(scrollPane, BorderLayout.CENTER);
+		panelIzq.setVisible(true);
+
+		// Pandel de chat con scroll
+		chatScrollPane = new JScrollPane();
+		chatScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		chatScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		chatScrollPane.setBorder(null);
+		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
+		gbc_scrollPane_1.gridwidth = 2;
+		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_1.insets = new Insets(0, 0, 5, 0);
+		gbc_scrollPane_1.gridx = 0;
+		gbc_scrollPane_1.gridy = 0;
+		panelDer.add(chatScrollPane, gbc_scrollPane_1);
+
+		panelChat = new JPanel();
+		panelChat.setLayout(new BoxLayout(panelChat, BoxLayout.Y_AXIS));
+		chatScrollPane.setViewportView(panelChat);
+		panelChat.setBackground(Color.WHITE);
+
+		// Campo de texto para escribir mensajes
+		mensajeTextField = new JTextField();
+		GridBagConstraints gbc_mensajeTextField = new GridBagConstraints();
+		gbc_mensajeTextField.anchor = GridBagConstraints.SOUTH;
+		gbc_mensajeTextField.insets = new Insets(0, 0, 0, 5);
+		gbc_mensajeTextField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_mensajeTextField.gridx = 0;
+		gbc_mensajeTextField.gridy = 1;
+		panelDer.add(mensajeTextField, gbc_mensajeTextField);
+		mensajeTextField.setColumns(10);
+
+		// Botón enviar mensaje
+		JButton btnSend = new JButton("");
+		btnSend.setIcon(new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/send.png")));
+		GridBagConstraints gbcB4 = new GridBagConstraints();
+		gbcB4.anchor = GridBagConstraints.SOUTH;
+		gbcB4.gridx = 1;
+		gbcB4.gridy = 1;
+		panelDer.add(btnSend, gbcB4);
+		btnSend.addActionListener(e -> enviarMensajes(panelChat, mensajeTextField, listaContactos.getSelectedValue()));
+
+		return panelMain;
+
+	}
+
+	private void configurarEventosListaContactos() {
 		listaContactos.addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting()) {
-				System.out.println("Contacto seleccionado: " + listaContactos.getSelectedValue().getNombre());
 				Contacto contactoSeleccionado = listaContactos.getSelectedValue();
 				if (contactoSeleccionado != null) {
 					cargarConversacion(contactoSeleccionado);
-					panelDer.repaint();
-					pack();
 				} else {
 					panelChat.setBackground(Color.WHITE); // Restaurar color original si no hay selección
 					titledBorder.setTitle(" Chat ");
@@ -233,6 +284,7 @@ public class VentanaMain extends JFrame {
 			}
 		});
 
+		// Evento de clic para detectar clic en "+"
 		listaContactos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -260,9 +312,8 @@ public class VentanaMain extends JFrame {
 
 						// Verifica si el clic fue dentro del botón "+"
 						if (botonArea.contains(x, y)) {
-							AñadirContactos ventanaContacto = new AñadirContactos(
-									(JFrame) SwingUtilities.getWindowAncestor(listaContactos));
-							ventanaContacto.setVisible(true);
+							abrirVentanaAñadirContactos(); // Verificar si es openContacts, cambiar para que se le pase
+															// el numero y solo se tenga que modificar el nombre
 						} else {
 							Contacto contacto = listaContactos.getModel().getElementAt(index);
 							cargarConversacion(contacto);
@@ -272,143 +323,53 @@ public class VentanaMain extends JFrame {
 			}
 		});
 
-		JScrollPane scrollPane = new JScrollPane(listaContactos);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		panelIzq.add(scrollPane, BorderLayout.CENTER);
-		panelIzq.setVisible(true);
+	}
 
-		chatScrollPane = new JScrollPane();
-		chatScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		chatScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		chatScrollPane.setBorder(null);
-		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
-		gbc_scrollPane_1.gridwidth = 2;
-		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane_1.insets = new Insets(0, 0, 5, 0);
-		gbc_scrollPane_1.gridx = 0;
-		gbc_scrollPane_1.gridy = 0;
-		panelDer.add(chatScrollPane, gbc_scrollPane_1);
+	/**
+	 * Actualiza el comboBox con los nombres de los contactos
+	 */
+	private void actualizarComboBox() {
+		comboBox.removeAllItems();
+		for (int i = 0; i < modelo.size(); i++) {
+			comboBox.addItem(modelo.getElementAt(i).getNombre());
+		}
+	}
 
-		panelChat = new JPanel();
-		panelChat.setLayout(new BoxLayout(panelChat, BoxLayout.Y_AXIS));
-		chatScrollPane.setViewportView(panelChat); // Asegúrate de que el panelChat esté en el JScrollPane
-		panelChat.setBackground(Color.WHITE); // Establecer el color original
-
-		textField_1 = new JTextField();
-		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
-		gbc_textField_1.anchor = GridBagConstraints.SOUTH;
-		gbc_textField_1.insets = new Insets(0, 0, 0, 5);
-		gbc_textField_1.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_1.gridx = 0;
-		gbc_textField_1.gridy = 1;
-		panelDer.add(textField_1, gbc_textField_1);
-		textField_1.setColumns(10);
-
-		JButton btnSend = new JButton("");
-		btnSend.setIcon(new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/send.png")));
-		GridBagConstraints gbcB4 = new GridBagConstraints();
-		gbcB4.anchor = GridBagConstraints.SOUTH;
-		gbcB4.gridx = 1;
-		gbcB4.gridy = 1;
-		panelDer.add(btnSend, gbcB4);
-
-		btnSend.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("Botón enviar pulsado");
-				enviarMensajes(panelChat, textField_1, listaContactos.getSelectedValue());
-				List<Contacto> contactos_usr = usuarioAct.getContactos();
-				for (Contacto contacto : contactos_usr) {
-					List<Mensaje> mensajes = contacto.getMensajes();
-
-					for (Mensaje msj : mensajes) {
-						System.out.println(msj.getTexto());
-					}
+	private void manejarSeleccionComboBox() {
+		String seleccionado = (String) comboBox.getSelectedItem();
+		if (seleccionado != null) {
+			for (int i = 0; i < modelo.getSize(); i++) {
+				Contacto contacto = modelo.getElementAt(i);
+				if (contacto.getNombre().equals(seleccionado)) {
+					listaContactos.setSelectedIndex(i);
+					cargarConversacion(contacto);
+					break;
 				}
 			}
-		});
-
-		return panelMain;
-
-	}
-
-	private void openRegister() {
-		VentanaRegister ventanaRegister = new VentanaRegister(this);
-		ventanaRegister.setVisible(true);
-	}
-
-	private void openContacts() {
-		VentanaContactos ventanaContactos = new VentanaContactos(this);
-		ventanaContactos.setVisible(true);
-
-		crearModelosVista();
-		actualizarComboBox(comboBox);
-	}
-
-	private void enviarMensajes(JPanel chat, JTextField texto, Contacto contacto) {
-
-		if (texto.getText().trim().isEmpty()) {
-			JOptionPane.showMessageDialog(this, "El mensaje no puede estar vacío", "Error", JOptionPane.ERROR_MESSAGE);
-			return;
 		}
-
-		boolean enviado = AppChat.getInstance().sendMessage(texto.getText(), contacto);
-
-		if (enviado) {
-			BubbleText burbuja;
-			burbuja = new BubbleText(chat, texto.getText(), Color.GREEN, "Yo", BubbleText.SENT);
-			chat.add(burbuja);
-			texto.setText(null);
-
-			chat.revalidate();
-			chat.repaint();
-
-			SwingUtilities.invokeLater(() -> {
-				JScrollBar vertical = chatScrollPane.getVerticalScrollBar();
-				vertical.setValue(vertical.getMaximum());
-			});
-			
-			//listaContactos.updateUI();
-			actualizarVista();
-		}
-
-	}
-	
-	public void actualizarVista() {
-		//crearModelosVista();
-		listaContactos.repaint();
-		panelChat.revalidate();
-		panelChat.repaint();
 	}
 
+	/**
+	 * Mostrar la conversación del contacto seleccionado
+	 * 
+	 * @param contacto
+	 */
 	private void cargarConversacion(Contacto contacto) {
 		if (contacto == null) {
 			return;
 		}
 
-		System.out.println("Cargando conversación con: " + contacto.getNombre());
-		panelChat.removeAll(); 
-		
+		panelChat.removeAll();
 		titledBorder.setTitle(" Chat con " + contacto.getNombre());
 		panelDer.repaint();
 
-		List<Mensaje> mensajes = contacto.getMensajes();
+		List<Mensaje> mensajes = controlador.getMensajesConContacto(contacto);
 		if (mensajes == null || mensajes.isEmpty()) {
-	        System.out.println("No se encontraron mensajes");
-	        mensajes = Collections.emptyList(); // Asegúrate de que la lista no sea null
-	    } else {
-	        System.out.println("Mensajes encontrados: " + mensajes.size());
-	        
-	        // Imprimir mensajes para depuración
-	        for (Mensaje m : mensajes) {
-	            System.out.println("Mensaje: " + m.getTexto() + 
-	                             ", Emisor: " + m.getEmisor().getName() + 
-	                             ", Receptor: " + (m.getReceptor() != null ? m.getReceptor().getNombre() : "null"));
-	        }
-	    }
+			mensajes = Collections.emptyList();
+		}
 
 		mensajes.stream().map(m -> {
-			if (m.getEmisor().equals(usuarioAct)) {
+			if (controlador.esMensajeDelUsuarioActual(m)) {
 				return new BubbleText(panelChat, m.getTexto(), Color.GREEN, "Yo", BubbleText.SENT);
 			} else {
 				return new BubbleText(panelChat, m.getTexto(), Color.GREEN, m.getEmisor().getName(),
@@ -418,115 +379,100 @@ public class VentanaMain extends JFrame {
 
 		panelChat.revalidate();
 		panelChat.repaint();
+		desplazarHaciaAbajo();
+	}
 
+	/**
+	 * Enviar mensaje al contacto seleccionado
+	 * 
+	 * @param chat
+	 * @param texto
+	 * @param contacto
+	 */
+	private void enviarMensajes(JPanel chat, JTextField texto, Contacto contacto) {
+
+		if (texto.getText().trim().isEmpty()) {
+			JOptionPane.showMessageDialog(this, "El mensaje no puede estar vacío", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		boolean enviado = controlador.sendMessage(texto.getText(), contacto);
+
+		if (enviado) {
+			BubbleText burbuja;
+			burbuja = new BubbleText(chat, texto.getText(), Color.GREEN, "Yo", BubbleText.SENT);
+			chat.add(burbuja);
+			texto.setText(null);
+
+			chat.revalidate();
+			chat.repaint();
+			desplazarHaciaAbajo();
+
+			actualizarListaContactos();
+		}
+	}
+
+	/**
+	 * Desplaza el scroll del panel de la conversación hacia abajo (ultimo mensaje)
+	 */
+	private void desplazarHaciaAbajo() {
 		SwingUtilities.invokeLater(() -> {
 			JScrollBar vertical = chatScrollPane.getVerticalScrollBar();
 			vertical.setValue(vertical.getMaximum());
 		});
 	}
-	
+
+	/**
+	 * Actualiza la lista de contactos con la información más reciente
+	 */
+	private void actualizarListaContactos() {
+		Contacto contactoSeleccionado = listaContactos.getSelectedValue();
+		crearModelosVista();
+		actualizarComboBox();
+
+		if (contactoSeleccionado != null) {
+			for (int i = 0; i < modelo.getSize(); i++) {
+				if (modelo.getElementAt(i).equals(contactoSeleccionado)) {
+					listaContactos.setSelectedIndex(i);
+					break;
+				}
+			}
+		}
+		listaContactos.repaint();
+	}
+
+	// Métodos para abrir ventanas
+
+	// Ventana registrar, esta se tiene que cambiar para que en vez de abir esta se
+	// abra una para camnbiar la imagen del user
+	private void openRegister() {
+		VentanaRegister ventanaRegister = new VentanaRegister(this);
+		ventanaRegister.setVisible(true);
+	}
+
+	// Ventana contactos
+	private void openContacts() {
+		VentanaContactos ventanaContactos = new VentanaContactos(this);
+		ventanaContactos.setVisible(true);
+		actualizarListaContactos();
+	}
+
+	// Ventana premium
 	private void openPremium() {
 		VentanaPremium ventanaPremium = new VentanaPremium(this);
 		ventanaPremium.setVisible(true);
 	}
-	
-	private void actualizarComboBox(JComboBox<String> comboBox) {
-		comboBox.removeAllItems();
-		for (int i = 0; i < modelo.size(); i++) {
-			comboBox.addItem(modelo.getElementAt(i).getNombre());
-		}
-	}
-	
+
+	// Ventana buscar
 	private void openBuscar() {
 		BuscarMensajes ventanaBuscar = new BuscarMensajes();
 		ventanaBuscar.setVisible(true);
 	}
-	
 
-	private class ContactoIndividualCellRenderer extends JPanel implements ListCellRenderer<Contacto> {
-		private JLabel nameLabel;
-		private JLabel imageLabel;
-		private JButton btnPlus;
-		private JTextField txtMensaje;
-
-		public ContactoIndividualCellRenderer() {
-			setLayout(new GridBagLayout());
-			setBorder(new LineBorder(Color.BLACK));
-
-			nameLabel = new JLabel();
-			imageLabel = new JLabel();
-			btnPlus = new JButton("+");
-			txtMensaje = new JTextField("mensaje...");
-
-			GridBagConstraints gbc = new GridBagConstraints();
-
-			// Imagen (izquierda)
-			gbc.gridx = 0;
-			gbc.gridy = 0;
-			gbc.gridheight = 2; // Abarca dos filas
-			gbc.insets = new Insets(5, 5, 5, 5); // Margen
-			gbc.anchor = GridBagConstraints.WEST;
-			add(imageLabel, gbc);
-
-			// Botón "+" (arriba derecha)
-			gbc.gridx = 2;
-			gbc.gridy = 0;
-			gbc.gridheight = 1; // Solo una fila
-			gbc.anchor = GridBagConstraints.NORTHEAST;
-			add(btnPlus, gbc);
-
-			// Nombre (arriba, centro)
-			gbc.gridx = 1;
-			gbc.gridy = 0;
-			gbc.gridheight = 1;
-			gbc.fill = GridBagConstraints.HORIZONTAL;
-			gbc.weightx = 1.0;
-			gbc.anchor = GridBagConstraints.CENTER;
-			add(nameLabel, gbc);
-
-			// Cuadro de texto (abajo, centro)
-			gbc.gridx = 1;
-			gbc.gridy = 1;
-			gbc.gridheight = 1;
-			gbc.fill = GridBagConstraints.HORIZONTAL;
-			add(txtMensaje, gbc);
-
-			// Añadir un ActionListener al botón "+"
-			btnPlus.addActionListener(e -> {
-				AñadirContactos ventanaContacto = new AñadirContactos((JFrame) SwingUtilities.getWindowAncestor(this));
-				ventanaContacto.setVisible(true);
-			});
-
-		}
-
-		@Override
-		public Component getListCellRendererComponent(JList<? extends Contacto> list, Contacto persona, int index,
-				boolean isSelected, boolean cellHasFocus) {
-			// Set the text
-			nameLabel.setText(persona.getNombre());
-
-			// Load the image from a random URL (for example, using "https://robohash.org")
-			try {
-				URL imageUrl = new URL("https://robohash.org/" + persona.getNombre() + "?size=50x50");
-				Image image = ImageIO.read(imageUrl);
-				ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(50, 50, Image.SCALE_SMOOTH));
-				imageLabel.setIcon(imageIcon);
-			} catch (IOException e) {
-				e.printStackTrace();
-				imageLabel.setIcon(null); // Default to no image if there was an issue
-			}
-
-			// Set background and foreground based on selection
-			if (isSelected) {
-				setBackground(list.getSelectionBackground());
-				setForeground(list.getSelectionForeground());
-			} else {
-				setBackground(list.getBackground());
-				setForeground(list.getForeground());
-			}
-
-			return this;
-		}
+	// Ventana añadir contactos
+	private void abrirVentanaAñadirContactos() {
+		AñadirContactos ventanaContacto = new AñadirContactos(
+				(JFrame) SwingUtilities.getWindowAncestor(listaContactos));
+		ventanaContacto.setVisible(true);
 	}
-
 }

@@ -7,26 +7,38 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
-import java.awt.FlowLayout;
+import javax.swing.JOptionPane;
+
 import java.awt.GridBagLayout;
 import javax.swing.ImageIcon;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+
+import umu.tds.controlador.AppChat;
+import umu.tds.model.Mensaje;
+
 import javax.swing.JTextField;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import javax.swing.JButton;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
 import javax.swing.JScrollPane;
-import javax.swing.JScrollBar;
+import javax.swing.JTable;
 
 public class BuscarMensajes extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField textField;
-	private JTextField textField_1;
-	private JTextField textField_2;
+	private JTextField textFieldTexto;
+	private JTextField textFieldTelefono;
+	private JTextField textFieldContacto;
+	private JTable tablaMensajes;
+	private DefaultTableModel modeloTabla;
+	private DateTimeFormatter formatter;
 
 	/**
 	 * Launch the application.
@@ -48,95 +60,192 @@ public class BuscarMensajes extends JFrame {
 	 * Create the frame.
 	 */
 	public BuscarMensajes() {
+		inicializarComponentes();
+	}
+
+	private void inicializarComponentes() {
 		setTitle("Buscar Mensajes");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
-		
+
+		formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+		// Panel principal
 		JPanel panel = new JPanel();
 		contentPane.add(panel, BorderLayout.CENTER);
 		panel.setLayout(new BorderLayout(0, 0));
-		
+
+		// Panel superior con icono
 		JPanel panel_1 = new JPanel();
 		panel.add(panel_1, BorderLayout.NORTH);
-		
+
 		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(BuscarMensajes.class.getResource("/umu/tds/resources/mensaje-de-busqueda.png")));
+		lblNewLabel
+				.setIcon(new ImageIcon(BuscarMensajes.class.getResource("/umu/tds/resources/mensaje-de-busqueda.png")));
 		panel_1.add(lblNewLabel);
-		
+
+		// Panel central
 		JPanel panel_2 = new JPanel();
 		panel.add(panel_2, BorderLayout.CENTER);
 		panel_2.setLayout(new BorderLayout(0, 0));
-		
+
+		// Panel de búsqueda
 		JPanel panel_3 = new JPanel();
 		panel_3.setBorder(new TitledBorder(null, "Search", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_2.add(panel_3, BorderLayout.NORTH);
 		panel_3.setLayout(new BorderLayout(0, 0));
-		
+
+		// Panel campos
 		JPanel panel_5 = new JPanel();
 		panel_3.add(panel_5, BorderLayout.CENTER);
 		GridBagLayout gbl_panel_5 = new GridBagLayout();
-		gbl_panel_5.columnWidths = new int[]{168, 0, 0, 0};
-		gbl_panel_5.rowHeights = new int[]{0, 0, 0};
-		gbl_panel_5.columnWeights = new double[]{1.0, 1.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_5.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_5.columnWidths = new int[] { 0, 168, 0, 0, 0, 0 };
+		gbl_panel_5.rowHeights = new int[] { 0, 0, 0 };
+		gbl_panel_5.columnWeights = new double[] { 0.0, 1.0, 0.0, 1.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_5.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
 		panel_5.setLayout(gbl_panel_5);
-		
-		textField = new JTextField();
-		GridBagConstraints gbc_textField = new GridBagConstraints();
-		gbc_textField.gridwidth = 3;
-		gbc_textField.insets = new Insets(0, 0, 5, 0);
-		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField.gridx = 0;
-		gbc_textField.gridy = 0;
-		panel_5.add(textField, gbc_textField);
-		textField.setColumns(10);
-		
-		textField_1 = new JTextField();
-		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
-		gbc_textField_1.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_1.insets = new Insets(0, 0, 0, 5);
-		gbc_textField_1.gridx = 0;
-		gbc_textField_1.gridy = 1;
-		panel_5.add(textField_1, gbc_textField_1);
-		textField_1.setColumns(10);
-		
-		textField_2 = new JTextField();
-		GridBagConstraints gbc_textField_2 = new GridBagConstraints();
-		gbc_textField_2.insets = new Insets(0, 0, 0, 5);
-		gbc_textField_2.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_2.gridx = 1;
-		gbc_textField_2.gridy = 1;
-		panel_5.add(textField_2, gbc_textField_2);
-		textField_2.setColumns(10);
-		
-		JButton btnNewButton = new JButton("Search");
-		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
-		gbc_btnNewButton.gridx = 2;
-		gbc_btnNewButton.gridy = 1;
-		panel_5.add(btnNewButton, gbc_btnNewButton);
-		
+
+		// Campo de texto
+		JLabel lblTexto = new JLabel("Texto:");
+		GridBagConstraints gbc_lblTexto = new GridBagConstraints();
+		gbc_lblTexto.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTexto.anchor = GridBagConstraints.EAST;
+		gbc_lblTexto.gridx = 0;
+		gbc_lblTexto.gridy = 0;
+		panel_5.add(lblTexto, gbc_lblTexto);
+
+		textFieldTexto = new JTextField();
+		GridBagConstraints gbc_textFieldTexto = new GridBagConstraints();
+		gbc_textFieldTexto.gridwidth = 4;
+		gbc_textFieldTexto.insets = new Insets(0, 0, 5, 0);
+		gbc_textFieldTexto.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textFieldTexto.gridx = 1;
+		gbc_textFieldTexto.gridy = 0;
+		panel_5.add(textFieldTexto, gbc_textFieldTexto);
+		textFieldTexto.setColumns(10);
+
+		// Campo de teléfono
+		JLabel lblTelefono = new JLabel("Telefono:");
+		GridBagConstraints gbc_lblTelefono = new GridBagConstraints();
+		gbc_lblTelefono.insets = new Insets(0, 0, 0, 5);
+		gbc_lblTelefono.anchor = GridBagConstraints.EAST;
+		gbc_lblTelefono.gridx = 0;
+		gbc_lblTelefono.gridy = 1;
+		panel_5.add(lblTelefono, gbc_lblTelefono);
+
+		textFieldTelefono = new JTextField();
+		GridBagConstraints gbc_textFieldTelefono = new GridBagConstraints();
+		gbc_textFieldTelefono.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textFieldTelefono.insets = new Insets(0, 0, 0, 5);
+		gbc_textFieldTelefono.gridx = 1;
+		gbc_textFieldTelefono.gridy = 1;
+		panel_5.add(textFieldTelefono, gbc_textFieldTelefono);
+		textFieldTelefono.setColumns(10);
+
+		// Campo de contacto
+		JLabel lblContacto = new JLabel("Contacto:");
+		GridBagConstraints gbc_lblContacto = new GridBagConstraints();
+		gbc_lblContacto.insets = new Insets(0, 0, 0, 5);
+		gbc_lblContacto.anchor = GridBagConstraints.EAST;
+		gbc_lblContacto.gridx = 2;
+		gbc_lblContacto.gridy = 1;
+		panel_5.add(lblContacto, gbc_lblContacto);
+
+		textFieldContacto = new JTextField();
+		GridBagConstraints gbc_textFieldContacto = new GridBagConstraints();
+		gbc_textFieldContacto.insets = new Insets(0, 0, 0, 5);
+		gbc_textFieldContacto.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textFieldContacto.gridx = 3;
+		gbc_textFieldContacto.gridy = 1;
+		panel_5.add(textFieldContacto, gbc_textFieldContacto);
+		textFieldContacto.setColumns(10);
+
+		// Boton de búsqueda
+		JButton btnBuscar = new JButton("Search");
+		GridBagConstraints gbc_btnBuscar = new GridBagConstraints();
+		gbc_btnBuscar.gridx = 4;
+		gbc_btnBuscar.gridy = 1;
+		panel_5.add(btnBuscar, gbc_btnBuscar);
+
+		// Panel de resultados
 		JPanel panel_4 = new JPanel();
-		panel_4.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_4.setBorder(new TitledBorder(null, "Resultados", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_2.add(panel_4, BorderLayout.CENTER);
 		panel_4.setLayout(new BorderLayout(0, 0));
-		
-		JScrollBar scrollBar = new JScrollBar();
-		panel_4.add(scrollBar, BorderLayout.EAST);
-		
-	
-		
+
+		// Tabla de resultados
+		JScrollPane scrollPane = new JScrollPane();
+		panel_4.add(scrollPane, BorderLayout.CENTER);
+
+		String[] columnNames = { "Fecha", "Emisor", "Receptor", "Texto" };
+		modeloTabla = new DefaultTableModel(columnNames, 0) {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+		};
+
+		tablaMensajes = new JTable(modeloTabla);
+		tablaMensajes.getColumnModel().getColumn(0).setPreferredWidth(100);
+		tablaMensajes.getColumnModel().getColumn(1).setPreferredWidth(100);
+		tablaMensajes.getColumnModel().getColumn(2).setPreferredWidth(100);
+		tablaMensajes.getColumnModel().getColumn(3).setPreferredWidth(300);
+		scrollPane.setViewportView(tablaMensajes);
+
+		btnBuscar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				buscarMensajes();
+			}
+		});
+
 		pack();
-		setResizable(true);
 		setMinimumSize(getSize());
 		setLocationRelativeTo(null);
-		
-		
-		
+	}
+
+	private void buscarMensajes() {
+	    String texto = textFieldTexto.getText().trim();
+	    String telefono = textFieldTelefono.getText().trim();
+	    String contacto = textFieldContacto.getText().trim();
+	    
+	    // Limpiar tabla anterior
+	    modeloTabla.setRowCount(0);
+	    
+	    try {
+	        // Llamar al controlador para buscar mensajes
+	        AppChat controlador = AppChat.getInstance();
+	        List<Mensaje> mensajesEncontrados = controlador.buscarMensajes(
+	            texto.isEmpty() ? null : texto,
+	            telefono.isEmpty() ? null : telefono,
+	            contacto.isEmpty() ? null : contacto
+	        );
+	        
+	        // Mostrar resultados en la tabla
+	        for (Mensaje mensaje : mensajesEncontrados) {
+	            Object[] fila = new Object[4];
+	            fila[0] = mensaje.getFechaHora().format(formatter);
+	            fila[1] = mensaje.getEmisor().getName();
+	            fila[2] = mensaje.getReceptor().getNombre();
+	            fila[3] = mensaje.getTexto();
+	            modeloTabla.addRow(fila);
+	        }
+	        
+	        if (mensajesEncontrados.isEmpty()) {
+	            JOptionPane.showMessageDialog(this, 
+	                "No se encontraron mensajes con los criterios especificados",
+	                "Información", 
+	                JOptionPane.INFORMATION_MESSAGE);
+	        }
+	    } catch (IllegalArgumentException e) {
+	        JOptionPane.showMessageDialog(this, 
+	            e.getMessage(), 
+	            "Error",
+	            JOptionPane.ERROR_MESSAGE);
+	    }
 	}
 
 }
