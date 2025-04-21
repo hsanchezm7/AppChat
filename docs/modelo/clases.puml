@@ -1,0 +1,107 @@
+@startuml AppChat
+
+skinparam DefaultFontName Helvetica
+skinparam classBackgroundColor PaleGoldenrod
+skinparam classBorderColor Black
+skinparam classBorderThickness 1
+skinparam classFontStyle bold
+skinparam noteBackgroundColor Yellow
+skinparam shadowing true
+skinparam roundCorner 10
+skinparam nodesep 75
+skinparam ranksep 50
+
+interface Descuento {
+    + aplicarDescuento()
+}
+
+Descuento <|.. D1
+Descuento <|.. D2
+
+class AppChat {
+    +login()
+}
+
+hide AppChat attributes
+note top of AppChat : Controlador
+AppChat -left->  Descuento
+
+class RepositorioUsuarios {
+    +getUsuario()
+    +addUsuario()
+}
+
+hide RepositorioUsuarios attributes
+AppChat *-right- "1" RepositorioUsuarios
+
+class Usuario {
+    - nombre: String
+    - email: String
+    - telefono: String
+    - premium: Boolean
+}
+
+RepositorioUsuarios o-- "0..*" Usuario
+
+AppChat -- "1" Usuario
+
+abstract class Contacto {
+    - nombre: String
+}
+
+Usuario "1" o-down- "*" Contacto
+
+class Grupo {
+    - nombre: String
+    - agregarContacto()
+}
+
+class Mensaje {
+    - texto: String
+    - fechaHora: Date
+}
+
+class ContactoIndividual {
+    - telefono : String
+    - usuario : Usuario
+}
+
+Contacto <|-- Grupo : <<extends>>
+
+Contacto <|-- ContactoIndividual : <<extends>>
+
+Contacto "receptor" -right- "recibidos" Mensaje
+
+Usuario "emisor" -- "enviados 0..*" Mensaje
+
+Grupo o-right- "0..*" ContactoIndividual
+
+interface Filtro {
+    + aplicarDescuento()
+}
+
+Filtro  <|.. FiltroTexto
+Filtro  <|.left. FiltroContacto
+Filtro  <|.. FiltroTelefono
+
+hide FiltroTexto attributes
+hide FiltroTexto methods
+
+hide FiltroContacto attributes
+hide FiltroContacto methods
+
+hide FiltroTelefono attributes
+hide FiltroTelefono methods
+
+Usuario -left->  Filtro
+
+hide D1 attributes
+hide D1 methods
+
+hide D2 attributes
+hide D2 methods
+
+hide Descuento attributes
+hide Filtro attributes
+
+@enduml
