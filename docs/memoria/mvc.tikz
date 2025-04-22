@@ -1,0 +1,35 @@
+\begin{tikzpicture}[
+node distance = 3em and 3em,
+start chain = going below,
+    box/.style = {rectangle, rounded corners, draw=gray, thick,
+        minimum height=2.5em, minimum width=10em, align=flush center,
+        top color=#1!60, bottom color=#1!10,
+        drop shadow, on chain},
+    msg/.style={-latex, dashed},
+    doublemsg/.style={latex-latex},
+    msglabel/.style={above, yshift=-0.5em},
+    database/.style={draw, cylinder, aspect=2, shape border rotate=90, minimum width=5em, minimum height=3em, on chain, cylinder uses custom fill, cylinder body fill=gray!10, cylinder end fill=gray!20},
+]
+                        
+\node[businessman,label=Usuario, on chain] (Usr) {};
+\node (V) [box=red]   {Vista};
+\node (C) [box=blue]  {Controlador};
+\node (M) [box=green] {Modelo};
+
+\draw[doublemsg] (Usr) to node[msglabel, xshift=-2.25em] {\scriptsize Interactúa} (V);
+
+\draw[msg] (V) to[bend right=40] node[msglabel, xshift=-2em] {\scriptsize Solicita} (C);
+\draw[msg] (C) to[bend right=40] node[msglabel, xshift=2em] {\scriptsize Actualiza} (V);
+
+\draw[msg] (C) to[bend right=40] node[msglabel, xshift=-2em] {\scriptsize Notifica} (M);
+\draw[msg] (M) to[bend right=40] node[msglabel, xshift=2em] {\scriptsize Responde} (C);
+
+\draw[doublemsg] (Usr) to node[above, xshift=-2.25em, yshift=-0.5em] {\scriptsize Interactúa} (V);
+
+\node[database] (db) {} ;
+
+\node[right=0.5em of db, yshift=0.5em] {\scriptsize Base de Datos H2};
+
+\draw[doublemsg] (M) to node[above, xshift=-2.25em, yshift=-0.5em] {\scriptsize DAO} (db);
+
+\end{tikzpicture}

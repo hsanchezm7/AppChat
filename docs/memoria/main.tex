@@ -155,7 +155,38 @@ También se han diseñado otras clases como:
 
 \subsection{Patrón MVC}
 
+AppChat sigue el patrón de arquitectura de software Modelo-Vista-Controlador. Este patrón nos permite separar los datos y la lógica del negocio de una aplicación de la interfaz que ve el usuario, conéctandolos a través de un controlador, permitiendo así tres componentes distintos:
+
+\begin{itemize}
+	\item \textbf{Vista (\textit{View}):} Representa la interfaz de usuario y todas las herramientas con las cuales el usuario hace uso del programa.
+	
+	\item \textbf{Modelo (\textit{Model}):} Es dónde está toda la lógica del negocio, la representación de todo el sistema, incluida la interacción con una base de datos, si es que el programa así lo requiere.
+	
+	\item \textbf{Controlador (\textit{Controller}):} Este componente es el que responde a la interacción (eventos) que realiza el usuario en la interfaz y realiza las peticiones al modelo para luego pasarlas a la vista. Aún no está del todo claro, pero con el siguiente ejemplo lo comprenderemos mejor.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\scalebox{1.25}{
+		\input{mvc.tikz}
+	}
+	\caption{Patrón de arquitectura software MVC}
+	\label{fig:mvc}
+\end{figure}
+
+TODO: Hablar de las clases y paquetes donde aplicamos MVC.
+TODO: bibliografía libros MVC.
+
 \subsection{Estructura general de la aplicación}
+
+\begin{figure}[H]
+	\centering
+	\shadowimage[width=0.4\linewidth]{hierarchy}
+	\caption{Jerarquía de paquetes de AppChat}
+	\label{fig:paquetes}
+\end{figure}
+
+La aplicación se estructura en 5 paquetes diferentes, cada uno con una funcionalidad específica. Cómo se ha comentado, los paquetes model, controlador y vista, forman parte del patrón MVC. Por su parte, 
 
 \subsection{Decisiones de diseño relevantes}
 
