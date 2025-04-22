@@ -105,7 +105,49 @@ Durante el desarrollo de AppChat se han usado las siguientes tecnologías:
 
 \subsection{\textit{User Story Mapping}}
 
+Realizamos una \textbf{representación visual} de las funcionalidades de la aplicación desde la perspectiva de usuario. El eje horizontal representa el flujo de trabajo de un usuario en un orden lógico, mientras que el eje vertical organiza las historias en función de su importancia.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{user-story-mapping.drawio-2.pdf}
+    \caption{Diagrama de historias de usuario de AppChat}
+    \label{fig:user-story-mapping}
+\end{figure}
+
 \subsection{Diagrama de clases}
+
+\begin{figure}[H]
+	\centering
+	\scalebox{0.425}{
+		\input{modelo.tikz}
+	}
+	\caption{Modelo de clases de AppChat}
+	\label{fig:modelo}
+\end{figure}
+
+Se ha optado por seguir la recomendación de los profesores de la asignatura, con ligeros cambios. La figura~\ref{fig:modelo} no muestra todos los atributos y métodos, solo los más relevantes.
+
+\begin{itemize}
+	\item \texttt{AppChat}: Siguiendo el principio MVC que se explicará más adelante, esta clase actúa de \guillemotleft \textit{controladora}\guillemotright \ de la aplicación.
+	\item \texttt{RepositorioUsuarios}: Contiene una collección de los usuarios gestionados. Para la lógica de la aplicación, además de las entidades persistentes en la base de datos, es necesario llevar un control de todos los usuarios. Es invocada por el controlador con frecuencia, por ejemplo, para cargar los usuarios al iniciar la aplicación.
+	\item \texttt{Usuario}: TODO.
+	\item \texttt{Contacto}: Clase abstracta que representa una forma de contacto con otro usuario. TODO.
+	\begin{itemize}
+		\item \texttt{ContactoIndividual}: TODO.
+		\item \texttt{Grupo}: TODO.
+	\end{itemize}
+	\item \texttt{Mensaje}: TODO.
+	\item \texttt{Descuento}: TODO.
+	\item \texttt{Filtro}: TODO.
+\end{itemize}
+
+También se han diseñado otras clases como:
+
+\begin{itemize}
+	\item \texttt{App}: Lanzador de la aplicación.
+	\item \texttt{CriteriosBusqueda}: TODO.
+	\item \texttt{BusquedaMensajes}: TODO.
+\end{itemize}
 
 \subsection{Otros diagramas}
 
@@ -114,7 +156,6 @@ Durante el desarrollo de AppChat se han usado las siguientes tecnologías:
 \subsection{Patrón MVC}
 
 \subsection{Estructura general de la aplicación}
-
 
 \subsection{Decisiones de diseño relevantes}
 
