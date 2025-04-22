@@ -1,0 +1,127 @@
+%%% main.tex %%%
+
+%%%%% --------------------------------------------- %%%%%
+%	 				  PRÁCTICAS DE						%
+%		  TECNOLOGÍAS DE DESARROLLO DE SOFTWARE         %
+%														%
+%                  JOSÉ SALINAS PARDO                   %
+%                 HUGO SÁNCHEZ MARTÍNEZ                 %
+%%%%% --------------------------------------------- %%%%%
+
+\documentclass[11pt]{article}
+
+\include{style}
+
+\begin{document}
+
+\title{
+	\vspace{-5ex}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=72mm]{umu-logo.pdf}
+	\end{figure}
+	
+	{\Large \textsc{Universidad de Murcia}}\\
+	{\Large Facultad de Informática}\\ [12.5ex]
+	{\Large \textsc{Prácticas de}\\ [1ex]}
+	{\Huge Tecnologías de Desarrollo de Software}\\ [1ex]
+	{\Large \textsc{3º de Grado en Ingeniería Informática}}\\
+	{\Large \textsc{Profesor: }} \\
+	{\Large \textsc{Grupo 2.3}} \\
+	{\Large \textsc{Curso 2024/2025}} \\ 
+	\vspace{10ex}
+}
+
+\author{
+	{\Large José Salinas Pardo}\\[0.5ex]
+	48740555J\\
+	\texttt{j.salinaspardo@um.es}
+	\and
+	{\Large Hugo Sánchez Martínez}\\[0.5ex]
+	24450997L\\
+	\texttt{hugo.s.m@um.es}\\
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\nouppercase{\rightmark} \hfill \textbf{\nouppercase{\leftmark}}}   % Encabezado en la página izquierda (even) sin mayúsculas
+\fancyhead[RO]{\nouppercase{\rightmark}}  % Encabezado en la página derecha (odd) sin mayúsculas
+\setlength{\headheight}{25pt}  % Ajusta la altura del encabezado
+\fancyfoot[R]{J. Salinas, H. Sánchez}
+\fancyfoot[C]{\thepage}
+
+\date{\vspace{-10ex}}
+\maketitle
+\thispagestyle{empty} % Elimina el número de página de la portada
+\clearpage
+
+\thispagestyle{empty} % Elimina el número de página del ToC
+\tableofcontents
+\clearpage
+\thispagestyle{empty} % Elimina el número de página del ToC
+\listoffigures
+\clearpage
+\setcounter{page}{1}
+
+
+
+\thispagestyle{empty}
+
+\hrule
+\vspace{-5.4ex}
+\begin{abstract}
+\vspace{1ex}
+Este documento especifica la implementación de las prácticas de la asignatura Tecnologías de Desarrollo de Software del tercer curso del grado en Ingeniería Informática de la Universidad de Murcia.\\
+
+Dicha práctica consiste en el desarrollo de una aplicación de mensajería (\textit{chatting}), \textbf{AppChat}, basada en aplicaciones ya existentes. El objetivo de este documento es describir en detalle el proceso de desarrollo de la aplicación, desde la planificación inicial y el análisis de requisitos, hasta la implementación y las pruebas finales.
+\vspace{0.5ex}
+\end{abstract}
+\hrule
+\vspace{4ex}
+
+\section{Introducción}
+
+\textbf{AppChat} es una aplicación de escritorio de mensajería instantánea desarrollada en Java 8. Basada en soluciones reales como \textit{Telegram} o \textit{Whatsapp}, AppChat permite a los usuarios llevar una gestión simple de sus contactos, ofreciendo la posibilidad de crear grupos y enviar mensajes como si fuesen ``\textit{grupos de difusión}''.
+
+\section{Requisitos}
+
+AppChat requiere al menos tener instalada al menos la versión 8 de \href{https://www.oracle.com/java/technologies/javase/javase8-archive-downloads.html}{Java SE} para ejecutar.
+
+\section{Tecnologías}
+
+Durante el desarrollo de AppChat se han usado las siguientes tecnologías:
+
+\begin{itemize}
+	\item \textbf{Git}: Para el control de versiones y colaboración en el desarrollo.
+	\item \textbf{Maven}: Utilizado como herramienta de gestión y construcción del proyecto.
+	\item \textbf{Eclipse}: Se ha escodigo Eclipse como entorno de desarrollo (IDE).
+	\item \textbf{PlantUML}: Usado para generar los diagramas UML del modelo.
+	\item \textbf{Java Swing}: Biblioteca gráfica empleada para el desarrollo de la interfaz de usuario.
+\end{itemize}
+
+\clearpage
+
+\section{Requisitos y Modelado de Clases}
+
+\subsection{\textit{User Story Mapping}}
+
+\subsection{Diagrama de clases}
+
+\subsection{Otros diagramas}
+
+\section{Arquitectura de la aplicación}
+
+\subsection{Patrón MVC}
+
+\subsection{Estructura general de la aplicación}
+
+
+\subsection{Decisiones de diseño relevantes}
+
+
+
+\section{Patrones de diseño}
+
+
+
+\end{document}
