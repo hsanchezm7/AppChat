@@ -190,10 +190,101 @@ La aplicación se estructura en 5 paquetes diferentes, cada uno con una funciona
 
 \subsection{Decisiones de diseño relevantes}
 
-
-
 \section{Patrones de diseño}
 
+\clearpage
+
+\section{Manual de usuario de AppChat}
+
+\subsection{Inicio de sesión}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.4\linewidth]{login}
+	\caption{Inicio de sesión en AppChat}
+	\label{fig:login}
+\end{figure}
+
+\subsubsection{Validación del inicio de sesión}
+
+La interfaz gráfica ejecuta métodos y se comunica con el controlador para verificar el inicio de sesión. Si un usuario introduce un número no registrado o una contraseña incorrecta, el sistema mostrará un diálogo de error:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.4\linewidth]{error-login.png}
+	\caption{Inicio de sesión en AppChat}
+	\label{fig:error-login}
+\end{figure}
+
+\subsection{Registro}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\linewidth]{register}
+	\caption{Error en el inicio de sesión}
+	\label{fig:register}
+\end{figure}
+
+\subsubsection{Validación de campos en el registro}
+
+La interfaz gráfica también incorpora métodos para validar los campos antes de registrar a un usuario. Por ejemplo, si se intenta usar un número de teléfono ya registrado, el sistema mostrará un error al intentar crear la cuenta:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\linewidth]{error-register}
+	\caption{Error en el registro}
+	\label{fig:error-register}
+\end{figure}
+
+Asimismo, si el usuario no introduce la misma contraseña los campos ``\textit{Contraseña}'' y ``\textit{Confirmar contraseña}'':
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\linewidth]{error-register-passwords}
+	\caption{Error en el registro}
+	\label{fig:error-register-passwords}
+\end{figure}
+
+
+
+\subsection{Vista principal}
+
+\subsection{Gestión de contactos}
+
+\subsection{Gestión de contactos}
+
+\subsection{Envío de mensajes}
+
+\subsection{Premium}
+
+\clearpage
+
+\section{Conclusiones personales y distribución de horas}
+Concluciones.
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|c|c|c|}
+		\hline
+		\textbf{Actividad} & \textbf{Presencial} & \textbf{Individual} \\
+		\hline
+		\textit{Historias de usuario} &  h &  h \\
+		\hline
+		\textit{Diseño del modelo} &  h &  h\\
+		\hline
+		\textit{Implementación de la lógica} &  h &  h\\
+		\hline
+		\textit{Diseño de la interfaz gráfica} &  h &  h\\
+		\hline
+		\textit{Documentación} &  h &  h \\
+		\hline
+		\textbf{Total} & - horas & - horas\\
+		\hline
+	\end{tabular}
+	\caption{Distribución de horas entre presencial y trabajo autónomo}
+\end{table}
+
+\bibliographystyle{unsrt}
+\bibliography{bibliography}
 
 
 \end{document}
