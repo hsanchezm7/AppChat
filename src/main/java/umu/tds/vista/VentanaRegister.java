@@ -3,22 +3,27 @@ package umu.tds.vista;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -32,6 +37,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.toedter.calendar.JDateChooser;
 
@@ -52,6 +58,10 @@ public class VentanaRegister extends JDialog {
 
 	private JScrollPane scrollPaneGreeting;
 	private JLabel lblImageLabel;
+	private JPanel imagePanel;
+	private byte[] selectedImageData;
+	private ImageIcon profileImageIcon;
+	private String profileImagePath;
 
 	public VentanaRegister(JFrame owner) {
 		super(owner, NOMBRE_VENTANA, true); // Bloquea la ventana padre hasta que ésta se cierre
@@ -226,40 +236,74 @@ public class VentanaRegister extends JDialog {
 		gbc_lblProfilePicture.gridy = 3;
 		registerPanel.add(lblProfilePicture, gbc_lblProfilePicture);
 
-		JPanel panel = new JPanel();
-		GridBagConstraints gbc_panel = new GridBagConstraints();
-		gbc_panel.insets = new Insets(0, 0, 5, 0);
-		gbc_panel.fill = GridBagConstraints.VERTICAL;
-		gbc_panel.gridx = 3;
-		gbc_panel.gridy = 3;
-		registerPanel.add(panel, gbc_panel);
-		panel.setLayout(new BorderLayout(0, 0));
+		// Panel for image selection and display
+		JPanel imageSelectionPanel = new JPanel();
+		GridBagConstraints gbc_imageSelectionPanel = new GridBagConstraints();
+		gbc_imageSelectionPanel.gridheight = 2;
+		gbc_imageSelectionPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_imageSelectionPanel.fill = GridBagConstraints.BOTH;
+		gbc_imageSelectionPanel.gridx = 3;
+		gbc_imageSelectionPanel.gridy = 3;
+		registerPanel.add(imageSelectionPanel, gbc_imageSelectionPanel);
+		imageSelectionPanel.setLayout(new BorderLayout(0, 5));
 
-		JButton btnPictureGen = new JButton("Generate");
-		panel.add(btnPictureGen, BorderLayout.CENTER);
+		// Image display panel
+		imagePanel = new JPanel();
+		imagePanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		imagePanel.setPreferredSize(new Dimension(100, 100));
+		imagePanel.setLayout(new BorderLayout());
+		imageSelectionPanel.add(imagePanel, BorderLayout.CENTER);
+
+		// Default "No image" label
+		lblImageLabel = new JLabel("No image");
+		lblImageLabel.setHorizontalAlignment(JLabel.CENTER);
+		lblImageLabel.setFont(new Font("Tahoma", Font.ITALIC, 11));
+		imagePanel.add(lblImageLabel, BorderLayout.CENTER);
+
+		// Button for selecting an image
+		JButton btnPictureGen = new JButton("Select");
+		imageSelectionPanel.add(btnPictureGen, BorderLayout.SOUTH);
 
 		btnPictureGen.addActionListener(event -> {
-			try {
-				@SuppressWarnings("deprecation")
-				URL imageUrl = new URL("https://robohash.org/" + firstNameField.getText() + "?size=50x50");
-				Image image = ImageIO.read(imageUrl);
-				ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(50, 50, Image.SCALE_SMOOTH));
-				lblImageLabel.setText("");
-				lblImageLabel.setIcon(imageIcon);
-				pack();
-				setMinimumSize(getSize());
-			} catch (IOException e) {
-				e.printStackTrace();
+			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.setDialogTitle("Seleccionar imagen de perfil");
+			// Filtro para mostrar solo imágenes
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("Imágenes (*.jpg, *.jpeg, *.png, *.gif)",
+					"jpg", "jpeg", "png", "gif");
+			fileChooser.setFileFilter(filter);
+
+			int returnVal = fileChooser.showOpenDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File selectedFile = fileChooser.getSelectedFile();
+				try {
+					// Leer la imagen
+					Image originalImage = ImageIO.read(selectedFile);
+					if (originalImage != null) {
+						// Redimensionar la imagen para mostrarla
+						Image scaledImage = originalImage.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+						profileImageIcon = new ImageIcon(scaledImage);
+
+						// Actualizar el panel de imagen
+						lblImageLabel.setText("");
+						lblImageLabel.setIcon(profileImageIcon);
+
+						// Guardar los bytes de la imagen original para el registro
+						selectedImageData = Files.readAllBytes(selectedFile.toPath());
+						profileImagePath = selectedFile.getAbsolutePath();
+
+						pack();
+						setMinimumSize(getSize());
+					} else {
+						JOptionPane.showMessageDialog(this, "El archivo seleccionado no es una imagen válida.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(this, "Error al leer la imagen: " + e.getMessage(), "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
-
-		JLabel lblImageLabel = new JLabel("No image");
-		lblImageLabel.setFont(new Font("Tahoma", Font.ITALIC, 11));
-		GridBagConstraints gbc_lblImageLabel = new GridBagConstraints();
-		gbc_lblImageLabel.insets = new Insets(0, 0, 5, 0);
-		gbc_lblImageLabel.gridx = 3;
-		gbc_lblImageLabel.gridy = 4;
-		registerPanel.add(lblImageLabel, gbc_lblImageLabel);
 
 		JLabel lblGreeting = new JLabel("Greeting");
 		GridBagConstraints gbc_lblGreeting = new GridBagConstraints();
@@ -315,7 +359,7 @@ public class VentanaRegister extends JDialog {
 		btnConfirmRegister.setAlignmentX(Component.CENTER_ALIGNMENT);
 		panelBtnConfirmRegister.add(btnConfirmRegister);
 		btnConfirmRegister.addActionListener(e -> handleRegister());
-		
+
 		getRootPane().setDefaultButton(btnConfirmRegister);
 
 		return panelBotones;
@@ -338,8 +382,10 @@ public class VentanaRegister extends JDialog {
 		Instant instant = fechaNacimChooser.getDate().toInstant();
 		LocalDate fechaNacim = instant.atZone(ZoneId.systemDefault()).toLocalDate();
 
+		String imageUrl = profileImagePath != null ? profileImagePath : null;
+		
 		boolean register = AppChat.getInstance().register(phoneField.getText(), firstNameField.getText(),
-				lastNameField.getText(), passwordField.getPassword(), fechaNacim, "test.org",
+				lastNameField.getText(), passwordField.getPassword(), fechaNacim, imageUrl,
 				greetingTextArea.getText());
 
 		if (register) {

@@ -41,7 +41,8 @@ public class AdaptadorContactoTDS implements AdaptadorContactoDAO {
 		public static AdaptadorContactoTDS getInstance() {
 			
 			if (unicaInstancia == null) {
-				return new AdaptadorContactoTDS();
+				unicaInstancia = new AdaptadorContactoTDS();
+				return unicaInstancia;
 			}
 			else {
 				return unicaInstancia;

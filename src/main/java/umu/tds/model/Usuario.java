@@ -22,7 +22,7 @@ public class Usuario {
 
 	/* Atributos */
 
-	private String phone; // string o int?
+	private String phone; 
 	private char[] password;
 	private String name;
 	private LocalDate fechaNacim;

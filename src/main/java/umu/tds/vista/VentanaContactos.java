@@ -180,18 +180,11 @@ public class VentanaContactos extends JDialog {
 		List<Contacto> contactos = AppChat.getInstance().getCurrentUser().getContactos();
 		
 		List<String> nombresContactos = contactos.stream()
-		        .filter(Objects::nonNull) // Filter out any null elements
-		        .map(contacto -> {
-		            if (contacto instanceof ContactoIndividual) {
-		                return contacto.getNombre(); 
-		            } else {
-		                return contacto.getNombre(); 
-		            } 
-		        })
-		        .collect(Collectors.toList()); // Convert the stream into a list
+		        .filter(contacto -> contacto instanceof ContactoIndividual)
+		        .map(Contacto::getNombre)
+		        .collect(Collectors.toList());
 
 		JList<String> list = new JList<>(nombresContactos.toArray(new String[0]));
-
 		scrollPane.setViewportView(list);
 	}
 
@@ -199,9 +192,17 @@ public class VentanaContactos extends JDialog {
 		JList<String> listaContactos = (JList<String>) scrollPane.getViewport().getView();
 
 		seleccionados = listaContactos.getSelectedValuesList();
+		
+		List<Contacto> contactos = AppChat.getInstance().getCurrentUser().getContactos();
 
 		for (String contacto : seleccionados) {
-			if (!modeloSeleccionados.contains(contacto)) {
+			// Validar que el contacto es individual
+			Contacto contact = contactos.stream()
+					.filter(c -> c instanceof ContactoIndividual && c.getNombre().equals(contacto))
+					.findFirst()
+					.orElse(null);
+			
+			if ( contact != null && !modeloSeleccionados.contains(contacto)) {
 				modeloSeleccionados.addElement(contacto);
 			}
 		}

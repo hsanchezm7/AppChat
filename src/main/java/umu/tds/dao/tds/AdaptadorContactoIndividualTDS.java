@@ -28,6 +28,7 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 	private static final String PHONE_FIELD = "phone";
 	private static final String USER_FIELD = "user";
 	private static final String MENSAJES_FIELD = "mensajes";
+	private static final String MANUALLY_ADDED_FIELD = "anadidoManualmente";
 
 	private static AdaptadorContactoIndividualTDS unicaInstancia = null;
 	private static ServicioPersistencia servPersistencia;
@@ -66,11 +67,12 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		Entidad entContactoIndividual = new Entidad();
 		entContactoIndividual.setNombre(ENTITY_TYPE);
 
-		entContactoIndividual.setPropiedades(
-				new ArrayList<Propiedad>(Arrays.asList(new Propiedad(NAME_FIELD, contactoIndividual.getNombre()),
-						new Propiedad(PHONE_FIELD, contactoIndividual.getMovil()),
-						new Propiedad(USER_FIELD, String.valueOf(contactoIndividual.getUsuario().getId())),
-						new Propiedad(MENSAJES_FIELD, obtenerCodigosMensajes(contactoIndividual.getMensajes())))));
+		entContactoIndividual.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(
+				new Propiedad(NAME_FIELD, contactoIndividual.getNombre()),
+				new Propiedad(PHONE_FIELD, contactoIndividual.getMovil()),
+				new Propiedad(USER_FIELD, String.valueOf(contactoIndividual.getUsuario().getId())),
+				new Propiedad(MENSAJES_FIELD, obtenerCodigosMensajes(contactoIndividual.getMensajes())),
+				new Propiedad(MANUALLY_ADDED_FIELD, String.valueOf(contactoIndividual.isAñadidoManualmente())))));
 
 		entContactoIndividual = servPersistencia.registrarEntidad(entContactoIndividual);
 
@@ -95,26 +97,30 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 
 	@Override
 	public void modificarContactoIndividual(ContactoIndividual contactoIndividual) {
-		
+
 		System.out.println("Modificando contacto con id " + contactoIndividual.getId());
 
 		Entidad eContactoIndividual = servPersistencia.recuperarEntidad(contactoIndividual.getId());
 
 		for (Propiedad prop : eContactoIndividual.getPropiedades()) {
-			if (prop.getNombre().equals("nombre")) {
+			if (prop.getNombre().equals(NAME_FIELD)) {
 				prop.setValor(String.valueOf(contactoIndividual.getNombre()));
-			} else if (prop.getNombre().equals("movil")) {
+			} else if (prop.getNombre().equals(PHONE_FIELD)) {
 				prop.setValor(String.valueOf(contactoIndividual.getMovil()));
-			} else if (prop.getNombre().equals("usuario")) {
-				prop.setValor(String.valueOf(contactoIndividual.getId()));
-			} else if (prop.getNombre().equals("mensajes")) {
+			} else if (prop.getNombre().equals(USER_FIELD)) {
+				prop.setValor(String.valueOf(contactoIndividual.getUsuario().getId()));
+			} else if (prop.getNombre().equals(MENSAJES_FIELD)) {
 				String mensajes = obtenerCodigosMensajes(contactoIndividual.getMensajes());
 				prop.setValor(mensajes);
+			} else if (prop.getNombre().equals(MANUALLY_ADDED_FIELD)) {
+				// Actualizar el valor del nuevo campo
+				prop.setValor(String.valueOf(contactoIndividual.isAñadidoManualmente()));
 			}
 			servPersistencia.modificarPropiedad(prop);
 		}
-		
-		System.out.println("La nueva lista de mensajes es ..." + obtenerCodigosMensajes(contactoIndividual.getMensajes()));
+
+		System.out.println(
+				"La nueva lista de mensajes es ..." + obtenerCodigosMensajes(contactoIndividual.getMensajes()));
 
 	}
 
@@ -127,22 +133,25 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 
 		Entidad entContactoIndividual = servPersistencia.recuperarEntidad(id);
 
-		
-
 		String name = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, NAME_FIELD);
 		String phone = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, PHONE_FIELD);
 		String userContactId = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, USER_FIELD);
+		String anadidoManualmenteStr = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, MANUALLY_ADDED_FIELD);
+		boolean anadidoManualmente = false;
+		if (anadidoManualmenteStr != null && !anadidoManualmenteStr.isEmpty()) {
+			anadidoManualmente = Boolean.parseBoolean(anadidoManualmenteStr);
+		}
 		
-
-		ContactoIndividual contacto = new ContactoIndividual(name, phone, null);
+		ContactoIndividual contacto = new ContactoIndividual(name, phone, null, anadidoManualmente);
 		contacto.setId(id);
-		
+
 		PoolDAO.getInstance().addObject(id, contacto);
-		
+
 		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
 		Usuario userContact = adapterU.recuperarUsuario(Integer.valueOf(userContactId));
+		System.out.println("Intnetando recuperar usuario con ID: " + userContactId + " para el contacto " + contacto.getNombre());
 		contacto.setUsuario(userContact);
-		
+
 		System.out.println("Recuperando mensajes para el contacto " + id + "...");
 		// TODO: Recuperar mensajes
 		List<Mensaje> mensajes = obtenerMensajesDesdeIds(
@@ -150,8 +159,6 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		for (Mensaje message : mensajes) {
 			contacto.addMensaje(message);
 		}
-
-		
 
 		return contacto;
 

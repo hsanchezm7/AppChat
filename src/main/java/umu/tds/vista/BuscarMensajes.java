@@ -15,7 +15,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import umu.tds.controlador.AppChat;
+import umu.tds.model.Contacto;
+import umu.tds.model.ContactoIndividual;
+import umu.tds.model.Grupo;
 import umu.tds.model.Mensaje;
+import umu.tds.model.Usuario;
 
 import javax.swing.JTextField;
 import java.awt.GridBagConstraints;
@@ -29,6 +33,9 @@ import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+/**
+ * Ventana para buscar mensajes aplicando diferentes criterios de filtrado.
+ */
 public class BuscarMensajes extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -39,6 +46,7 @@ public class BuscarMensajes extends JFrame {
 	private JTable tablaMensajes;
 	private DefaultTableModel modeloTabla;
 	private DateTimeFormatter formatter;
+	private AppChat controlador;
 
 	/**
 	 * Launch the application.
@@ -60,6 +68,7 @@ public class BuscarMensajes extends JFrame {
 	 * Create the frame.
 	 */
 	public BuscarMensajes() {
+		controlador = AppChat.getInstance();
 		inicializarComponentes();
 	}
 
@@ -207,45 +216,74 @@ public class BuscarMensajes extends JFrame {
 		setLocationRelativeTo(null);
 	}
 
+	/**
+	 * Realiza la búsqueda de mensajes según los criterios especificados y muestra
+	 * los resultados en la tabla
+	 */
 	private void buscarMensajes() {
-	    String texto = textFieldTexto.getText().trim();
-	    String telefono = textFieldTelefono.getText().trim();
-	    String contacto = textFieldContacto.getText().trim();
-	    
-	    // Limpiar tabla anterior
-	    modeloTabla.setRowCount(0);
-	    
-	    try {
-	        // Llamar al controlador para buscar mensajes
-	        AppChat controlador = AppChat.getInstance();
-	        List<Mensaje> mensajesEncontrados = controlador.buscarMensajes(
-	            texto.isEmpty() ? null : texto,
-	            telefono.isEmpty() ? null : telefono,
-	            contacto.isEmpty() ? null : contacto
-	        );
-	        
-	        // Mostrar resultados en la tabla
-	        for (Mensaje mensaje : mensajesEncontrados) {
-	            Object[] fila = new Object[4];
-	            fila[0] = mensaje.getFechaHora().format(formatter);
-	            fila[1] = mensaje.getEmisor().getName();
-	            fila[2] = mensaje.getReceptor().getNombre();
-	            fila[3] = mensaje.getTexto();
-	            modeloTabla.addRow(fila);
-	        }
-	        
-	        if (mensajesEncontrados.isEmpty()) {
-	            JOptionPane.showMessageDialog(this, 
-	                "No se encontraron mensajes con los criterios especificados",
-	                "Información", 
-	                JOptionPane.INFORMATION_MESSAGE);
-	        }
-	    } catch (IllegalArgumentException e) {
-	        JOptionPane.showMessageDialog(this, 
-	            e.getMessage(), 
-	            "Error",
-	            JOptionPane.ERROR_MESSAGE);
-	    }
+		String texto = textFieldTexto.getText().trim();
+		String telefono = textFieldTelefono.getText().trim();
+		String contacto = textFieldContacto.getText().trim();
+
+		// Limpiar tabla anterior
+		modeloTabla.setRowCount(0);
+
+		try {
+			Usuario currentUser = controlador.getCurrentUser();
+			List<Mensaje> mensajesEncontrados = controlador.buscarMensajes(texto.isEmpty() ? null : texto,
+					telefono.isEmpty() ? null : telefono, contacto.isEmpty() ? null : contacto);
+
+			// Mostrar resultados en la tabla
+			for (Mensaje mensaje : mensajesEncontrados) {
+				Object[] fila = new Object[4];
+
+				// Columna 1: Fecha y hora formateada
+				fila[0] = mensaje.getFechaHora().format(formatter);
+
+				// Columna 2: Emisor
+				// Si el emisor es el usuario actual, mostrar "Yo"
+				if (mensaje.getEmisor().equals(currentUser)) {
+					fila[1] = "yo";
+				} else {
+					// Si no, mostrar el nombre del emisor
+					fila[1] = mensaje.getEmisor().getName();
+				}
+
+				// Columna 3: Receptor
+				if (mensaje.getReceptor() instanceof ContactoIndividual) {
+					ContactoIndividual receptor = (ContactoIndividual) mensaje.getReceptor();
+					Usuario usuarioReceptor = receptor.getUsuario();
+
+					// Si el receptor es el usuario actual, mostrar "Yo"
+					if (usuarioReceptor.equals(currentUser)) {
+						fila[2] = "Yo";
+					} else {
+						// Si no, mostrar el nombre del contacto
+						fila[2] = receptor.getNombre();
+					}
+
+				} else if (mensaje.getReceptor() instanceof Grupo) {
+					// Si es un grupo, mostramos el nombre del grupo
+					Grupo grupo = (Grupo) mensaje.getReceptor();
+					fila[2] = "Grupo: " + grupo.getNombre();
+				} else {
+					// Para cualquier otro tipo de contacto
+					fila[2] = mensaje.getReceptor().getNombre();
+				}
+
+				// Columna 4: Contenido del mensaje
+				fila[3] = mensaje.getTexto();
+
+				modeloTabla.addRow(fila);
+			}
+
+			if (mensajesEncontrados.isEmpty()) {
+				JOptionPane.showMessageDialog(this, "No se encontraron mensajes con los criterios especificados",
+						"Información", JOptionPane.INFORMATION_MESSAGE);
+			}
+		} catch (IllegalArgumentException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 }
