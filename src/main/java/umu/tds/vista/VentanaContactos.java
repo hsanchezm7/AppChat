@@ -113,6 +113,11 @@ public class VentanaContactos extends JDialog {
 		panel_6.add(button_1, gbc_button_1);
 
 		JButton btnNewButton_1 = new JButton("<<");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				removerContactoDeListaGrupo();
+			}
+		});
 		GridBagConstraints gbc_btnNewButton_1 = new GridBagConstraints();
 		gbc_btnNewButton_1.insets = new Insets(0, 0, 5, 0);
 		gbc_btnNewButton_1.gridx = 0;
@@ -211,6 +216,20 @@ public class VentanaContactos extends JDialog {
 		scrollPaneSeleccionados.setViewportView(listSeleccionados);
 
 	}
+	
+	private void removerContactoDeListaGrupo() {
+	    JList<String> listaSeleccionados = (JList<String>) scrollPaneSeleccionados.getViewport().getView();
+
+	    	    List<String> seleccionadosParaRemover = listaSeleccionados.getSelectedValuesList();
+
+	    for (String contacto : seleccionadosParaRemover) {
+	        modeloSeleccionados.removeElement(contacto);
+	    }
+
+	    JList<String> nuevaListaSeleccionados = new JList<>(modeloSeleccionados);
+	    scrollPaneSeleccionados.setViewportView(nuevaListaSeleccionados);
+	}
+
 
 	private void crearGrupo() {
 		
