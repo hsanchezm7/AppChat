@@ -24,26 +24,27 @@ import umu.tds.model.ContactoIndividual;
 import umu.tds.model.CriteriosBusqueda;
 import umu.tds.model.DescuentoFecha;
 import umu.tds.model.DescuentoMensajes;
+import umu.tds.model.ExportadorMensajes;
+import umu.tds.model.Grupo;
 import umu.tds.model.Mensaje;
 import umu.tds.model.RepositorioUsuarios;
 import umu.tds.model.Usuario;
-import umu.tds.model.Grupo;
 
 /**
  * Clase controlador de la aplicación.
  */
 public class AppChat {
-	
+
 	/* Configuración */
 	private static final double PRECIO_BASE_APPCHAT_PREMIUM = 11.99;
-	
+
 	private static final LocalDate DESC_INICIO = LocalDate.of(2000, 1, 1);
 	private static final LocalDate DESC_FIN = LocalDate.of(2025, 5, 10);
-	
+
 	private static final int DESC_MIN_MENSAJES = 1;
 
 	public static List<Mensaje> obtenerMensajesRecientesPorUsuario;
-	
+
 	/* Instancia Singleton */
 	private static AppChat unicaInstancia = null;
 
@@ -83,11 +84,10 @@ public class AppChat {
 	public Usuario getCurrentUser() {
 		return user;
 	}
-	
+
 	public double getPrecioBaseAppchatPremium() {
 		return PRECIO_BASE_APPCHAT_PREMIUM;
 	}
-
 
 	/**
 	 * Inicializa los atributos de los adaptadores.
@@ -183,7 +183,7 @@ public class AppChat {
 	/**
 	 * Función que añade un nuevo contacto individual al usuario actual, si aún no
 	 * lo tiene registrado
-	 * 
+	 *
 	 * @param name
 	 * @param phone
 	 * @return
@@ -236,87 +236,95 @@ public class AppChat {
 	 * Función que envía un mensaje a un contacto (indivual o grupo) Se encarga de
 	 * registrar el mensaje, actualizar los contactos involucrados y reflejar el
 	 * mensaje también en el receptor
-	 * 
+	 *
 	 * @param texto
 	 * @param contacto
 	 * @return
 	 */
 	public boolean sendMessage(String texto, Contacto contacto) {
-		/*System.out.println("\n------ INICIO sendMessage ------");
-		System.out.println("Usuario actual: " + user.getName() + " (" + user.getPhone() + ")");
-		System.out.println("Enviando mensaje a: " + contacto.getNombre());
-		System.out.println("Texto: " + texto);
-*/
-		if (texto == null || contacto == null)
+		/*
+		 * System.out.println("\n------ INICIO sendMessage ------");
+		 * System.out.println("Usuario actual: " + user.getName() + " (" +
+		 * user.getPhone() + ")"); System.out.println("Enviando mensaje a: " +
+		 * contacto.getNombre()); System.out.println("Texto: " + texto);
+		 */
+		if (texto == null || contacto == null) {
 			return false;
+		}
 
 		// Se crea el mensaje original con la fecha actual, sin emoticono, usuario
 		// emisor el que ha iniciado sesión y receptor contacto
 		Mensaje mensaje = new Mensaje(texto, user, contacto, LocalDateTime.now(), -1);
 
-		/*System.out.println("\nMensaje ORIGINAL creado:");
-		System.out.println("- Emisor: " + mensaje.getEmisor().getName() + " (" + mensaje.getEmisor().getPhone() + ")");
-		System.out.println("- Receptor: " + mensaje.getReceptor().getNombre());
-*/
-		//Se añade el mensaje al contacto
+		/*
+		 * System.out.println("\nMensaje ORIGINAL creado:");
+		 * System.out.println("- Emisor: " + mensaje.getEmisor().getName() + " (" +
+		 * mensaje.getEmisor().getPhone() + ")"); System.out.println("- Receptor: " +
+		 * mensaje.getReceptor().getNombre());
+		 */
+		// Se añade el mensaje al contacto
 		contacto.addMensaje(mensaje);
-		//Se guarda en la base de datos
+		// Se guarda en la base de datos
 		mensajeDAO.registrarMensaje(mensaje);
-		//Se actualiza el contacto en la base de datos
-		contactoDAO.modificarContacto(contacto); 
+		// Se actualiza el contacto en la base de datos
+		contactoDAO.modificarContacto(contacto);
 
-		//System.out.println("Mensaje registrado en DB y añadido al contacto del emisor");
+		// System.out.println("Mensaje registrado en DB y añadido al contacto del
+		// emisor");
 
 		// Si es contacto individual, se replica el mensaje en el receptor
 		if (contacto instanceof ContactoIndividual) {
 
-			//System.out.println("\nEl contacto es individual - replicando mensaje");
+			// System.out.println("\nEl contacto es individual - replicando mensaje");
 
 			ContactoIndividual Contactoreceptor = (ContactoIndividual) contacto;
 			Usuario receptor = Contactoreceptor.getUsuario();
 
-			//System.out.println("Usuario receptor: " + receptor.getName() + " (" + receptor.getPhone() + ")");
+			// System.out.println("Usuario receptor: " + receptor.getName() + " (" +
+			// receptor.getPhone() + ")");
 
 			// Hay que buscar si el receptor tiene ya al emisor como contacto o no
 			ContactoIndividual contactoDelEmisor = receptor.getContactos().stream()
-					.filter(c -> c instanceof ContactoIndividual)
-					.map(c -> (ContactoIndividual) c)
+					.filter(c -> c instanceof ContactoIndividual).map(c -> (ContactoIndividual) c)
 					.filter(c -> c.getUsuario() != null && c.getUsuario().getPhone().equals(user.getPhone()))
-					.findFirst()
-					.orElse(null);
+					.findFirst().orElse(null);
 			// Si no lo tiene, se crea el contacto y se registra
 			if (contactoDelEmisor == null) {
 
-				//System.out.println("El receptor NO tiene al emisor como contacto - creando nuevo contacto");
+				// System.out.println("El receptor NO tiene al emisor como contacto - creando
+				// nuevo contacto");
 
 				contactoDelEmisor = new ContactoIndividual(user.getPhone(), user.getPhone(), user, false);
 				receptor.addContacto(contactoDelEmisor);
 				contactoDAO.registrarContacto(contactoDelEmisor);
-				
+
 			} else {
-				//System.out.println("El receptor SÍ tiene al emisor como contacto: " + contactoDelEmisor.getNombre());
+				// System.out.println("El receptor SÍ tiene al emisor como contacto: " +
+				// contactoDelEmisor.getNombre());
 			}
 
 			// Se crea una copia del mensaje para el receptor, apuntando al contacto que
 			// representa al propio receptor
-			//Mensaje copia = new Mensaje(texto, user, receptor, LocalDateTime.now(), -1);
+			// Mensaje copia = new Mensaje(texto, user, receptor, LocalDateTime.now(), -1);
 
-			/*System.out.println("\nCopia NUEVA propuesta:");
-			System.out.println("- Emisor: " + copia.getEmisor().getName() + " (" + copia.getEmisor().getPhone() + ")");
-			System.out.println("- Receptor: " + copia.getReceptor().getNombre());
-*/			
+			/*
+			 * System.out.println("\nCopia NUEVA propuesta:");
+			 * System.out.println("- Emisor: " + copia.getEmisor().getName() + " (" +
+			 * copia.getEmisor().getPhone() + ")"); System.out.println("- Receptor: " +
+			 * copia.getReceptor().getNombre());
+			 */
 			contactoDelEmisor.addMensaje(mensaje);
-		//	mensajeDAO.registrarMensaje(copia);
-			
+			// mensajeDAO.registrarMensaje(copia);
 
-			//System.out.println(
-			//		"\nMensaje copia registrado en DB y añadido al contacto del emisor en la lista del receptor");
+			// System.out.println(
+			// "\nMensaje copia registrado en DB y añadido al contacto del emisor en la
+			// lista del receptor");
 
 			// Actualizar el contacto del receptor y el propio usuario receptor
 			contactoDAO.modificarContacto(contactoDelEmisor);
 			usuarioDAO.modificarUsuario(receptor);
 
-			//System.out.println("Contacto y usuario receptor actualizados en DB");
+			// System.out.println("Contacto y usuario receptor actualizados en DB");
 
 		} else if (contacto instanceof Grupo) {
 
@@ -329,81 +337,79 @@ public class AppChat {
 		return true;
 
 	}
-	
-	
+
 	/**
-	 * Función que envía un emoticono a un contacto (individual o grupo)
-	 * Se encarga de registrar el mensaje, actualizar los contactos involucrados
-	 * y reflejar el mensaje también en el receptor
-	 * 
-	 * @param emojiId El ID del emoticono a enviar
+	 * Función que envía un emoticono a un contacto (individual o grupo) Se encarga
+	 * de registrar el mensaje, actualizar los contactos involucrados y reflejar el
+	 * mensaje también en el receptor
+	 *
+	 * @param emojiId  El ID del emoticono a enviar
 	 * @param contacto El contacto (individual o grupo) destinatario
 	 * @return true si el mensaje se envió correctamente, false en caso contrario
 	 */
 	public boolean sendEmoji(int emojiId, Contacto contacto) {
-	    System.out.println("\n------ INICIO sendEmoji ------");
-	    System.out.println("Usuario actual: " + user.getName() + " (" + user.getPhone() + ")");
-	    System.out.println("Enviando emoticono a: " + contacto.getNombre());
-	    System.out.println("Emoticono ID: " + emojiId);
-	    
-	    if (contacto == null || emojiId < 0)
-	        return false;
-	    
-	    // Se crea el mensaje con emoticono, sin texto, usuario emisor el actual y receptor el contacto
-	    Mensaje mensaje = new Mensaje("", user, contacto, LocalDateTime.now(), emojiId);
-	    
-	    System.out.println("\nMensaje ORIGINAL con emoticono creado:");
-	    System.out.println("- Emisor: " + mensaje.getEmisor().getName() + " (" + mensaje.getEmisor().getPhone() + ")");
-	    System.out.println("- Receptor: " + mensaje.getReceptor().getNombre());
-	    System.out.println("- Emoticono ID: " + mensaje.getEmoticono());
-	    
-	    // Registrar el mensaje en el contacto del emisor
-	    contacto.addMensaje(mensaje);
-	    mensajeDAO.registrarMensaje(mensaje);
-	    contactoDAO.modificarContacto(contacto);
-	    
-	    System.out.println("Mensaje registrado en DB y añadido al contacto del emisor");
-	    
-	    // Si es contacto individual, se replica el mensaje en el receptor
-	    if (contacto instanceof ContactoIndividual) {
-	        System.out.println("\nEl contacto es individual - replicando mensaje");
-	        
-	        ContactoIndividual receptorContacto = (ContactoIndividual) contacto;
-	        Usuario receptor = receptorContacto.getUsuario();
-	        
-	        System.out.println("Usuario receptor: " + receptor.getName() + " (" + receptor.getPhone() + ")");
-	        
-	        // Buscar si el receptor tiene al emisor como contacto
-	        ContactoIndividual contactoDelEmisor = receptor.getContactos().stream()
-	                .filter(c -> c instanceof ContactoIndividual)
-	                .map(c -> (ContactoIndividual) c)
-	                .filter(c -> c.getUsuario() != null && c.getUsuario().getPhone().equals(user.getPhone()))
-	                .findFirst()
-	                .orElse(null);
-	        
-	        // Si el receptor no tiene al emisor como contacto, crearlo
-	        if (contactoDelEmisor == null) {
-	            System.out.println("El receptor NO tiene al emisor como contacto - creando nuevo contacto");
-	            contactoDelEmisor = new ContactoIndividual(user.getName(), user.getPhone(), user, false);
-	            receptor.addContacto(contactoDelEmisor);
-	            contactoDAO.registrarContacto(contactoDelEmisor);
-	        } else {
-	            System.out.println("El receptor SÍ tiene al emisor como contacto: " + contactoDelEmisor.getNombre());
-	        }
-	        
-	        contactoDelEmisor.addMensaje(mensaje);
-	        
-	        usuarioDAO.modificarUsuario(receptor);
-	        
-	        System.out.println("Contacto y usuario receptor actualizados en DB");
-	    } else if (contacto instanceof Grupo) {
-	        System.out.println("\nEl contacto es un grupo - actualizando grupo directamente");
-	        contactoDAO.modificarContacto(contacto);
-	    }
-	    
-	    return true;
+		System.out.println("\n------ INICIO sendEmoji ------");
+		System.out.println("Usuario actual: " + user.getName() + " (" + user.getPhone() + ")");
+		System.out.println("Enviando emoticono a: " + contacto.getNombre());
+		System.out.println("Emoticono ID: " + emojiId);
+
+		if (contacto == null || emojiId < 0) {
+			return false;
+		}
+
+		// Se crea el mensaje con emoticono, sin texto, usuario emisor el actual y
+		// receptor el contacto
+		Mensaje mensaje = new Mensaje("", user, contacto, LocalDateTime.now(), emojiId);
+
+		System.out.println("\nMensaje ORIGINAL con emoticono creado:");
+		System.out.println("- Emisor: " + mensaje.getEmisor().getName() + " (" + mensaje.getEmisor().getPhone() + ")");
+		System.out.println("- Receptor: " + mensaje.getReceptor().getNombre());
+		System.out.println("- Emoticono ID: " + mensaje.getEmoticono());
+
+		// Registrar el mensaje en el contacto del emisor
+		contacto.addMensaje(mensaje);
+		mensajeDAO.registrarMensaje(mensaje);
+		contactoDAO.modificarContacto(contacto);
+
+		System.out.println("Mensaje registrado en DB y añadido al contacto del emisor");
+
+		// Si es contacto individual, se replica el mensaje en el receptor
+		if (contacto instanceof ContactoIndividual) {
+			System.out.println("\nEl contacto es individual - replicando mensaje");
+
+			ContactoIndividual receptorContacto = (ContactoIndividual) contacto;
+			Usuario receptor = receptorContacto.getUsuario();
+
+			System.out.println("Usuario receptor: " + receptor.getName() + " (" + receptor.getPhone() + ")");
+
+			// Buscar si el receptor tiene al emisor como contacto
+			ContactoIndividual contactoDelEmisor = receptor.getContactos().stream()
+					.filter(c -> c instanceof ContactoIndividual).map(c -> (ContactoIndividual) c)
+					.filter(c -> c.getUsuario() != null && c.getUsuario().getPhone().equals(user.getPhone()))
+					.findFirst().orElse(null);
+
+			// Si el receptor no tiene al emisor como contacto, crearlo
+			if (contactoDelEmisor == null) {
+				System.out.println("El receptor NO tiene al emisor como contacto - creando nuevo contacto");
+				contactoDelEmisor = new ContactoIndividual(user.getName(), user.getPhone(), user, false);
+				receptor.addContacto(contactoDelEmisor);
+				contactoDAO.registrarContacto(contactoDelEmisor);
+			} else {
+				System.out.println("El receptor SÍ tiene al emisor como contacto: " + contactoDelEmisor.getNombre());
+			}
+
+			contactoDelEmisor.addMensaje(mensaje);
+
+			usuarioDAO.modificarUsuario(receptor);
+
+			System.out.println("Contacto y usuario receptor actualizados en DB");
+		} else if (contacto instanceof Grupo) {
+			System.out.println("\nEl contacto es un grupo - actualizando grupo directamente");
+			contactoDAO.modificarContacto(contacto);
+		}
+
+		return true;
 	}
-	
 
 	/**
 	 * Actualiza el estado {@code premium} de un usuario.
@@ -416,7 +422,7 @@ public class AppChat {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param mensaje
 	 * @return
 	 */
@@ -425,7 +431,7 @@ public class AppChat {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param contacto
 	 * @return
 	 */
@@ -437,7 +443,7 @@ public class AppChat {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public List<Contacto> getContactosUsuarioActual() {
@@ -448,7 +454,7 @@ public class AppChat {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public String getNombreUsuarioActual() {
@@ -457,7 +463,7 @@ public class AppChat {
 
 	/**
 	 * Busca mensajes que cumplan con los criterios especificados.
-	 * 
+	 *
 	 * @param texto
 	 * @param telefono
 	 * @param nombreContacto
@@ -466,8 +472,9 @@ public class AppChat {
 	 */
 	public List<Mensaje> buscarMensajes(String texto, String telefono, String nombreContacto)
 			throws IllegalArgumentException {
-		if (user == null)
+		if (user == null) {
 			return Collections.emptyList();
+		}
 
 		// Crear los criterios de búsqueda
 		CriteriosBusqueda criterios = new CriteriosBusqueda(texto, telefono, nombreContacto);
@@ -484,7 +491,7 @@ public class AppChat {
 	/**
 	 * Actualiza un contacto existente marcándolo como añadido manualmente y
 	 * cambiando su nombre
-	 * 
+	 *
 	 * @param contacto    El contacto a actualizar
 	 * @param nuevoNombre El nuevo nombre para el contacto
 	 * @return true si la operación fue exitosa
@@ -502,98 +509,117 @@ public class AppChat {
 
 		return true;
 	}
-	
+
 	public void logout() {
 		this.user = null;
 	}
-	
+
 	/**
-	 * Devuelve el contacto asociado al usuario dado, si existe en la lista de contactos
-	 * del usuario actualmente autenticado.
+	 * Devuelve el contacto asociado al usuario dado, si existe en la lista de
+	 * contactos del usuario actualmente autenticado.
 	 *
 	 * @param usuario El usuario cuyo contacto se desea obtener.
 	 * @return El ContactoIndividual asociado, o null si no se encuentra.
 	 */
 	public ContactoIndividual getContactoDeUsuario(Usuario usuario) {
-	    if (usuario == null || user == null) {
-	        return null;
-	    }
+		if (usuario == null || user == null) {
+			return null;
+		}
 
-	    return user.getContactos().stream()
-	        .filter(c -> c instanceof ContactoIndividual)
-	        .map(c -> (ContactoIndividual) c)
-	        .filter(c -> c.getUsuario() != null && c.getUsuario().getPhone().equals(usuario.getPhone()))
-	        .findFirst()
-	        .orElse(null);
+		return user.getContactos().stream().filter(c -> c instanceof ContactoIndividual)
+				.map(c -> (ContactoIndividual) c)
+				.filter(c -> c.getUsuario() != null && c.getUsuario().getPhone().equals(usuario.getPhone())).findFirst()
+				.orElse(null);
 	}
-	
-	// Métodos para añadir en la clase AppChat
 
 	/**
 	 * Obtiene la imagen del usuario actual
+	 *
 	 * @return ImageIcon con la imagen del usuario actual o null si no tiene
 	 */
 	public ImageIcon getImagenUsuarioActual() {
-	    if (user == null) return null;
-	    
-	    String rutaImagen = user.getImagenURL();
-	    if (rutaImagen == null || rutaImagen.isEmpty()) {
-	        return null;
-	    }
-	    
-	    try {
-	        return new ImageIcon(rutaImagen);
-	    } catch (Exception e) {
-	        System.err.println("Error al cargar la imagen del usuario: " + e.getMessage());
-	        return null;
-	    }
+		if (user == null) {
+			return null;
+		}
+
+		String rutaImagen = user.getImagenURL();
+		if (rutaImagen == null || rutaImagen.isEmpty()) {
+			return null;
+		}
+
+		try {
+			return new ImageIcon(rutaImagen);
+		} catch (Exception e) {
+			System.err.println("Error al cargar la imagen del usuario: " + e.getMessage());
+			return null;
+		}
 	}
 
 	/**
 	 * Cambia la imagen del usuario actual
+	 *
 	 * @param rutaImagen Ruta a la imagen en el sistema de archivos
 	 * @return true si se ha cambiado correctamente, false en caso contrario
 	 */
 	public boolean cambiarImagenUsuario(String rutaImagen) {
-	    if (user == null) return false;
-	    
-	    try {
-	        // Verificar que la imagen existe
-	        File archivo = new File(rutaImagen);
-	        if (!archivo.exists() || !archivo.isFile()) {
-	            return false;
-	        }
-	        
-	        // Actualizar la ruta de la imagen en el objeto Usuario
-	        user.setImagenURL(rutaImagen);
-	        
-	        // Persistir el cambio
-	        usuarioDAO.modificarUsuario(user);
-	        return true;
-	    } catch (Exception e) {
-	        System.err.println("Error al cambiar la imagen del usuario: " + e.getMessage());
-	        return false;
-	    }
+		if (user == null) {
+			return false;
+		}
+
+		try {
+			// Verificar que la imagen existe
+			File archivo = new File(rutaImagen);
+			if (!archivo.exists() || !archivo.isFile()) {
+				return false;
+			}
+
+			// Actualizar la ruta de la imagen en el objeto Usuario
+			user.setImagenURL(rutaImagen);
+
+			// Persistir el cambio
+			usuarioDAO.modificarUsuario(user);
+			return true;
+		} catch (Exception e) {
+			System.err.println("Error al cambiar la imagen del usuario: " + e.getMessage());
+			return false;
+		}
 	}
-	
+
 	/**
-	 * Calcula los descuentos disponibles para un usuario según diferentes estrategias.
+	 * Calcula los descuentos disponibles para un usuario según diferentes
+	 * estrategias.
 	 *
 	 * @param usuario el usuario al que se le evaluarán los descuentos disponibles
-	 * @return mapa con los nombres de cada tipo de descuento como clave y su valor numérico como valor
+	 * @return mapa con los nombres de cada tipo de descuento como clave y su valor
+	 *         numérico como valor
 	 */
 	public Map<String, Double> obtenerDescuentosDisponibles() {
-	    DescuentoFecha descFecha = new DescuentoFecha(DESC_INICIO, DESC_FIN);
-	    DescuentoMensajes descMensaje = new DescuentoMensajes(DESC_MIN_MENSAJES);
+		DescuentoFecha descFecha = new DescuentoFecha(DESC_INICIO, DESC_FIN);
+		DescuentoMensajes descMensaje = new DescuentoMensajes(DESC_MIN_MENSAJES);
 
-	    double valorFecha = descFecha.calcularDescuento(user);
-	    double valorMensaje = descMensaje.calcularDescuento(user);
+		double valorFecha = descFecha.calcularDescuento(user);
+		double valorMensaje = descMensaje.calcularDescuento(user);
 
-	    Map<String, Double> descuentos = new HashMap<>();
-	    descuentos.put("Descuento por fecha de nacimiento", valorFecha);
-	    descuentos.put("Descuento por mensajes enviados", valorMensaje);
+		Map<String, Double> descuentos = new HashMap<>();
+		descuentos.put("Descuento por fecha de nacimiento", valorFecha);
+		descuentos.put("Descuento por mensajes enviados", valorMensaje);
 
-	    return descuentos;
+		return descuentos;
+	}
+
+	/**
+	 * Genera un archivo PDF con los mensajes de los contactos especificados.
+	 *
+	 * @param contactosExportar Lista de contactos cuyas conversaciones se desean
+	 *                          exportar.
+	 * @param destino           Ruta del archivo donde se generará el PDF.
+	 */
+	public void exportarMensajesComoPdf(List<Contacto> contactosExportar, String destino) {
+		Map<String, List<Mensaje>> conversaciones = new HashMap<>();
+		conversaciones = contactosExportar.stream()
+				.collect(Collectors.toMap(Contacto::getNombre, Contacto::getMensajes));
+
+		ExportadorMensajes.generarInformeMensajesPdf(conversaciones, user.getName(), user.getId(), destino);
 	}
 
 }

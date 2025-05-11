@@ -9,23 +9,24 @@ import umu.tds.dao.DAOFactory;
 
 public class DAOFactoryTDS extends DAOFactory {
 
-	public DAOFactoryTDS() { }
+	public DAOFactoryTDS() {
+	}
 
 	@Override
 	public AdaptadorUsuarioDAO getUsuarioDAO() {
 		return AdaptadorUsuarioTDS.getInstance();
 	}
-	
+
 	@Override
 	public AdaptadorMensajeDAO getMensajeDAO() {
 		return AdaptadorMensajeTDS.getUnicaInstancia();
 	}
-	
+
 	@Override
 	public AdaptadorContactoDAO getContactoDAO() {
 		return AdaptadorContactoTDS.getInstance();
 	}
-	
+
 	@Override
 	public AdaptadorGrupoDAO getGrupoDAO() {
 		return AdaptadorGrupoTDS.getInstance();
@@ -36,9 +37,4 @@ public class DAOFactoryTDS extends DAOFactory {
 		return AdaptadorContactoIndividualTDS.getInstance();
 	}
 
-	
-
-	
-
-	
 }

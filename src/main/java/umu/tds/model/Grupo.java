@@ -3,12 +3,12 @@ package umu.tds.model;
 import java.util.List;
 
 public class Grupo extends Contacto {
-	
+
 	/* Atributos */
 	private Usuario administrador;
 	private List<ContactoIndividual> miembros;
 	private String imagenGrupoURL;
-	
+
 	/* Constructor */
 	public Grupo(String nombre, Usuario administrador, List<ContactoIndividual> miembros, String imagenGrupoURL) {
 		super(nombre);
@@ -40,5 +40,5 @@ public class Grupo extends Contacto {
 	public void setImagenGrupoURL(String imagenGrupoURL) {
 		this.imagenGrupoURL = imagenGrupoURL;
 	}
-	
+
 }

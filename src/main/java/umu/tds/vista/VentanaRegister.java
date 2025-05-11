@@ -12,7 +12,6 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -33,6 +32,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -42,6 +42,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.toedter.calendar.JDateChooser;
 
 import umu.tds.controlador.AppChat;
+import umu.tds.model.Usuario;
 
 public class VentanaRegister extends JDialog {
 
@@ -256,7 +257,7 @@ public class VentanaRegister extends JDialog {
 
 		// Default "No image" label
 		lblImageLabel = new JLabel("No image");
-		lblImageLabel.setHorizontalAlignment(JLabel.CENTER);
+		lblImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblImageLabel.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		imagePanel.add(lblImageLabel, BorderLayout.CENTER);
 
@@ -322,9 +323,7 @@ public class VentanaRegister extends JDialog {
 		registerPanel.add(panelGreeting, gbc_panelGreeting);
 		panelGreeting.setLayout(new BorderLayout());
 
-		greetingTextArea = new JTextArea("This is an editable JTextArea. "
-				+ "A text area is a \"plain\" text component, " + "which means that although it can display text "
-				+ "in any font, all of the text is in the same font.");
+		greetingTextArea = new JTextArea(Usuario.DEFAULT_SALUDO);
 		greetingTextArea.setDragEnabled(true);
 		greetingTextArea.setFont(new Font("Serif", Font.ITALIC, 16));
 		greetingTextArea.setLineWrap(true);
@@ -375,18 +374,18 @@ public class VentanaRegister extends JDialog {
 	}
 
 	private void handleRegister() {
-		if (!fieldsCheck())
+		if (!fieldsCheck()) {
 			return;
+		}
 
 		// Convertir Date a LocalDate
 		Instant instant = fechaNacimChooser.getDate().toInstant();
 		LocalDate fechaNacim = instant.atZone(ZoneId.systemDefault()).toLocalDate();
 
 		String imageUrl = profileImagePath != null ? profileImagePath : null;
-		
+
 		boolean register = AppChat.getInstance().register(phoneField.getText(), firstNameField.getText(),
-				lastNameField.getText(), passwordField.getPassword(), fechaNacim, imageUrl,
-				greetingTextArea.getText());
+				lastNameField.getText(), passwordField.getPassword(), fechaNacim, imageUrl, greetingTextArea.getText());
 
 		if (register) {
 			JOptionPane.showMessageDialog(this, "¡Registro completado! Ahora puedes iniciar sesión.", "Éxito",

@@ -3,19 +3,17 @@ package umu.tds.model;
 //Haría falta poner un atributo de premium para ver si el username es premium o no??
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Clase que modela los usuarios de AppChat.
  */
 public class Usuario {
-	private static final String DEFAULT_SALUDO = "Hey there! I'm using AppChat";
+	public static final String DEFAULT_SALUDO = "Hey there! I'm using AppChat";
 
 	/* Atributos */
-	private String phone; 
+	private String phone;
 	private char[] password;
 	private String name;
 	private LocalDate fechaNacim;
@@ -25,16 +23,13 @@ public class Usuario {
 	private List<Mensaje> mensajes;
 
 	private boolean premium;
-	private LocalDate fechaRegistro; // Este atributro se podría hacer de alguna forma que cuando el usuario se
-										// registre se guarde la fecha en vez
-	// de tener que pasarlo como parametro al constructor?? Si se pone como
-	// LocalDate.now() funcionaría como quiero??
+	private LocalDate fechaRegistro;
 	private int id;
 
 	/* Constructores */
 	/**
 	 * Crea un username con una lista de contactos vacía.
-	 * 
+	 *
 	 * @param phone           número de teléfono.
 	 * @param password        contraseña.
 	 * @param name            nombre completo del usuario.
@@ -59,7 +54,7 @@ public class Usuario {
 	/**
 	 * Crea un usuario con una lista de contactos vacía y con un mensaje de saludo
 	 * por defecto.
-	 * 
+	 *
 	 * @param telefono        número de teléfono.
 	 * @param password        contraseña.
 	 * @param name            nombre completo del usuario.
@@ -139,8 +134,6 @@ public class Usuario {
 	public void setId(int codigo) {
 		this.id = codigo;
 	}
-	
-	
 
 	public void setMensajes(List<Mensaje> mensajes) {
 		this.mensajes = mensajes;
@@ -152,7 +145,7 @@ public class Usuario {
 	 * Obtiene el número de mensajes enviados por el usuario en el último mes. El
 	 * último mes no se refiere sólo al mes acutal, sino a los últimos 30 o 31 días,
 	 * dependiendo del mes.
-	 * 
+	 *
 	 * @return número de mensajes enviados.
 	 */
 	public int getMensajesEnviadosUltimoMes() {
@@ -167,7 +160,7 @@ public class Usuario {
 
 	/**
 	 * Añade el contacto pasado como parámetro a la lista de contactos del usuario.
-	 * 
+	 *
 	 * @param contacto
 	 */
 	public void addContacto(Contacto contacto) {
@@ -177,7 +170,7 @@ public class Usuario {
 	/**
 	 * Elimina el contacto pasado como parámetro de la lista de contactos del
 	 * usuario.
-	 * 
+	 *
 	 * @param contacto
 	 */
 	public void deleteContacto(Contacto contacto) {

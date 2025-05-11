@@ -28,24 +28,19 @@ public class RepositorioUsuarios {
 		}
 		return unicaInstancia;
 	}
-	
+
 	/* Atributos */
-	
 	private DAOFactory daoFactory;
-	
+
 	private AdaptadorUsuarioDAO usuarioDAO;
 
 	private List<Usuario> userRepo;
 	private HashMap<String, Usuario> phoneUserMap;
-	
-	
 
-	/* Constructores */
 	/**
 	 * Constructor que inicializa el repositorio de usuarios.
 	 */
 	public RepositorioUsuarios() {
-		// TODO: ¿Añadir try-catch?
 		this.daoFactory = DAOFactory.getInstance();
 
 		this.usuarioDAO = daoFactory.getUsuarioDAO();
@@ -53,7 +48,6 @@ public class RepositorioUsuarios {
 		initRepo();
 	}
 
-	/* Métodos */
 	/**
 	 * Agrega un nuevo usuario al repositorio. Comprueba que el nombre de usuario
 	 * esté usado. ya por otro usuario.
@@ -72,8 +66,6 @@ public class RepositorioUsuarios {
 		System.out.println("Registrado usuario: " + usuario.toString());
 		return (phoneUserMap.put(usuario.getPhone(), usuario) == null) && userRepo.add(usuario);
 	}
-
-	/* Consulta */
 
 	/**
 	 * Elimina un usuario del repositorio.
@@ -103,7 +95,6 @@ public class RepositorioUsuarios {
 	 * poblando las estructuras de datos.
 	 */
 	private void initRepo() {
-		// TODO: ¿Añadir try-catch ?
 		List<Usuario> usuarios = usuarioDAO.recuperarAllUsuarios();
 		this.userRepo = new LinkedList<>(usuarios); // Castea a LinkedList<>
 

@@ -1,58 +1,49 @@
 package umu.tds.vista;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import umu.tds.controlador.AppChat;
 import umu.tds.model.Contacto;
 import umu.tds.model.ContactoIndividual;
-import umu.tds.model.Grupo;
-import umu.tds.model.Usuario;
-
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.JScrollBar;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
-import java.awt.event.ActionListener;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.awt.event.ActionEvent;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
 
 public class VentanaContactos extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	private static final String NOMBRE_VENTANA = "Gestionar contactos";
-	
+
 	private JPanel contentPane;
 	private JScrollPane scrollPane;
 	private JScrollPane scrollPaneSeleccionados;
 	private DefaultListModel<String> modeloSeleccionados = new DefaultListModel<>();
 	private List<String> seleccionados;
 
-
 	/**
 	 * Create the frame.
 	 */
 	public VentanaContactos(JFrame owner) {
 		super(owner, NOMBRE_VENTANA, true); // Bloquea la ventana padre hasta que ésta se cierre
-		
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 682, 506);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -102,6 +93,7 @@ public class VentanaContactos extends JDialog {
 
 		JButton button_1 = new JButton(">>");
 		button_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				moverContactoAListaGrupo();
 			}
@@ -114,6 +106,7 @@ public class VentanaContactos extends JDialog {
 
 		JButton btnNewButton_1 = new JButton("<<");
 		btnNewButton_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				removerContactoDeListaGrupo();
 			}
@@ -166,6 +159,7 @@ public class VentanaContactos extends JDialog {
 
 		JButton btnNewButton = new JButton("Add Group");
 		btnNewButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				crearGrupo();
 			}
@@ -183,11 +177,9 @@ public class VentanaContactos extends JDialog {
 
 	private void actualizarListaContactos() {
 		List<Contacto> contactos = AppChat.getInstance().getCurrentUser().getContactos();
-		
-		List<String> nombresContactos = contactos.stream()
-		        .filter(contacto -> contacto instanceof ContactoIndividual)
-		        .map(Contacto::getNombre)
-		        .collect(Collectors.toList());
+
+		List<String> nombresContactos = contactos.stream().filter(contacto -> contacto instanceof ContactoIndividual)
+				.map(Contacto::getNombre).collect(Collectors.toList());
 
 		JList<String> list = new JList<>(nombresContactos.toArray(new String[0]));
 		scrollPane.setViewportView(list);
@@ -197,17 +189,16 @@ public class VentanaContactos extends JDialog {
 		JList<String> listaContactos = (JList<String>) scrollPane.getViewport().getView();
 
 		seleccionados = listaContactos.getSelectedValuesList();
-		
+
 		List<Contacto> contactos = AppChat.getInstance().getCurrentUser().getContactos();
 
 		for (String contacto : seleccionados) {
 			// Validar que el contacto es individual
 			Contacto contact = contactos.stream()
-					.filter(c -> c instanceof ContactoIndividual && c.getNombre().equals(contacto))
-					.findFirst()
+					.filter(c -> c instanceof ContactoIndividual && c.getNombre().equals(contacto)).findFirst()
 					.orElse(null);
-			
-			if ( contact != null && !modeloSeleccionados.contains(contacto)) {
+
+			if (contact != null && !modeloSeleccionados.contains(contacto)) {
 				modeloSeleccionados.addElement(contacto);
 			}
 		}
@@ -216,66 +207,69 @@ public class VentanaContactos extends JDialog {
 		scrollPaneSeleccionados.setViewportView(listSeleccionados);
 
 	}
-	
+
 	private void removerContactoDeListaGrupo() {
-	    JList<String> listaSeleccionados = (JList<String>) scrollPaneSeleccionados.getViewport().getView();
+		JList<String> listaSeleccionados = (JList<String>) scrollPaneSeleccionados.getViewport().getView();
 
-	    	    List<String> seleccionadosParaRemover = listaSeleccionados.getSelectedValuesList();
+		List<String> seleccionadosParaRemover = listaSeleccionados.getSelectedValuesList();
 
-	    for (String contacto : seleccionadosParaRemover) {
-	        modeloSeleccionados.removeElement(contacto);
-	    }
+		for (String contacto : seleccionadosParaRemover) {
+			modeloSeleccionados.removeElement(contacto);
+		}
 
-	    JList<String> nuevaListaSeleccionados = new JList<>(modeloSeleccionados);
-	    scrollPaneSeleccionados.setViewportView(nuevaListaSeleccionados);
+		JList<String> nuevaListaSeleccionados = new JList<>(modeloSeleccionados);
+		scrollPaneSeleccionados.setViewportView(nuevaListaSeleccionados);
 	}
 
-
 	private void crearGrupo() {
-		
+
 		// Obtener el nombre del grupo del usuario
-        String nombreGrupo = JOptionPane.showInputDialog(this, "Introduce el nombre del grupo:", "Nombre del Grupo", JOptionPane.PLAIN_MESSAGE);
+		String nombreGrupo = JOptionPane.showInputDialog(this, "Introduce el nombre del grupo:", "Nombre del Grupo",
+				JOptionPane.PLAIN_MESSAGE);
 
-        // Validar el nombre del grupo
-        if (nombreGrupo == null || nombreGrupo.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El nombre del grupo no puede estar vacío.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+		// Validar el nombre del grupo
+		if (nombreGrupo == null || nombreGrupo.trim().isEmpty()) {
+			JOptionPane.showMessageDialog(this, "El nombre del grupo no puede estar vacío.", "Advertencia",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
 
-        // Obtener la URL de la imagen del grupo (opcional)
-        String imagenGrupoURL = JOptionPane.showInputDialog(this, "Introduce la URL de la imagen del grupo (opcional):", "Imagen del Grupo", JOptionPane.PLAIN_MESSAGE);
+		// Obtener la URL de la imagen del grupo (opcional)
+		String imagenGrupoURL = JOptionPane.showInputDialog(this, "Introduce la URL de la imagen del grupo (opcional):",
+				"Imagen del Grupo", JOptionPane.PLAIN_MESSAGE);
 
-        // Obtener el administrador del grupo (usuario actual)
-        //Usuario administrador = AppChat.getInstance().getCurrentUser();
+		// Obtener el administrador del grupo (usuario actual)
+		// Usuario administrador = AppChat.getInstance().getCurrentUser();
 
-        // Obtener los miembros seleccionados
-        List<ContactoIndividual> miembros = obtenerMiembrosSeleccionados();
+		// Obtener los miembros seleccionados
+		List<ContactoIndividual> miembros = obtenerMiembrosSeleccionados();
 
-        // Validar que haya al menos un miembro en el grupo
-        if (miembros.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar al menos un miembro para el grupo.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+		// Validar que haya al menos un miembro en el grupo
+		if (miembros.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Debe seleccionar al menos un miembro para el grupo.", "Advertencia",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
 
-        // Añadir el grupo
-        boolean addGrupo = AppChat.getInstance().addGrupo(nombreGrupo, miembros, imagenGrupoURL);
+		// Añadir el grupo
+		boolean addGrupo = AppChat.getInstance().addGrupo(nombreGrupo, miembros, imagenGrupoURL);
 
-        if (addGrupo) {
-            JOptionPane.showMessageDialog(this, "Grupo añadido correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(this, "Error al añadir el grupo.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        
-        actualizarListaContactos();
-    }
+		if (addGrupo) {
+			JOptionPane.showMessageDialog(this, "Grupo añadido correctamente.", "Éxito",
+					JOptionPane.INFORMATION_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(this, "Error al añadir el grupo.", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+
+		actualizarListaContactos();
+	}
 
 	private List<ContactoIndividual> obtenerMiembrosSeleccionados() {
-        List<Contacto> contactos = AppChat.getInstance().getCurrentUser().getContactos();
-        return contactos.stream()
-                .filter(contacto -> contacto instanceof ContactoIndividual && seleccionados.contains(contacto.getNombre()))
-                .map(contacto -> (ContactoIndividual) contacto)
-                .collect(Collectors.toList());
-    }
+		List<Contacto> contactos = AppChat.getInstance().getCurrentUser().getContactos();
+		return contactos.stream().filter(
+				contacto -> contacto instanceof ContactoIndividual && seleccionados.contains(contacto.getNombre()))
+				.map(contacto -> (ContactoIndividual) contacto).collect(Collectors.toList());
+	}
 
 	private void openContacts() {
 		AñadirContactos ventanaContactos = new AñadirContactos(this);

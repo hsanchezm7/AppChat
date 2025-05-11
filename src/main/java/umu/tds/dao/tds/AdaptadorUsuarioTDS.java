@@ -1,15 +1,11 @@
 package umu.tds.dao.tds;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
@@ -17,10 +13,8 @@ import beans.Entidad;
 import beans.Propiedad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
-import umu.tds.dao.AdaptadorContactoDAO;
 import umu.tds.dao.AdaptadorContactoIndividualDAO;
 import umu.tds.dao.AdaptadorGrupoDAO;
-import umu.tds.dao.AdaptadorMensajeDAO;
 import umu.tds.dao.AdaptadorUsuarioDAO;
 import umu.tds.dao.DAOFactory;
 import umu.tds.model.Contacto;
@@ -67,8 +61,9 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 
 	@Override
 	public void registrarUsuario(Usuario usuario) {
-		if (servPersistencia.recuperarEntidad(usuario.getId()) != null)
+		if (servPersistencia.recuperarEntidad(usuario.getId()) != null) {
 			return;
+		}
 
 		/* Asegurar contactos registrados */
 		List<Contacto> contactos = usuario.getContactos();
@@ -82,11 +77,11 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 				adapterG.registrarGrupo((Grupo) contacto);
 			}
 		}
-		
+
 		Entidad entUsuario = new Entidad();
 		entUsuario.setNombre(ENTITY_TYPE);
 
-		entUsuario.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad(PHONE_FIELD, usuario.getPhone()),
+		entUsuario.setPropiedades(new ArrayList<>(Arrays.asList(new Propiedad(PHONE_FIELD, usuario.getPhone()),
 				new Propiedad(PASSWORD_FIELD, new String(usuario.getPassword())),
 				new Propiedad(NAME_FIELD, usuario.getName()),
 				new Propiedad(BIRTH_FIELD, usuario.getFechaNacimiento().format(dateFormat)),
@@ -100,7 +95,7 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 		usuario.setId(entUsuario.getId());
 
 		PoolDAO.getInstance().addObject(usuario.getId(), usuario);
-		
+
 	}
 
 	@Override
@@ -155,11 +150,11 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 
 	@Override
 	public Usuario recuperarUsuario(int id) {
-		
-		if(PoolDAO.getInstance().contains(id)) {
+
+		if (PoolDAO.getInstance().contains(id)) {
 			return (Usuario) PoolDAO.getInstance().getObject(id);
 		}
-		
+
 		Entidad entUsuario = servPersistencia.recuperarEntidad(id);
 
 		String phone = servPersistencia.recuperarPropiedadEntidad(entUsuario, PHONE_FIELD);
@@ -177,21 +172,21 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 		Usuario usuario = new Usuario(phone, password, name, birthDate, imagenURL, saludo, fechaReg);
 		usuario.setPremium(premium);
 		/* TODO: CREAR CONSTRUCTOR QUE ACEPTE CONTACTOS */
-		
+
 		usuario.setId(id);
 
 		PoolDAO.getInstance().addObject(id, usuario);
-		
+
 		List<Contacto> contactos = getContactsFromConcatenatedIds(
 				servPersistencia.recuperarPropiedadEntidad(entUsuario, CONTACTOS_FIELD));
 
 		usuario.setContactos(contactos);//
-		
+
 		// Recuperar mensajes
-	    AdaptadorMensajeTDS adaptadorM = AdaptadorMensajeTDS.getUnicaInstancia();
-	    List<Mensaje> mensajes = adaptadorM.recuperarAllMensajes();
-	    usuario.setMensajes(mensajes);
-		
+		AdaptadorMensajeTDS adaptadorM = AdaptadorMensajeTDS.getUnicaInstancia();
+		List<Mensaje> mensajes = adaptadorM.recuperarAllMensajes();
+		usuario.setMensajes(mensajes);
+
 		return usuario;
 	}
 
@@ -212,7 +207,7 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 		List<Contacto> contactos = new LinkedList<>();
 		StringTokenizer strTok = new StringTokenizer(concatenatedIds, " ");
 		AdaptadorContactoTDS adaptadorC = AdaptadorContactoTDS.getInstance();
-		while(strTok.hasMoreTokens()) {
+		while (strTok.hasMoreTokens()) {
 			contactos.add(adaptadorC.recuperarContacto(Integer.valueOf((String) strTok.nextElement())));
 		}
 		return contactos;

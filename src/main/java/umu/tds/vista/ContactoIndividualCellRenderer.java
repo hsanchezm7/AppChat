@@ -13,7 +13,6 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -80,7 +79,7 @@ public class ContactoIndividualCellRenderer extends JPanel implements ListCellRe
 
 		// Añadir un ActionListener al botón "+"
 		btnPlus.addActionListener(e -> {
-			AñadirContactos ventanaContacto = new AñadirContactos((JFrame) SwingUtilities.getWindowAncestor(this));
+			AñadirContactos ventanaContacto = new AñadirContactos(SwingUtilities.getWindowAncestor(this));
 			ventanaContacto.setVisible(true);
 		});
 

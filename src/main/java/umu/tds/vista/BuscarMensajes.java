@@ -1,37 +1,34 @@
 package umu.tds.vista;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
-import java.awt.GridBagLayout;
-import javax.swing.ImageIcon;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-
-import umu.tds.controlador.AppChat;
-import umu.tds.model.Contacto;
-import umu.tds.model.ContactoIndividual;
-import umu.tds.model.Grupo;
-import umu.tds.model.Mensaje;
-import umu.tds.model.Usuario;
-
-import javax.swing.JTextField;
+import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+
+import umu.tds.controlador.AppChat;
+import umu.tds.model.ContactoIndividual;
+import umu.tds.model.Grupo;
+import umu.tds.model.Mensaje;
+import umu.tds.model.Usuario;
 
 /**
  * Ventana para buscar mensajes aplicando diferentes criterios de filtrado.
@@ -53,6 +50,7 @@ public class BuscarMensajes extends JFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					BuscarMensajes frame = new BuscarMensajes();
@@ -74,7 +72,7 @@ public class BuscarMensajes extends JFrame {
 
 	private void inicializarComponentes() {
 		setTitle("Buscar Mensajes");
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -192,6 +190,8 @@ public class BuscarMensajes extends JFrame {
 
 		String[] columnNames = { "Fecha", "Emisor", "Receptor", "Texto" };
 		modeloTabla = new DefaultTableModel(columnNames, 0) {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				return false;
@@ -206,6 +206,7 @@ public class BuscarMensajes extends JFrame {
 		scrollPane.setViewportView(tablaMensajes);
 
 		btnBuscar.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				buscarMensajes();
 			}

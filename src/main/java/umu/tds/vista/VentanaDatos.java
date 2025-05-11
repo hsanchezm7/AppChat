@@ -11,9 +11,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.io.IOException;
 import java.net.URL;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -31,10 +29,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
-import com.toedter.calendar.JDateChooser;
-
-import umu.tds.controlador.AppChat;
-
 public class VentanaDatos extends JDialog {
 
 	private static final long serialVersionUID = 1L;
@@ -49,8 +43,9 @@ public class VentanaDatos extends JDialog {
 	private JScrollPane scrollPaneGreeting;
 	private JLabel lblImageLabel;
 
-	public VentanaDatos(JFrame owner, String phone, String firstName, String lastName, LocalDate fechaNacim, String greeting) {
-		
+	public VentanaDatos(JFrame owner, String phone, String firstName, String lastName, LocalDate fechaNacim,
+			String greeting) {
+
 		initComponents(phone, firstName, lastName, fechaNacim, greeting);
 	}
 
@@ -90,7 +85,8 @@ public class VentanaDatos extends JDialog {
 		return panelLogo;
 	}
 
-	public JPanel crearPanelFormulario(String phone, String firstName, String lastName, LocalDate fechaNacim, String greeting) {
+	public JPanel crearPanelFormulario(String phone, String firstName, String lastName, LocalDate fechaNacim,
+			String greeting) {
 		JPanel panelFormulario = new JPanel();
 		panelFormulario.setBorder(new EmptyBorder(10, 10, 10, 10));
 		panelFormulario.setLayout(new BorderLayout(0, 0));
@@ -271,7 +267,7 @@ public class VentanaDatos extends JDialog {
 		btnConfirmRegister.setAlignmentX(Component.CENTER_ALIGNMENT);
 		panelBtnConfirmRegister.add(btnConfirmRegister);
 		btnConfirmRegister.addActionListener(e -> handleRegister());
-		
+
 		getRootPane().setDefaultButton(btnConfirmRegister);
 
 		return panelBotones;

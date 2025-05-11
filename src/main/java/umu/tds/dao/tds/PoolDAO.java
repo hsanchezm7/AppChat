@@ -7,12 +7,13 @@ public class PoolDAO {
 	private Hashtable<Integer, Object> pool;
 
 	private PoolDAO() {
-		pool = new Hashtable<Integer, Object>();
+		pool = new Hashtable<>();
 	}
 
 	public static PoolDAO getInstance() {
-		if (instance == null)
+		if (instance == null) {
 			instance = new PoolDAO();
+		}
 		return instance;
 	}
 

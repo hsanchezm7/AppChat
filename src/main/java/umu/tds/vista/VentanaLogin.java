@@ -25,6 +25,8 @@ public class VentanaLogin extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static final String NOMBRE_VENTANA = "Iniciar sesión en AppChat";
 
+	private static ImageIcon ICON = new ImageIcon(VentanaLogin.class.getResource("/umu/tds/resources/logo128x128.png"));
+
 	private JTextField phoneField;
 	private JPasswordField passwordField;
 
@@ -37,8 +39,7 @@ public class VentanaLogin extends JFrame {
 		setTitle(NOMBRE_VENTANA);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		ImageIcon img = new ImageIcon("/umu/tds/resources/logo128x128.png");
-		setIconImage(img.getImage());
+		setIconImage(ICON.getImage());
 
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -152,7 +153,7 @@ public class VentanaLogin extends JFrame {
 		btnLogin.setVerticalAlignment(SwingConstants.BOTTOM);
 		btnLogin.addActionListener(e -> handleLogin());
 		panelOtrosBotones.add(btnLogin);
-		
+
 		getRootPane().setDefaultButton(btnLogin);
 
 		return panelBotones;
@@ -173,8 +174,9 @@ public class VentanaLogin extends JFrame {
 	}
 
 	private void handleLogin() {
-		if (!fieldsCheck())
+		if (!fieldsCheck()) {
 			return;
+		}
 
 		boolean login = AppChat.getInstance().login(phoneField.getText(), passwordField.getPassword());
 

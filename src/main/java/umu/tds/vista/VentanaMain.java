@@ -1,26 +1,56 @@
 package umu.tds.vista;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.List;
 
-import umu.tds.controlador.AppChat;
-import umu.tds.model.*;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+
 import tds.BubbleText;
+import umu.tds.controlador.AppChat;
+import umu.tds.model.Contacto;
+import umu.tds.model.ContactoIndividual;
+import umu.tds.model.Grupo;
+import umu.tds.model.Mensaje;
 
 /**
  * Ventana principal de la aplicación AppChat. Esta clase implementa la interfaz
  * gráfica principal de la aplicación.
- * 
+ *
  * Responsabilidades -Mostrar la lista de contactos -Mostrar y gestionar las
  * conversaciones de chat -Proporcionar acceso a otras funcionalidades
  */
 public class VentanaMain extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static final String NOMBRE_VENTANA = "AppChat";
+
 	private static ImageIcon ICON = new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/logo128x128.png"));
 
 	// Panel donde se muestran los mensajes del chat actual
@@ -67,7 +97,7 @@ public class VentanaMain extends JFrame {
 		pack();
 		setResizable(true);
 		setMinimumSize(getSize());
-		setLocationRelativeTo(null); // Centrar la pantalla
+		setLocationRelativeTo(null);
 	}
 
 	/**
@@ -87,25 +117,23 @@ public class VentanaMain extends JFrame {
 
 	/**
 	 * Crear panel superior
-	 * 
+	 *
 	 * @return
 	 */
 	public JPanel crearPanelNorte() {
 		JPanel panelNorte = new JPanel();
 		panelNorte.setBorder(new LineBorder(Color.BLACK));
 
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.gridy = 0;
-
 		GridBagLayout gbl1 = new GridBagLayout();
-		gbl1.columnWidths = new int[] { 209, 0, 0, 0, 0, 0, 0 };
+		gbl1.columnWidths = new int[] { 209, 0, 0, 0, 0, 0, 0, 0, 0 };
+		
 		gbl1.rowHeights = new int[] { 0, 0, 0 };
-		gbl1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gbl1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE };
+		
 		gbl1.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
 		panelNorte.setLayout(gbl1);
 
-		// Combobox de contactos
+		// ComboBox
 		comboBox = new JComboBox<>();
 		actualizarComboBox();
 		comboBox.addActionListener(e -> manejarSeleccionComboBox());
@@ -117,27 +145,29 @@ public class VentanaMain extends JFrame {
 		gbc_comboBox.gridy = 0;
 		panelNorte.add(comboBox, gbc_comboBox);
 
-		// Botón enviar
-		JButton btnEnviar = new JButton("");
-		btnEnviar.setIcon(new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/enviar.png")));
-		GridBagConstraints gbcB1 = new GridBagConstraints();
-		gbcB1.insets = new Insets(0, 0, 5, 5);
-		gbcB1.gridx = 1;
-		gbcB1.gridy = 0;
-		panelNorte.add(btnEnviar, gbcB1);
+		// Botones
+		agregarBotonBarra(panelNorte, "/umu/tds/resources/analisis-de-busqueda.png", "Buscar", 1, e -> openBuscar());
+		agregarBotonBarra(panelNorte, "/umu/tds/resources/contacto-2.png", "Contactos", 2, e -> openContacts());
+		agregarBotonBarra(panelNorte, "/umu/tds/resources/calidad-premium.png", "Premium", 3, e -> openPremium());
+		agregarBotonBarra(panelNorte, "/umu/tds/resources/document.png", "Exportar chats a PDF", 4,
+				e -> openExportar());
 
-		// Botones de la barra superior
-		agregarBotonBarra(panelNorte, "/umu/tds/resources/analisis-de-busqueda.png", "Buscar", 2, e -> openBuscar());
-		agregarBotonBarra(panelNorte, "/umu/tds/resources/contacto-2.png", "Contactos", 3, e -> openContacts());
-		agregarBotonBarra(panelNorte, "/umu/tds/resources/calidad-premium.png", "Premium", 4, e -> openPremium());
+		// Separador elástico
+		JPanel panelSeparador = new JPanel();
+		panelSeparador.setOpaque(false); // No visible, solo ocupa espacio
+		GridBagConstraints gbc_sep = new GridBagConstraints();
+		gbc_sep.gridx = 6; // después de los botones
+		gbc_sep.gridy = 0;
+		gbc_sep.weightx = 1.0;
+		gbc_sep.fill = GridBagConstraints.HORIZONTAL;
+		panelNorte.add(panelSeparador, gbc_sep);
 
-		// Panel de información del usuario
+		// Panel de usuario
 		JPanel panelUsuario = new JPanel();
 		GridBagConstraints gbc2 = new GridBagConstraints();
 		gbc2.anchor = GridBagConstraints.EAST;
 		gbc2.insets = new Insets(0, 0, 5, 0);
-		gbc2.fill = GridBagConstraints.VERTICAL;
-		gbc2.gridx = 5;
+		gbc2.gridx = 7; // ahora en la última columna visible
 		gbc2.gridy = 0;
 		panelNorte.add(panelUsuario, gbc2);
 
@@ -148,9 +178,8 @@ public class VentanaMain extends JFrame {
 		JButton btnPerfil = new JButton("");
 		ImageIcon imagenPerfil = controlador.getImagenUsuarioActual();
 		if (imagenPerfil != null && imagenPerfil.getIconWidth() > 0 && imagenPerfil.getIconHeight() > 0) {
-		    // Redimensionar la imagen para que se ajuste bien al botón
-		    Image img = imagenPerfil.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-		    btnPerfil.setIcon(new ImageIcon(img));
+			Image img = imagenPerfil.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+			btnPerfil.setIcon(new ImageIcon(img));
 		} else {
 			btnPerfil.setIcon(new ImageIcon(VentanaMain.class.getResource("/umu/tds/resources/usuario.png")));
 		}
@@ -165,7 +194,6 @@ public class VentanaMain extends JFrame {
 		panelUsuario.add(btnCerrarSesion);
 
 		return panelNorte;
-
 	}
 
 	private void agregarBotonBarra(JPanel panel, String iconPath, String tooltip, int posX,
@@ -174,6 +202,12 @@ public class VentanaMain extends JFrame {
 		boton.setIcon(new ImageIcon(VentanaMain.class.getResource(iconPath)));
 		boton.setToolTipText(tooltip);
 		boton.addActionListener(action);
+
+		// Tamaño fijo (ajusta según tu diseño)
+		Dimension size = new Dimension(40, 40);
+		boton.setPreferredSize(size);
+		boton.setMinimumSize(size);
+		boton.setMaximumSize(size);
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
@@ -184,7 +218,7 @@ public class VentanaMain extends JFrame {
 
 	/**
 	 * Crear el panel principal que contiene la lista de contactos y el chat
-	 * 
+	 *
 	 * @return
 	 */
 	public JPanel crearPanelMain() {
@@ -307,6 +341,7 @@ public class VentanaMain extends JFrame {
 			popupEmojis.add(emojiButton);
 		}
 		btnEmoji.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mousePressed(MouseEvent e) {
 				popupEmojis.show(e.getComponent(), e.getX(), e.getY());
 			}
@@ -372,7 +407,7 @@ public class VentanaMain extends JFrame {
 
 						int buttonX = cellBounds.x + cellBounds.width - buttonWidth + ajusteX; // Posición X del botón
 						int buttonY = cellBounds.y + (cellBounds.height - buttonHeight) / 2 + ajusteY; // Posición Y
-																										// centrada
+						// centrada
 
 						Rectangle botonArea = new Rectangle(buttonX, buttonY, buttonWidth, buttonHeight);
 
@@ -427,10 +462,9 @@ public class VentanaMain extends JFrame {
 
 	/**
 	 * Mostrar la conversación del contacto seleccionado
-	 * 
+	 *
 	 * @param contacto
 	 */
-
 	private void cargarConversacion(Contacto contacto) {
 		if (contacto == null) {
 			return;
@@ -456,15 +490,15 @@ public class VentanaMain extends JFrame {
 				} else {
 					Contacto emisor = controlador.getContactoDeUsuario(m.getEmisor());
 					if (emisor != null && emisor.getNombre() != null && !emisor.getNombre().isEmpty()) {
-			            nombre = emisor.getNombre(); // Está en la lista de contactos
-			        } else {
-			            nombre = m.getEmisor().getPhone(); // No está en contactos, usamos el número
-			        }
+						nombre = emisor.getNombre(); // Está en la lista de contactos
+					} else {
+						nombre = m.getEmisor().getPhone(); // No está en contactos, usamos el número
+					}
 				}
 			} else {
 				nombre = esEmisor ? "Yo" : contacto.getNombre();
 			}
-			
+
 			int tipo = esEmisor ? BubbleText.SENT : BubbleText.RECEIVED;
 
 			if (m.getEmoticono() >= 0) {
@@ -481,14 +515,13 @@ public class VentanaMain extends JFrame {
 
 	/**
 	 * Enviar mensaje al contacto seleccionado
-	 * 
+	 *
 	 * @param chat
-	 * 
+	 *
 	 * @param texto
-	 * 
+	 *
 	 * @param contacto
 	 */
-
 	private void enviarMensajes(JPanel chat, JTextField texto, Contacto contacto) {
 
 		if (texto.getText().trim().isEmpty()) {
@@ -542,29 +575,22 @@ public class VentanaMain extends JFrame {
 		listaContactos.repaint();
 	}
 
-	// Métodos para abrir ventanas
-
-	// Ventana registrar, esta se tiene que cambiar para que en vez de abir esta se
-	// abra una para camnbiar la imagen del user
 	private void openRegister() {
 		VentanaEditarPerfil ventanaEditarPerfil = new VentanaEditarPerfil(this);
-	    ventanaEditarPerfil.setVisible(true);
+		ventanaEditarPerfil.setVisible(true);
 	}
 
-	// Ventana contactos
 	private void openContacts() {
 		VentanaContactos ventanaContactos = new VentanaContactos(this);
 		ventanaContactos.setVisible(true);
 		actualizarListaContactos();
 	}
 
-	// Ventana premium
 	private void openPremium() {
 		VentanaPremium ventanaPremium = new VentanaPremium(this);
 		ventanaPremium.setVisible(true);
 	}
 
-	// Ventana buscar
 	private void openBuscar() {
 		BuscarMensajes ventanaBuscar = new BuscarMensajes();
 		ventanaBuscar.setVisible(true);
@@ -572,7 +598,7 @@ public class VentanaMain extends JFrame {
 
 	private void abrirVentanaAñadirContactoExistente(String phone) {
 		AñadirContactoExistente ventanaContacto = new AñadirContactoExistente(
-				(JFrame) SwingUtilities.getWindowAncestor(listaContactos), phone);
+				SwingUtilities.getWindowAncestor(listaContactos), phone);
 		ventanaContacto.setModal(true); // Hacerla modal para evitar interacciones con la ventana principal
 		ventanaContacto.setVisible(true);
 
@@ -580,9 +606,15 @@ public class VentanaMain extends JFrame {
 		actualizarListaContactos();
 	}
 
+	// Ventana premium
+	private void openExportar() {
+		VentanaExportar ventanaExportar = new VentanaExportar(this);
+		ventanaExportar.setVisible(true);
+	}
+
 	private void cerrarSesion() {
 		controlador.logout();
-		dispose(); // Cierra la ventana actual
+		dispose();
 
 		new VentanaLogin().setVisible(true);
 	}

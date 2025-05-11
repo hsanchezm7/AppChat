@@ -1,12 +1,13 @@
 package umu.tds.model;
 
 import java.time.LocalDateTime;
+
 //Falta emoticono, según el documento de libreria de chat en swing, es de tipo entero
 /**
  * Clase que modela los mensajes de AppChat.
  */
 public class Mensaje {
-	
+
 	/* Atributos */
 	private String texto;
 	private Usuario emisor;
@@ -14,13 +15,14 @@ public class Mensaje {
 	private LocalDateTime fechaHora;
 	private int emoticono;
 	private int id;
-	
+
 	/* Constructores */
 	/**
 	 * Crea un usuario a partir de los siguientes parámetros:
-	 * @param texto texto del mensaje (información enviada).
-	 * @param emisor usuario que envía el mensaje.
-	 * @param repector usuario que recibe el mensaje.
+	 *
+	 * @param texto     texto del mensaje (información enviada).
+	 * @param emisor    usuario que envía el mensaje.
+	 * @param repector  usuario que recibe el mensaje.
 	 * @param fechaHora fecha y hora del envío del mensaje.
 	 */
 	public Mensaje(String texto, Usuario emisor, Contacto receptor, LocalDateTime fechaHora, int emoticono) {
@@ -30,7 +32,7 @@ public class Mensaje {
 		this.fechaHora = fechaHora;
 		this.emoticono = emoticono;
 	}
-	
+
 	/* Consulta */
 	public String getTexto() {
 		return texto;
@@ -79,7 +81,11 @@ public class Mensaje {
 	public void setId(int codigo) {
 		this.id = codigo;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "Mensaje [texto=" + texto + ", emisor=" + emisor + ", receptor=" + receptor + ", fechaHora=" + fechaHora
+				+ ", emoticono=" + emoticono + ", id=" + id + "]";
+	}
 
 }

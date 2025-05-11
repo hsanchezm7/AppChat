@@ -1,11 +1,9 @@
 package umu.tds.dao.tds;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
@@ -50,8 +48,9 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 	@Override
 	public void registrarContactoIndividual(ContactoIndividual contactoIndividual) {
 
-		if (servPersistencia.recuperarEntidad(contactoIndividual.getId()) != null)
+		if (servPersistencia.recuperarEntidad(contactoIndividual.getId()) != null) {
 			return;
+		}
 
 		AdaptadorUsuarioTDS adapterU = AdaptadorUsuarioTDS.getInstance();
 		AdaptadorMensajeTDS adapterM = AdaptadorMensajeTDS.getUnicaInstancia();
@@ -67,7 +66,7 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		Entidad entContactoIndividual = new Entidad();
 		entContactoIndividual.setNombre(ENTITY_TYPE);
 
-		entContactoIndividual.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(
+		entContactoIndividual.setPropiedades(new ArrayList<>(Arrays.asList(
 				new Propiedad(NAME_FIELD, contactoIndividual.getNombre()),
 				new Propiedad(PHONE_FIELD, contactoIndividual.getMovil()),
 				new Propiedad(USER_FIELD, String.valueOf(contactoIndividual.getUsuario().getId())),
@@ -136,12 +135,13 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 		String name = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, NAME_FIELD);
 		String phone = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, PHONE_FIELD);
 		String userContactId = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, USER_FIELD);
-		String anadidoManualmenteStr = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual, MANUALLY_ADDED_FIELD);
+		String anadidoManualmenteStr = servPersistencia.recuperarPropiedadEntidad(entContactoIndividual,
+				MANUALLY_ADDED_FIELD);
 		boolean anadidoManualmente = false;
 		if (anadidoManualmenteStr != null && !anadidoManualmenteStr.isEmpty()) {
 			anadidoManualmente = Boolean.parseBoolean(anadidoManualmenteStr);
 		}
-		
+
 		ContactoIndividual contacto = new ContactoIndividual(name, phone, null, anadidoManualmente);
 		contacto.setId(id);
 
@@ -149,7 +149,8 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 
 		AdaptadorUsuarioDAO adapterU = DAOFactory.getInstance().getUsuarioDAO();
 		Usuario userContact = adapterU.recuperarUsuario(Integer.valueOf(userContactId));
-		System.out.println("Intnetando recuperar usuario con ID: " + userContactId + " para el contacto " + contacto.getNombre());
+		System.out.println(
+				"Intnetando recuperar usuario con ID: " + userContactId + " para el contacto " + contacto.getNombre());
 		contacto.setUsuario(userContact);
 
 		System.out.println("Recuperando mensajes para el contacto " + id + "...");
@@ -175,7 +176,7 @@ public class AdaptadorContactoIndividualTDS implements AdaptadorContactoIndividu
 
 	private List<Mensaje> obtenerMensajesDesdeIds(String mensajes) {
 		System.out.println("Mensajes del campo mensajes: " + mensajes);
-		List<Mensaje> listaMensajes = new LinkedList<Mensaje>();
+		List<Mensaje> listaMensajes = new LinkedList<>();
 		StringTokenizer strTok = new StringTokenizer(mensajes, " ");
 		AdaptadorMensajeTDS adaptadorMensaje = AdaptadorMensajeTDS.getUnicaInstancia();
 		while (strTok.hasMoreTokens()) {

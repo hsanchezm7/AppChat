@@ -2,10 +2,8 @@ package umu.tds.dao.tds;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
@@ -13,13 +11,11 @@ import beans.Entidad;
 import beans.Propiedad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
-import umu.tds.dao.AdaptadorContactoDAO;
 import umu.tds.dao.AdaptadorContactoIndividualDAO;
 import umu.tds.dao.AdaptadorGrupoDAO;
 import umu.tds.dao.AdaptadorMensajeDAO;
 import umu.tds.dao.AdaptadorUsuarioDAO;
 import umu.tds.dao.DAOFactory;
-import umu.tds.model.Contacto;
 import umu.tds.model.ContactoIndividual;
 import umu.tds.model.Grupo;
 import umu.tds.model.Mensaje;
@@ -34,7 +30,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	private static final String IMAGENURL_FIELD = "imagenURL";
 	private static final String NOMBRE_FIELD = "nombre";
 	private static final String MENSAJES_FIELD = "mensajes";
-	private static final String ID_FIELD = "id"; //Hace falta para algo??
+	private static final String ID_FIELD = "id"; // Hace falta para algo??
 
 	private static AdaptadorGrupoTDS unicaInstancia = null;
 
@@ -73,8 +69,9 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 
 		List<ContactoIndividual> miembros = grupo.getMiembros();
 
-		for (ContactoIndividual miembro : miembros)
+		for (ContactoIndividual miembro : miembros) {
 			adapterCI.registrarContactoIndividual(miembro);
+		}
 
 		/* TODO: REGISTRAR MENSAJES ASOCIADOS */
 		AdaptadorMensajeDAO adapterM = DAOFactory.getInstance().getMensajeDAO();
@@ -82,19 +79,21 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		// ¿Usar LinkedList<>?
 		List<Mensaje> mensajes = grupo.getMensajes();
 
-		for (Mensaje m : mensajes)
+		for (Mensaje m : mensajes) {
 			adapterM.registrarMensaje(m);
+		}
 
 		/* Crear y registrar entidad */
 		Entidad entGrupo = new Entidad();
 		entGrupo.setNombre(ENTITY_TYPE);
 
-		entGrupo.setPropiedades(new ArrayList<Propiedad>(
+		entGrupo.setPropiedades(new ArrayList<>(
 				Arrays.asList(new Propiedad(ADMIN_FIELD, String.valueOf(grupo.getAdministrador().getId())),
 						new Propiedad(MIEMBROS_FIELD, getIdsFromMembers(miembros)), // Convertir lista de miembros a IDs
 						new Propiedad(IMAGENURL_FIELD, grupo.getImagenGrupoURL()),
 						new Propiedad(NOMBRE_FIELD, grupo.getNombre()),
-						new Propiedad(MENSAJES_FIELD, obtenerCodigosMensajes(mensajes)) // Convertir lista de mensajes a IDs
+						new Propiedad(MENSAJES_FIELD, obtenerCodigosMensajes(mensajes)) // Convertir lista de mensajes a
+																						// IDs
 				)));
 
 		entGrupo = servPersistencia.registrarEntidad(entGrupo);
@@ -111,7 +110,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 
 	@Override
 	public void modificarGrupo(Grupo grupo) {
-		
+
 		System.out.println("Modificando grupo con id " + grupo.getId());
 
 		Entidad eGrupo = servPersistencia.recuperarEntidad(grupo.getId());
@@ -129,7 +128,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 			}
 			servPersistencia.modificarPropiedad(prop);
 		}
-		
+
 		System.out.println("La nueva lista de mensajes es ..." + obtenerCodigosMensajes(grupo.getMensajes()));
 
 	}
@@ -150,7 +149,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 		String imagenGrupoURL = servPersistencia.recuperarPropiedadEntidad(entGrupo, IMAGENURL_FIELD);
 
 		/* Crear el objeto Grupo con las propiedades recuperadas */
-		Grupo grupo = new Grupo(nombre, null, new LinkedList<ContactoIndividual>(), imagenGrupoURL);
+		Grupo grupo = new Grupo(nombre, null, new LinkedList<>(), imagenGrupoURL);
 		grupo.setId(id);
 
 		PoolDAO.getInstance().addObject(id, grupo);
@@ -196,7 +195,7 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 	}
 
 	private List<Mensaje> obtenerMensajesDesdeIds(String mensajes) {
-		List<Mensaje> listaMensajes = new LinkedList<Mensaje>();
+		List<Mensaje> listaMensajes = new LinkedList<>();
 		StringTokenizer strTok = new StringTokenizer(mensajes, " ");
 		AdaptadorMensajeTDS adaptadorMensaje = AdaptadorMensajeTDS.getUnicaInstancia();
 		while (strTok.hasMoreTokens()) {

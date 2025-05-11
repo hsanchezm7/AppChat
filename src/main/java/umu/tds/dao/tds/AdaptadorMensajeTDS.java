@@ -1,12 +1,9 @@
 package umu.tds.dao.tds;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,14 +12,12 @@ import beans.Entidad;
 import beans.Propiedad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
-
-import umu.tds.model.Mensaje;
-import umu.tds.model.Usuario;
 import umu.tds.dao.AdaptadorMensajeDAO;
-import umu.tds.dao.DAOFactory;
 import umu.tds.model.Contacto;
 import umu.tds.model.ContactoIndividual;
 import umu.tds.model.Grupo;
+import umu.tds.model.Mensaje;
+import umu.tds.model.Usuario;
 
 public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 
@@ -59,42 +54,42 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 
 		Entidad entMensaje;
 
-		if (servPersistencia.recuperarEntidad(mensaje.getId()) != null)
+		if (servPersistencia.recuperarEntidad(mensaje.getId()) != null) {
 			return;
+		}
 
 		// volver a registrar un usuario? debería ser persistente y estar ya registrado.
 		// lo hace el repoUsuarios llamando a su adaptador
 		AdaptadorUsuarioTDS adaptadorUsuario = AdaptadorUsuarioTDS.getInstance();
-		if (servPersistencia.recuperarEntidad(mensaje.getEmisor().getId()) == null) { //Esta comprobación es redundante??
-            adaptadorUsuario.registrarUsuario(mensaje.getEmisor());
-        }
+		if (servPersistencia.recuperarEntidad(mensaje.getEmisor().getId()) == null) { // Esta comprobación es
+																						// redundante??
+			adaptadorUsuario.registrarUsuario(mensaje.getEmisor());
+		}
 
 		// Registrar receptor(es) si no están registrados
-	    List<Contacto> contactos = obtenerContactosParaRegistro(mensaje.getReceptor());
-	    registrarContactosSiNoExisten(contactos);
-	    
-	
+		List<Contacto> contactos = obtenerContactosParaRegistro(mensaje.getReceptor());
+		registrarContactosSiNoExisten(contactos);
+
 		entMensaje = new Entidad();
 		entMensaje.setNombre(ENTITY_TYPE);
-		entMensaje.setPropiedades(new ArrayList<>(Arrays.asList(
-		    new Propiedad(TEXT_FIELD, mensaje.getTexto()),
-		    new Propiedad(EMISOR_FIELD, String.valueOf(mensaje.getEmisor().getId())),
-		    new Propiedad(RECEPTOR_FIELD, String.valueOf(mensaje.getReceptor().getId())),
-		    new Propiedad(FECHAHORA_FIELD, dateTimeFormat.format(mensaje.getFechaHora())),
-		    new Propiedad(EMOTICONO_FIELD, String.valueOf(mensaje.getEmoticono()))
-		)));
-
+		entMensaje.setPropiedades(new ArrayList<>(Arrays.asList(new Propiedad(TEXT_FIELD, mensaje.getTexto()),
+				new Propiedad(EMISOR_FIELD, String.valueOf(mensaje.getEmisor().getId())),
+				new Propiedad(RECEPTOR_FIELD, String.valueOf(mensaje.getReceptor().getId())),
+				new Propiedad(FECHAHORA_FIELD, dateTimeFormat.format(mensaje.getFechaHora())),
+				new Propiedad(EMOTICONO_FIELD, String.valueOf(mensaje.getEmoticono())))));
 
 		entMensaje = servPersistencia.registrarEntidad(entMensaje);
-		
+
 		if (entMensaje == null) {
-		    throw new RuntimeException("Error al registrar el mensaje en la persistencia.");
+			throw new RuntimeException("Error al registrar el mensaje en la persistencia.");
 		}
-		
-		//System.out.println("Mensaje " + mensaje.getTexto() + " de " + mensaje.getEmisor().getName() + " a " + mensaje.getReceptor().getNombre() + " enviado con éxito");
-		
+
+		// System.out.println("Mensaje " + mensaje.getTexto() + " de " +
+		// mensaje.getEmisor().getName() + " a " + mensaje.getReceptor().getNombre() + "
+		// enviado con éxito");
+
 		mensaje.setId(entMensaje.getId());
-		
+
 		PoolDAO.getInstance().addObject(mensaje.getId(), mensaje);
 
 	}
@@ -113,26 +108,26 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		Entidad entMensaje = servPersistencia.recuperarEntidad(mensaje.getId()); // mirar esto
 
 		for (Propiedad prop : entMensaje.getPropiedades()) {
-		    switch (prop.getNombre()) {
-		        case TEXT_FIELD:
-		            prop.setValor(String.valueOf(mensaje.getTexto()));
-		            break;
-		        case EMISOR_FIELD:
-		            prop.setValor(String.valueOf(mensaje.getEmisor().getId()));
-		            break;
-		        case RECEPTOR_FIELD:
-		            prop.setValor(String.valueOf(mensaje.getReceptor().getId()));
-		            break;
-		        case FECHAHORA_FIELD:
-		            prop.setValor(dateTimeFormat.format(mensaje.getFechaHora()));
-		            break;
-		        case EMOTICONO_FIELD:
-		            prop.setValor(String.valueOf(mensaje.getEmoticono()));
-		            break;
-		        default:
-		            break;
-		    }
-		    servPersistencia.modificarPropiedad(prop);
+			switch (prop.getNombre()) {
+			case TEXT_FIELD:
+				prop.setValor(String.valueOf(mensaje.getTexto()));
+				break;
+			case EMISOR_FIELD:
+				prop.setValor(String.valueOf(mensaje.getEmisor().getId()));
+				break;
+			case RECEPTOR_FIELD:
+				prop.setValor(String.valueOf(mensaje.getReceptor().getId()));
+				break;
+			case FECHAHORA_FIELD:
+				prop.setValor(dateTimeFormat.format(mensaje.getFechaHora()));
+				break;
+			case EMOTICONO_FIELD:
+				prop.setValor(String.valueOf(mensaje.getEmoticono()));
+				break;
+			default:
+				break;
+			}
+			servPersistencia.modificarPropiedad(prop);
 		}
 	}
 
@@ -141,11 +136,13 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 		if (PoolDAO.getInstance().contains(id)) {
 			return (Mensaje) PoolDAO.getInstance().getObject(id);
 		}
-		
+
 		System.out.println("Recuperando mensaje...");
-		
+
 		Entidad entMensaje = servPersistencia.recuperarEntidad(id);
-		if (entMensaje == null) return null;
+		if (entMensaje == null) {
+			return null;
+		}
 
 		String texto = servPersistencia.recuperarPropiedadEntidad(entMensaje, TEXT_FIELD);
 		int idEmisor = Integer.parseInt(servPersistencia.recuperarPropiedadEntidad(entMensaje, EMISOR_FIELD));
@@ -156,23 +153,23 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 
 		Mensaje mensaje = new Mensaje(texto, null, null, fechaHora, emoticono);
 		mensaje.setId(id);
-		
+
 		PoolDAO.getInstance().addObject(id, mensaje);
-		
+
 		AdaptadorUsuarioTDS userDAO = AdaptadorUsuarioTDS.getInstance();
 		Usuario user = userDAO.recuperarUsuario(idEmisor);
 		mensaje.setEmisor(user);
-	
-	    Entidad entidadReceptor = servPersistencia.recuperarEntidad(idReceptor);
-	    if (entidadReceptor != null && AdaptadorGrupoTDS.ENTITY_TYPE.equals(entidadReceptor.getNombre())) {
-	        AdaptadorGrupoTDS adaptadorGrupo = AdaptadorGrupoTDS.getInstance();
-	        Grupo grupo = adaptadorGrupo.recuperarGrupo(idReceptor);
-	        mensaje.setReceptor(grupo);
-	    } else {
-	        AdaptadorContactoIndividualTDS adaptadorContacto = AdaptadorContactoIndividualTDS.getInstance();
-	        ContactoIndividual contacto = adaptadorContacto.recuperarContactoIndividual(idReceptor);
-	        mensaje.setReceptor(contacto);
-	    }
+
+		Entidad entidadReceptor = servPersistencia.recuperarEntidad(idReceptor);
+		if (entidadReceptor != null && AdaptadorGrupoTDS.ENTITY_TYPE.equals(entidadReceptor.getNombre())) {
+			AdaptadorGrupoTDS adaptadorGrupo = AdaptadorGrupoTDS.getInstance();
+			Grupo grupo = adaptadorGrupo.recuperarGrupo(idReceptor);
+			mensaje.setReceptor(grupo);
+		} else {
+			AdaptadorContactoIndividualTDS adaptadorContacto = AdaptadorContactoIndividualTDS.getInstance();
+			ContactoIndividual contacto = adaptadorContacto.recuperarContactoIndividual(idReceptor);
+			mensaje.setReceptor(contacto);
+		}
 
 		return mensaje;
 	}
@@ -180,40 +177,39 @@ public class AdaptadorMensajeTDS implements AdaptadorMensajeDAO {
 	@Override
 	public List<Mensaje> recuperarAllMensajes() {
 		return servPersistencia.recuperarEntidades(ENTITY_TYPE).stream()
-	            .map(entidad -> recuperarMensaje(entidad.getId()))
-	            .collect(Collectors.toCollection(LinkedList::new));
+				.map(entidad -> recuperarMensaje(entidad.getId())).collect(Collectors.toCollection(LinkedList::new));
 	}
-	
+
 	/**
 	 * Registra los contactos si no están registrados en la base de datos.
 	 */
 	private void registrarContactosSiNoExisten(List<Contacto> contactos) {
-	    AdaptadorContactoIndividualTDS adaptadorContactoIndividual = AdaptadorContactoIndividualTDS.getInstance();
-	    AdaptadorGrupoTDS adaptadorGrupo = AdaptadorGrupoTDS.getInstance();
+		AdaptadorContactoIndividualTDS adaptadorContactoIndividual = AdaptadorContactoIndividualTDS.getInstance();
+		AdaptadorGrupoTDS adaptadorGrupo = AdaptadorGrupoTDS.getInstance();
 
-	    for (Contacto contacto : contactos) {
-	        if (servPersistencia.recuperarEntidad(contacto.getId()) == null) {
-	            if (contacto instanceof ContactoIndividual) {
-	                adaptadorContactoIndividual.registrarContactoIndividual((ContactoIndividual) contacto);
-	            } else if (contacto instanceof Grupo) {
-	                adaptadorGrupo.registrarGrupo((Grupo) contacto);
-	            }
-	        }
-	    }
+		for (Contacto contacto : contactos) {
+			if (servPersistencia.recuperarEntidad(contacto.getId()) == null) {
+				if (contacto instanceof ContactoIndividual) {
+					adaptadorContactoIndividual.registrarContactoIndividual((ContactoIndividual) contacto);
+				} else if (contacto instanceof Grupo) {
+					adaptadorGrupo.registrarGrupo((Grupo) contacto);
+				}
+			}
+		}
 	}
-	
+
 	/**
-	 * Devuelve una lista de contactos a registrar. Si el receptor es un grupo, devuelve todos sus miembros.
+	 * Devuelve una lista de contactos a registrar. Si el receptor es un grupo,
+	 * devuelve todos sus miembros.
 	 */
 	private List<Contacto> obtenerContactosParaRegistro(Contacto receptor) {
-	    if (receptor instanceof Grupo) {
-	    	// Convertimos la lista de ContactoIndividual a List<Contacto> para compatibilidad
-	        return new ArrayList<>( ((Grupo) receptor).getMiembros() );
-	    } else {
-	        return List.of(receptor); // Solo el receptor individual
-	    }
+		if (receptor instanceof Grupo) {
+			// Convertimos la lista de ContactoIndividual a List<Contacto> para
+			// compatibilidad
+			return new ArrayList<>(((Grupo) receptor).getMiembros());
+		} else {
+			return List.of(receptor); // Solo el receptor individual
+		}
 	}
-	
-	
 
 }

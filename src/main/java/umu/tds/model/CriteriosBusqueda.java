@@ -2,8 +2,6 @@ package umu.tds.model;
 
 import java.util.function.Predicate;
 
-import umu.tds.controlador.AppChat;
-
 //Clase que encapsula los criterios de búsqueda
 public class CriteriosBusqueda {
 	private String texto;
@@ -12,7 +10,7 @@ public class CriteriosBusqueda {
 
 	/**
 	 * Constructor para crear un objeto de criterios de búsqueda
-	 * 
+	 *
 	 * @param texto
 	 * @param telefono
 	 * @param nombreContacto
@@ -26,7 +24,7 @@ public class CriteriosBusqueda {
 	/**
 	 * Convierte los criterios de búsqueda en un predicado que puede aplicarse a los
 	 * mensajes
-	 * 
+	 *
 	 * @return
 	 */
 	public Predicate<Mensaje> toPredicate() {
@@ -54,7 +52,7 @@ public class CriteriosBusqueda {
 
 	/**
 	 * Verifca si el teléfono coincide con el emisor o receptor del mensaje
-	 * 
+	 *
 	 * @param mensaje
 	 * @param telefono
 	 * @return true si hay concidencia
@@ -76,16 +74,16 @@ public class CriteriosBusqueda {
 
 	/**
 	 * Verifica si el nombre coincide con el emisor o receptor del mensaje
-	 * 
+	 *
 	 * @param mensaje
 	 * @param nombre
 	 * @return
 	 */
 	private boolean coincideNombre(Mensaje mensaje, String nombre) {
-		//Verificar si el nombre del emisor contiene la cadena buscada
+		// Verificar si el nombre del emisor contiene la cadena buscada
 		boolean emisorCoincide = mensaje.getEmisor().getName().toLowerCase().contains(nombre.toLowerCase());
-		
-		//Verificar si el nombre del receptor contiene la cadena buscada
+
+		// Verificar si el nombre del receptor contiene la cadena buscada
 		boolean receptorCoincide = mensaje.getReceptor().getNombre().toLowerCase().contains(nombre.toLowerCase());
 
 		return emisorCoincide || receptorCoincide;
@@ -93,7 +91,7 @@ public class CriteriosBusqueda {
 
 	/**
 	 * Verifica si no se ha especificado ningún criterio de búsqueda
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isVacio() {
