@@ -13,15 +13,8 @@ import java.util.stream.Collectors;
  */
 public class Usuario {
 	private static final String DEFAULT_SALUDO = "Hey there! I'm using AppChat";
-	private static final double PRECIO_ORIGINAL = 11.99;
-	private static final LocalDate FECHA_INICIO_INTERVALO = LocalDate.of(2024, 11, 1);
-	private static final LocalDate FECHA_FIN_INTERVALO = LocalDate.of(2024, 12, 31);
-	private static final int NUM_MIN_MENSAJES_ULT_MES = 200;
-	private static final double PORCENTAJE_FECHAS = 35;
-	private static final double PORCENTAJE_MENSAJES = 40;
 
 	/* Atributos */
-
 	private String phone; 
 	private char[] password;
 	private String name;
@@ -135,10 +128,6 @@ public class Usuario {
 		this.premium = premium;
 	}
 
-	public static double getPrecioOriginal() {
-		return PRECIO_ORIGINAL;
-	}
-
 	public LocalDate getFechaRegistro() {
 		return fechaRegistro;
 	}
@@ -174,21 +163,6 @@ public class Usuario {
 		}
 
 		return nMensajesSent;
-	}
-
-	// Método para calcular, en caso de que tenga algún tipo de descuento por
-	// cumplir unas condiciones, el precio a pagar por el usuario premium más barato
-	// posible
-	public double calcularPrecioMasBarato() {
-		DescuentoFecha descFecha = new DescuentoFecha(FECHA_INICIO_INTERVALO, FECHA_FIN_INTERVALO, PORCENTAJE_FECHAS);
-		DescuentoMensajes descMensaje = new DescuentoMensajes(NUM_MIN_MENSAJES_ULT_MES, PORCENTAJE_MENSAJES);
-
-		if (descFecha.calcularDescuento(this) < descMensaje.calcularDescuento(this)) {
-			return descFecha.calcularDescuento(this);
-		} else {
-			return descMensaje.calcularDescuento(this);
-		}
-
 	}
 
 	/**

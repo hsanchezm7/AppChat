@@ -2,31 +2,34 @@ package umu.tds.model;
 
 import java.time.LocalDate;
 
-public class DescuentoFecha extends Descuento{
-	
-	private LocalDate fechaIntervaloIncio;
-	private LocalDate fechaIntervaloFin;
-	private double porcentajeDescuento;
+import umu.tds.controlador.AppChat;
 
-	public DescuentoFecha(LocalDate fechaIntervaloIncio, LocalDate fechaIntervaloFin, double porcentajeDescuento) {
-		this.fechaIntervaloIncio = fechaIntervaloIncio;
-		this.fechaIntervaloFin = fechaIntervaloFin;
-		this.porcentajeDescuento = porcentajeDescuento;
+public class DescuentoFecha implements EstrategiaDescuento {
+
+	private static final double DESCUENTO_PORCIEN = 25.0;
+
+	private LocalDate fechaInicio;
+	private LocalDate fechaFin;
+
+	public DescuentoFecha(LocalDate inicio, LocalDate fin) {
+		this.fechaInicio = inicio;
+		this.fechaFin = fin;
 	}
 
-
-	//Aquí lo que no sé es si considera también el mismo día isAfter isBefore??
 	@Override
 	public double calcularDescuento(Usuario usuario) {
 		LocalDate fechaRegistro = usuario.getFechaRegistro();
-		if (fechaRegistro.isAfter(fechaIntervaloIncio) && fechaRegistro.isBefore(fechaIntervaloFin)) {
-			double precioOriginal = Usuario.getPrecioOriginal();
-			double descuento = (porcentajeDescuento / 100) * precioOriginal;
-			return precioOriginal - descuento;
+		double original = AppChat.getInstance().getPrecioBaseAppchatPremium();
+
+		if ((fechaRegistro.isEqual(fechaInicio) || fechaRegistro.isAfter(fechaInicio))
+				&& (fechaRegistro.isEqual(fechaFin) || fechaRegistro.isBefore(fechaFin))) {
+
+			double descuento = (DESCUENTO_PORCIEN / 100) * original;
+
+			return original - descuento;
 		}
-		return Usuario.getPrecioOriginal();
+
+		return original;
 	}
-	
-	
 
 }

@@ -16,10 +16,8 @@ public class VentanaPremium extends JDialog {
     
     private static final String NOMBRE_VENTANA = "AppChat Premium";
     
-    private static final double PRECIO_BASE = 9.99; 
     private static final String[] METODOS_PAGO = {"Tarjeta de crédito/débito", "PayPal", "Bizum"};
     
- // Constantes para los índices o strings (mejor usar los strings directamente)
     private static final String PAGO_TARJETA = "Tarjeta de crédito/débito";
     private static final String PAGO_PAYPAL = "PayPal";
     private static final String PAGO_BIZUM = "Bizum";
@@ -51,18 +49,19 @@ public class VentanaPremium extends JDialog {
     
     public VentanaPremium(JFrame owner) {
         super(owner, NOMBRE_VENTANA, true); // Bloquea la ventana padre hasta que esta se cierre
+        
         initDiscounts();
         initComponents();
     }
     
     private void initDiscounts() {
-        descuentosDisponibles = new HashMap<>();
-        descuentosDisponibles.put("Sin descuento", 0.0);
-        descuentosDisponibles.put("Estudiante (20%)", 0.2);
-        descuentosDisponibles.put("Usuario nuevo (15%)", 0.15);
-        descuentosDisponibles.put("Promoción primavera (10%)", 0.1);
-        
-        precioActual = PRECIO_BASE;
+    	precioActual = AppChat.getInstance().getPrecioBaseAppchatPremium();
+    	
+    	// Añade a los descuentos una opción para mostrar el precio base
+    	descuentosDisponibles = new HashMap<>();
+    	descuentosDisponibles = AppChat.getInstance().obtenerDescuentosDisponibles();
+    	
+    	descuentosDisponibles.put("Sin descuento seleccionado", precioActual);
     }
     
     public void initComponents() {
@@ -186,7 +185,7 @@ public class VentanaPremium extends JDialog {
         
         gbc.gridx = 1;
         DecimalFormat df = new DecimalFormat("0.00€");
-        String precioFormateado = df.format(PRECIO_BASE);
+        String precioFormateado = df.format(precioActual);
         JLabel valorPrecioBase = new JLabel(precioFormateado);
         valorPrecioBase.setFont(new Font(valorPrecioBase.getFont().getName(), Font.BOLD, 14));
         panelPrecioDescuento.add(valorPrecioBase, gbc);
@@ -203,6 +202,7 @@ public class VentanaPremium extends JDialog {
         for (String descuento : descuentosDisponibles.keySet()) {
             comboDescuento.addItem(descuento);
         }
+        comboDescuento.setSelectedItem("Sin descuento seleccionado");
         panelPrecioDescuento.add(comboDescuento, gbc);
         
         // Precio final
@@ -234,8 +234,8 @@ public class VentanaPremium extends JDialog {
      */
     private void actualizarPrecio() {
         String descuentoSeleccionado = (String) comboDescuento.getSelectedItem();
-        double porcentajeDescuento = descuentosDisponibles.get(descuentoSeleccionado);
-        precioActual = PRECIO_BASE * (1 - porcentajeDescuento);
+        double precioDescuento = descuentosDisponibles.get(descuentoSeleccionado);
+        precioActual = precioDescuento;
         
         DecimalFormat df = new DecimalFormat("0.00€");
         etiquetaPrecio.setText(df.format(precioActual));
@@ -316,7 +316,6 @@ public class VentanaPremium extends JDialog {
         return panelTarjeta;
     }
     
-
     private JPanel crearPanelPaypal() {
         JPanel panelPaypal = new JPanel();
         panelPaypal.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -466,31 +465,6 @@ public class VentanaPremium extends JDialog {
         }
     }
     
-    /**
-     * Establece los descuentos disponibles para el usuario actual
-     * Este método debe ser llamado antes de mostrar el diálogo
-     * @param descuentosElegibles Mapa de nombres de descuento y sus valores porcentuales
-     */
-    public void setAvailableDiscounts(Map<String, Double> descuentosElegibles) {
-        comboDescuento.removeAllItems();
-        
-        // Siempre añadir la opción "Sin descuento"
-        comboDescuento.addItem("Sin descuento");
-        
-        // Añadir descuentos elegibles
-        for (Map.Entry<String, Double> entrada : descuentosElegibles.entrySet()) {
-            comboDescuento.addItem(entrada.getKey());
-        }
-        
-        // Actualizar el mapa de descuentos disponibles
-        descuentosDisponibles.clear();
-        descuentosDisponibles.put("Sin descuento", 0.0);
-        descuentosDisponibles.putAll(descuentosElegibles);
-        
-        // Actualizar visualización del precio
-        actualizarPrecio();
-    }
-    
     private boolean checkFields(Component owner) {
         String metodoSeleccionado = (String) comboMetodoPago.getSelectedItem();
 
@@ -504,10 +478,10 @@ public class VentanaPremium extends JDialog {
 
         switch (metodoSeleccionado) {
             case PAGO_TARJETA:
-                // Validación para Tarjeta de crédito/débito
-                if (campoNumeroTarjeta.getText().trim().isEmpty()) {
+
+            	if (campoNumeroTarjeta.getText().trim().isEmpty()) {
                     mostrarError(owner, "El número de tarjeta no puede estar vacío.");
-                    campoNumeroTarjeta.requestFocusInWindow(); // Poner foco en el campo erróneo
+                    campoNumeroTarjeta.requestFocusInWindow();
                     return false;
                 }
                 if (campoTitularTarjeta.getText().trim().isEmpty()) {
@@ -520,43 +494,40 @@ public class VentanaPremium extends JDialog {
                     campoFechaExpiracion.requestFocusInWindow();
                     return false;
                 }
-                 // Para JPasswordField, se comprueba la longitud del array de chars
+
                 if (campoCVV.getPassword().length == 0) {
                     mostrarError(owner, "El CVV no puede estar vacío.");
                     campoCVV.requestFocusInWindow();
                     return false;
                 }
-                // Aquí podrías añadir validaciones más específicas (formato de número, fecha, CVV)
-                break; // Sale del switch si todo está bien para tarjeta
+                
+                break;
 
             case PAGO_PAYPAL:
-                // Validación para PayPal
+                
                 if (campoEmailPaypal.getText().trim().isEmpty()) {
                     mostrarError(owner, "El email de PayPal no puede estar vacío.");
                     campoEmailPaypal.requestFocusInWindow();
                     return false;
                 }
-                 // Para JPasswordField, se comprueba la longitud del array de chars
+                
                 if (campoPasswordPaypal.getPassword().length == 0) {
                     mostrarError(owner, "La contraseña de PayPal no puede estar vacía.");
                     campoPasswordPaypal.requestFocusInWindow();
                     return false;
                 }
-                // Aquí podrías añadir validación de formato de email
-                break; // Sale del switch si todo está bien para PayPal
+                break;
 
             case PAGO_BIZUM:
-                // Validación para Bizum
+                
                 if (campoNumeroTelefono.getText().trim().isEmpty()) {
                     mostrarError(owner, "El número de teléfono para Bizum no puede estar vacío.");
                     campoNumeroTelefono.requestFocusInWindow();
                     return false;
                 }
-                // Aquí podrías añadir validación de formato de número de teléfono (p.ej., 9 dígitos)
-                break; // Sale del switch si todo está bien para Bizum
+                break;
 
             default:
-                // Caso improbable si el JComboBox está bien configurado
                  JOptionPane.showMessageDialog(owner,
                         "Método de pago desconocido seleccionado.",
                         "Error Interno",
@@ -564,7 +535,6 @@ public class VentanaPremium extends JDialog {
                 return false;
         }
 
-        // Si ha pasado todas las validaciones para el método seleccionado
         return true;
     }
 
@@ -579,28 +549,5 @@ public class VentanaPremium extends JDialog {
                 "Error de Validación",
                 JOptionPane.WARNING_MESSAGE);
     }
-    
-    /**
-     * Método principal para pruebas
-     */
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        SwingUtilities.invokeLater(() -> {
-            VentanaPremium dialog = new VentanaPremium(null);
-            
-            // Ejemplo de establecer descuentos personalizados disponibles
-            // En una aplicación real, esto sería determinado por la elegibilidad del usuario
-            Map<String, Double> descuentosElegibles = new HashMap<>();
-            descuentosElegibles.put("Estudiante (20%)", 0.2);
-            descuentosElegibles.put("Promoción primavera (10%)", 0.1);
-            dialog.setAvailableDiscounts(descuentosElegibles);
-            
-            dialog.setVisible(true);
-        });
-    }
+
 }

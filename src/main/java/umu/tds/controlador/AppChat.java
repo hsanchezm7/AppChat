@@ -5,7 +5,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.ImageIcon;
@@ -20,6 +22,8 @@ import umu.tds.model.BuscadorMensajes;
 import umu.tds.model.Contacto;
 import umu.tds.model.ContactoIndividual;
 import umu.tds.model.CriteriosBusqueda;
+import umu.tds.model.DescuentoFecha;
+import umu.tds.model.DescuentoMensajes;
 import umu.tds.model.Mensaje;
 import umu.tds.model.RepositorioUsuarios;
 import umu.tds.model.Usuario;
@@ -29,8 +33,17 @@ import umu.tds.model.Grupo;
  * Clase controlador de la aplicación.
  */
 public class AppChat {
+	
+	/* Configuración */
+	private static final double PRECIO_BASE_APPCHAT_PREMIUM = 11.99;
+	
+	private static final LocalDate DESC_INICIO = LocalDate.of(2000, 1, 1);
+	private static final LocalDate DESC_FIN = LocalDate.of(2025, 5, 10);
+	
+	private static final int DESC_MIN_MENSAJES = 1;
 
 	public static List<Mensaje> obtenerMensajesRecientesPorUsuario;
+	
 	/* Instancia Singleton */
 	private static AppChat unicaInstancia = null;
 
@@ -70,6 +83,11 @@ public class AppChat {
 	public Usuario getCurrentUser() {
 		return user;
 	}
+	
+	public double getPrecioBaseAppchatPremium() {
+		return PRECIO_BASE_APPCHAT_PREMIUM;
+	}
+
 
 	/**
 	 * Inicializa los atributos de los adaptadores.
@@ -557,4 +575,25 @@ public class AppChat {
 	        return false;
 	    }
 	}
+	
+	/**
+	 * Calcula los descuentos disponibles para un usuario según diferentes estrategias.
+	 *
+	 * @param usuario el usuario al que se le evaluarán los descuentos disponibles
+	 * @return mapa con los nombres de cada tipo de descuento como clave y su valor numérico como valor
+	 */
+	public Map<String, Double> obtenerDescuentosDisponibles() {
+	    DescuentoFecha descFecha = new DescuentoFecha(DESC_INICIO, DESC_FIN);
+	    DescuentoMensajes descMensaje = new DescuentoMensajes(DESC_MIN_MENSAJES);
+
+	    double valorFecha = descFecha.calcularDescuento(user);
+	    double valorMensaje = descMensaje.calcularDescuento(user);
+
+	    Map<String, Double> descuentos = new HashMap<>();
+	    descuentos.put("Descuento por fecha de nacimiento", valorFecha);
+	    descuentos.put("Descuento por mensajes enviados", valorMensaje);
+
+	    return descuentos;
+	}
+
 }
