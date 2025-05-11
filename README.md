@@ -2,13 +2,13 @@
 <a id="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
-![Java Version](https://img.shields.io/badge/java-17-blue)
+![Java Version](https://img.shields.io/badge/java-8-blue)
 
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
 
-  <img src="src/main/java/umu/tds/logo256x266.png" alt="Logo AppChat" width="80" height="80">
+  <img src="src/main/java/umu/tds/resources/logo256x256.png" alt="Logo AppChat" width="140" height="140">
 
   <h3 align="center">AppChat</h3>
 
