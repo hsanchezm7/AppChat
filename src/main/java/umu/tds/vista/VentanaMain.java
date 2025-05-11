@@ -11,7 +11,10 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -70,6 +73,8 @@ public class VentanaMain extends JFrame {
 	// Selector despegable de contactos
 	private JComboBox<String> comboBox;
 
+	private List<JButton> premiumBtnListeners;
+
 	private AppChat controlador;
 
 	/**
@@ -77,6 +82,9 @@ public class VentanaMain extends JFrame {
 	 */
 	public VentanaMain() {
 		this.controlador = AppChat.getInstance();
+
+		premiumBtnListeners = new LinkedList<>();
+
 		initComponents();
 	}
 
@@ -126,10 +134,10 @@ public class VentanaMain extends JFrame {
 
 		GridBagLayout gbl1 = new GridBagLayout();
 		gbl1.columnWidths = new int[] { 209, 0, 0, 0, 0, 0, 0, 0, 0 };
-		
+
 		gbl1.rowHeights = new int[] { 0, 0, 0 };
 		gbl1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE };
-		
+
 		gbl1.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
 		panelNorte.setLayout(gbl1);
 
@@ -146,11 +154,13 @@ public class VentanaMain extends JFrame {
 		panelNorte.add(comboBox, gbc_comboBox);
 
 		// Botones
-		agregarBotonBarra(panelNorte, "/umu/tds/resources/analisis-de-busqueda.png", "Buscar", 1, e -> openBuscar());
-		agregarBotonBarra(panelNorte, "/umu/tds/resources/contacto-2.png", "Contactos", 2, e -> openContacts());
-		agregarBotonBarra(panelNorte, "/umu/tds/resources/calidad-premium.png", "Premium", 3, e -> openPremium());
-		agregarBotonBarra(panelNorte, "/umu/tds/resources/document.png", "Exportar chats a PDF", 4,
-				e -> openExportar());
+		agregarBotonBarra(panelNorte, "/umu/tds/resources/analisis-de-busqueda.png", "Buscar", 1, e -> openBuscar(),
+				false);
+		agregarBotonBarra(panelNorte, "/umu/tds/resources/contacto-2.png", "Contactos", 2, e -> openContacts(), false);
+		agregarBotonBarra(panelNorte, "/umu/tds/resources/calidad-premium.png", "Premium", 3, e -> openPremium(),
+				false);
+		agregarBotonBarra(panelNorte, "/umu/tds/resources/document.png", "Exportar chats a PDF", 4, e -> openExportar(),
+				true);
 
 		// Separador elástico
 		JPanel panelSeparador = new JPanel();
@@ -197,23 +207,29 @@ public class VentanaMain extends JFrame {
 	}
 
 	private void agregarBotonBarra(JPanel panel, String iconPath, String tooltip, int posX,
-			java.awt.event.ActionListener action) {
-		JButton boton = new JButton();
-		boton.setIcon(new ImageIcon(VentanaMain.class.getResource(iconPath)));
-		boton.setToolTipText(tooltip);
-		boton.addActionListener(action);
+			java.awt.event.ActionListener action, boolean isPremiumFuncionality) {
+		JButton btn = new JButton();
+		btn.setIcon(new ImageIcon(VentanaMain.class.getResource(iconPath)));
+		btn.setToolTipText(tooltip);
+		btn.addActionListener(action);
+
+		if (isPremiumFuncionality && !controlador.getCurrentUser().isPremium()) {
+			btn.setEnabled(false); // Deshabilita el botón si no es premium
+			btn.setToolTipText("Solo para usuarios premium de AppChat");
+			premiumBtnListeners.add(btn);
+		}
 
 		// Tamaño fijo (ajusta según tu diseño)
 		Dimension size = new Dimension(40, 40);
-		boton.setPreferredSize(size);
-		boton.setMinimumSize(size);
-		boton.setMaximumSize(size);
+		btn.setPreferredSize(size);
+		btn.setMinimumSize(size);
+		btn.setMaximumSize(size);
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.gridx = posX;
 		gbc.gridy = 0;
-		panel.add(boton, gbc);
+		panel.add(btn, gbc);
 	}
 
 	/**
@@ -588,12 +604,24 @@ public class VentanaMain extends JFrame {
 
 	private void openPremium() {
 		VentanaPremium ventanaPremium = new VentanaPremium(this);
+		ventanaPremium.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent windowEvent) {
+				updatePremiumButtons();
+			}
+		});
 		ventanaPremium.setVisible(true);
 	}
 
 	private void openBuscar() {
 		BuscarMensajes ventanaBuscar = new BuscarMensajes();
 		ventanaBuscar.setVisible(true);
+	}
+
+	private void updatePremiumButtons() {
+		boolean premium = controlador.getCurrentUser().isPremium();
+
+		premiumBtnListeners.stream().forEach(btn -> btn.setEnabled(premium));
 	}
 
 	private void abrirVentanaAñadirContactoExistente(String phone) {

@@ -456,9 +456,7 @@ public class VentanaPremium extends JDialog {
 		JOptionPane.showMessageDialog(this, mensaje, "Información de Pago", JOptionPane.INFORMATION_MESSAGE);
 
 		AppChat.getInstance().setUserPremiumStatus(true);
-		System.out.println(
-				"Cambiado estado de usuario " + AppChat.getInstance().getCurrentUser().getPhone() + " a premium");
-
+		
 		dispose();
 	}
 

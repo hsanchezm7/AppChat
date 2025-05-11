@@ -169,12 +169,7 @@ public class AñadirContactos extends JDialog {
 		getRootPane().setDefaultButton(btnAdd);
 
 		JButton btnCancel = new JButton("Cancel");
-		btnCancel.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				dispose();
-			}
-		});
+		btnCancel.addActionListener(e -> dispose());
 		panel_7.add(btnCancel);
 
 		setSize(400, 200); // Configura un tamaño fijo que permita mostrar todo

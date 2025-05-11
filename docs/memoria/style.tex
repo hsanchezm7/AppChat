@@ -11,7 +11,12 @@
 \usepackage[ruled]{algorithm2e} % Algorithms
 \usepackage[framemethod=tikz]{mdframed} % Custom boxed/framed environments
 
+\definecolor{codegray}{gray}{0.925}
+\let\colortexttt\texttt
+\renewcommand{\texttt}[1]{\colorbox{codegray}{\colortexttt{#1}}}
+
 \usepackage{xcolor} % Colours
+\definecolor{mRed}{rgb}{0.8, 0, 0}
 \definecolor{mGreen}{rgb}{0,0.6,0}
 \definecolor{mGray}{rgb}{0.5,0.5,0.5}
 \definecolor{mPurple}{rgb}{0.58,0,0.82}

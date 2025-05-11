@@ -419,6 +419,9 @@ public class AppChat {
 	public void setUserPremiumStatus(boolean premium) {
 		user.setPremium(premium);
 		usuarioDAO.modificarUsuario(user);
+		
+		System.out.println(
+				"Cambiado estado de usuario " + AppChat.getInstance().getCurrentUser().getPhone() + " a premium");
 	}
 
 	/**

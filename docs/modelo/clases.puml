@@ -11,12 +11,12 @@ skinparam roundCorner 10
 skinparam nodesep 75
 skinparam ranksep 50
 
-interface Descuento {
+interface EstrategiaDescuento {
     + aplicarDescuento()
 }
 
-Descuento <|.. D1
-Descuento <|.. D2
+EstrategiaDescuento <|.. DescuentoFecha
+EstrategiaDescuento <|.. DescuentoMensajes
 
 class AppChat {
     +login()
@@ -24,7 +24,7 @@ class AppChat {
 
 hide AppChat attributes
 note top of AppChat : Controlador
-AppChat -left->  Descuento
+AppChat -left-> EstrategiaDescuento
 
 class RepositorioUsuarios {
     +getUsuario()
@@ -76,32 +76,12 @@ Usuario "emisor" -- "enviados 0..*" Mensaje
 
 Grupo o-right- "0..*" ContactoIndividual
 
-interface Filtro {
-    + aplicarDescuento()
-}
+hide DescuentoFecha attributes
+hide DescuentoFecha methods
 
-Filtro  <|.. FiltroTexto
-Filtro  <|.left. FiltroContacto
-Filtro  <|.. FiltroTelefono
+hide DescuentoMensajes attributes
+hide DescuentoMensajes methods
 
-hide FiltroTexto attributes
-hide FiltroTexto methods
-
-hide FiltroContacto attributes
-hide FiltroContacto methods
-
-hide FiltroTelefono attributes
-hide FiltroTelefono methods
-
-Usuario -left->  Filtro
-
-hide D1 attributes
-hide D1 methods
-
-hide D2 attributes
-hide D2 methods
-
-hide Descuento attributes
-hide Filtro attributes
+hide EstrategiaDescuento attributes
 
 @enduml

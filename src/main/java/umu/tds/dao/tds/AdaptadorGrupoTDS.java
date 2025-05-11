@@ -73,10 +73,8 @@ public class AdaptadorGrupoTDS implements AdaptadorGrupoDAO {
 			adapterCI.registrarContactoIndividual(miembro);
 		}
 
-		/* TODO: REGISTRAR MENSAJES ASOCIADOS */
 		AdaptadorMensajeDAO adapterM = DAOFactory.getInstance().getMensajeDAO();
 
-		// ¿Usar LinkedList<>?
 		List<Mensaje> mensajes = grupo.getMensajes();
 
 		for (Mensaje m : mensajes) {

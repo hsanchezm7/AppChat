@@ -9,7 +9,6 @@
 %%%%% --------------------------------------------- %%%%%
 
 \documentclass[11pt]{article}
-
 \include{style}
 
 \begin{document}
@@ -18,7 +17,7 @@
 	\vspace{-5ex}
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=72mm]{umu-logo.pdf}
+		\includegraphics[width=72mm]{umu-logo}
 	\end{figure}
 	
 	{\Large \textsc{Universidad de Murcia}}\\
@@ -26,7 +25,7 @@
 	{\Large \textsc{Prácticas de}\\ [1ex]}
 	{\Huge Tecnologías de Desarrollo de Software}\\ [1ex]
 	{\Large \textsc{3º de Grado en Ingeniería Informática}}\\
-	{\Large \textsc{Profesor: }} \\
+	{\Large \textsc{Profesor: Fco. Javier Bermudez Ruiz}} \\
 	{\Large \textsc{Grupo 2.3}} \\
 	{\Large \textsc{Curso 2024/2025}} \\ 
 	\vspace{10ex}
@@ -81,11 +80,15 @@ Dicha práctica consiste en el desarrollo de una aplicación de mensajería (\te
 
 \section{Introducción}
 
-\textbf{AppChat} es una aplicación de escritorio de mensajería instantánea desarrollada en Java 8. Basada en soluciones reales como \textit{Telegram} o \textit{Whatsapp}, AppChat permite a los usuarios llevar una gestión simple de sus contactos, ofreciendo la posibilidad de crear grupos y enviar mensajes como si fuesen ``\textit{grupos de difusión}''.
+\textbf{AppChat} es una aplicación de escritorio de mensajería instantánea desarrollada en Java 8. Basada en soluciones reales como \textit{Telegram} o \textit{Whatsapp}, AppChat permite a los usuarios llevar una gestión simple de sus contactos, ofreciendo la posibilidad de crear grupos y enviar mensajes como si fuesen ``\textit{grupos de difusión}''.\\
+
+Además, AppChat implementa funcionalidad extra para sus miembros ``\textit{premium}''. Estos pueden exportar sus conversaciones con sus contactos de una forma sencilla gracias a la librería \textit{iText}.
 
 \section{Requisitos}
 
-AppChat requiere al menos tener instalada al menos la versión 8 de \href{https://www.oracle.com/java/technologies/javase/javase8-archive-downloads.html}{Java SE} para ejecutar.
+AppChat requiere al menos tener instalada al menos la versión 8 de \href{https://www.oracle.com/java/technologies/javase/javase8-archive-downloads.html}{Java SE} para ejecutar.\\
+
+Es necesario tener instalado Maven para poder gestionar las dependencias del proyecto correctamente.
 
 \section{Tecnologías}
 
@@ -109,18 +112,27 @@ Realizamos una \textbf{representación visual} de las funcionalidades de la apli
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{user-story-mapping.drawio-2.pdf}
+    \includegraphics[width=0.8\linewidth]{figures/user-story-mapping.drawio-2.pdf}
     \caption{Diagrama de historias de usuario de AppChat}
     \label{fig:user-story-mapping}
+\end{figure}
+
+\subsection{Diagrama de secuencia: añadir miembro a grupo}
+
+La funcionalidad tomada de ejemplo es la de crear un grupo, pero es válida ya que esta añade de forma secuencial varios miembros al grupo.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\linewidth]{figures/crear_grupo}
+	\caption{Diagrama de secuencia simplificado para añadir miembro a grupo}
+	\label{fig:crear-grupo}
 \end{figure}
 
 \subsection{Diagrama de clases}
 
 \begin{figure}[H]
 	\centering
-	\scalebox{0.425}{
-		\input{modelo.tikz}
-	}
+	\includegraphics[width=0.7\linewidth]{figures/modelo}
 	\caption{Modelo de clases de AppChat}
 	\label{fig:modelo}
 \end{figure}
@@ -130,32 +142,35 @@ Se ha optado por seguir la recomendación de los profesores de la asignatura, co
 \begin{itemize}
 	\item \texttt{AppChat}: Siguiendo el principio MVC que se explicará más adelante, esta clase actúa de \guillemotleft \textit{controladora}\guillemotright \ de la aplicación.
 	\item \texttt{RepositorioUsuarios}: Contiene una collección de los usuarios gestionados. Para la lógica de la aplicación, además de las entidades persistentes en la base de datos, es necesario llevar un control de todos los usuarios. Es invocada por el controlador con frecuencia, por ejemplo, para cargar los usuarios al iniciar la aplicación.
-	\item \texttt{Usuario}: TODO.
+	\item \texttt{Usuario}: Representa al usuario de AppChat. Incluye operaciones para interactuar con sus contactos.
 	\item \texttt{Contacto}: Clase abstracta que representa una forma de contacto con otro usuario. TODO.
 	\begin{itemize}
-		\item \texttt{ContactoIndividual}: TODO.
-		\item \texttt{Grupo}: TODO.
+		\item \texttt{ContactoIndividual}: Representa el contacto íntegro de la aplicación. Está asociado a un usuario de AppChat y tiene asignado un nombre de contacto.
+		\item \texttt{Grupo}: Clase que modela un chat formado por un conjunto de contactos. Tiene un único administrador.
 	\end{itemize}
-	\item \texttt{Mensaje}: TODO.
-	\item \texttt{Descuento}: TODO.
-	\item \texttt{Filtro}: TODO.
+	\item \texttt{Mensaje}: Clase que representa todo lo relacionado con un mensaje en la aplicación. Tiene como emisor un objeto \texttt{Usuario} y como receptor un objeto \texttt{Contacto}, que puede ser una persona o un grupo.
+	\item \texttt{EstrategiaDescuento}: Interfaz necesaria para implementar diferentes descuentos usando el patrón de diseño ``\textit{strategy}''.
+    \begin{itemize}
+		\item \texttt{DescuentoFecha}: Estrategia de descuento que está disponible para el usuario si su fecha de nacimiento está entre un intervalo establecido por el sistema.
+		\item \texttt{DescuentoMensajes}: Estrategia de descuento que aplica un porcentaje al precio base si el usuario supera un límite establecido de mensajes enviados en la aplicación.
+	\end{itemize}
 \end{itemize}
 
 También se han diseñado otras clases como:
 
 \begin{itemize}
 	\item \texttt{App}: Lanzador de la aplicación.
-	\item \texttt{CriteriosBusqueda}: TODO.
-	\item \texttt{BusquedaMensajes}: TODO.
+	\item \texttt{CriteriosBusqueda}
+	\item \texttt{BuscadosMensajes}
 \end{itemize}
 
-\subsection{Otros diagramas}
+\clearpage
 
 \section{Arquitectura de la aplicación}
 
 \subsection{Patrón MVC}
 
-AppChat sigue el patrón de arquitectura de software Modelo-Vista-Controlador. Este patrón nos permite separar los datos y la lógica del negocio de una aplicación de la interfaz que ve el usuario, conéctandolos a través de un controlador, permitiendo así tres componentes distintos:
+AppChat sigue el patrón de arquitectura de software Modelo-Vista-Controlador. Este patrón nos permite separar los datos y la lógica del negocio de una aplicación de la interfaz que ve el usuario, conéctandolos a través de un controlador, permitiendo así tres componentes distintos:~\cite{mdnMVC}
 
 \begin{itemize}
 	\item \textbf{Vista (\textit{View}):} Representa la interfaz de usuario y todas las herramientas con las cuales el usuario hace uso del programa.
@@ -168,20 +183,19 @@ AppChat sigue el patrón de arquitectura de software Modelo-Vista-Controlador. E
 \begin{figure}[H]
 	\centering
 	\scalebox{1.25}{
-		\input{mvc.tikz}
+		\input{figures/mvc.tikz}
 	}
 	\caption{Patrón de arquitectura software MVC}
 	\label{fig:mvc}
 \end{figure}
 
-TODO: Hablar de las clases y paquetes donde aplicamos MVC.
-TODO: bibliografía libros MVC.
+\clearpage
 
 \subsection{Estructura general de la aplicación}
 
 \begin{figure}[H]
 	\centering
-	\shadowimage[width=0.4\linewidth]{hierarchy}
+	\shadowimage[width=0.4\linewidth]{figures/hierarchy}
 	\caption{Jerarquía de paquetes de AppChat}
 	\label{fig:paquetes}
 \end{figure}
@@ -192,6 +206,86 @@ La aplicación se estructura en 5 paquetes diferentes, cada uno con una funciona
 
 \section{Patrones de diseño}
 
+A lo largo del desarrollo de la aplicación, se han adoptado los principales patrones de diseño vistos en clase y se han implementado directamente en el código.
+
+\subsection{Patrones creacionales}
+
+Según \textit{Gamma et al}.~\cite{book:204958}\ el objetivo principal de los patrones de diseño creacionales es el de \textbf{abstraer el proceso de instanciación y creación de objetos}. Los patrones creacionales permiten además encapsulan el conocimiento sobre las clases concretas que utiliza el sistema, así como ocultar el proceso de creación y ensamblación de instancias por parte de las clases.
+
+\subsubsection*{Singleton}
+
+Utilizamos el patrón \textit{singleton} para aquellas clases de las que nos interesa tener una única instancia y permitir un acceso global a ella. En AppChat, siguen este patrón la clases controlador \texttt{AppChat}, el repositorio \texttt{RepositorioUsuarios}, la clase ``\textit{factoría}'' \texttt{DAOFactory} y el resto de clases ``\textit{adaptador}'' del paquete \texttt{umu.tds.dao.tds}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\linewidth]{figures/singleton_model}
+	\caption{Modelo de \textit{Singleton} en AppChat}
+	\label{fig:singleton}
+\end{figure}
+
+\subsubsection*{Factoría abstracta}
+
+Este patrón se usa para las clases relacionadas con el ámbito de la persistencia en la aplicaicón. Se define una clase abstracta \texttt{DAOFactory} implementada como singleton y con métodos para obtener los distintos adaptadores disponibles. 
+
+\subsection{Patrones estructurales}
+
+\subsubsection*{Adaptador}
+
+El patrón \textit{adapter} o adaptador permite que clases con interfaces incompatibles colaboren entre sí sin necesidad de modificar su código fuente. Usamos este patrón en las clases del paquete \texttt{umu.tds.dao.tds} para adaptar la funcionalidad de la clase \texttt{ServicioPersistencia} a las interfaces DAO definidas en \texttt{umu.tds.dao}. En la figura~\ref{fig:absfactory} se puede ver con más claridad la interrelación entre las clases.
+
+\subsubsection*{Facade}
+
+El patrón \textit{facade} o fachada se usa para proporcionan una interfaz que actúa como actúa como punto de acceso simplificado a un subsistema complejo. Su objetivo principal es ocultar la complejidad interna de varias clases colaboradoras y ofrecer una interfaz más clara y coherente.~\cite{refactoringGuruFacade}\\
+
+Este patrón se usa en la clase controlador \texttt{AppChat}. Como se puede ver en el diagrama de sencuencia~\ref{fig:facade}, para operaciones como ``\textit{añadir contacto}'' es necesario una interfaz que oculte los complejas operaciones que conlleva la función.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.86\linewidth]{figures/facade}
+	\caption{Ejemplo simplificado de \textit{Facade} en el controlador de AppChat}
+	\label{fig:facade}
+\end{figure}
+
+\clearpage
+
+\subsection{Patrones de comportamiento}
+
+\subsubsection*{Strategy}
+
+Implementamos patrón de diseño \textit{Strategy} o Estrategia para diseñar los descuentos en AppChat. Nos permite definir una familia de algoritmos y encapsular cada uno de ellos. En el futuro, se puede implementar un nuevo descuento de forma sencilla, usando la interfaz definida.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.4\linewidth]{figures/strategy_model}
+	\caption{Modelo del patrón \textit{Strategy} para descuentos en Apphat}
+	\label{fig:strategy}
+\end{figure}
+
+\subsection{Otros patrones de diseño}
+
+\subsubsection{Data Access Object}
+
+El patrón Data Access Object o DAO nos permite separar por completo la lógica de negocio de la lógica para acceder a los datos. De esta forma, las clases DAO proporcionarán los métodos necesarios para las operaciones de persistencia de los objetos, como guardar, borrar, editar o recuperar entidades. este patrón se usa junto factoría abstracta y adaptador para proporcionar una interfaz clara y desacoplar los paquetes.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\linewidth]{figures/abstract_factory.pdf}
+	\caption{Modelo del patrón DAO junto con \textit{Abstract Factory} y \textit{Adapter} de AppChat}
+	\label{fig:absfactory}
+\end{figure}
+
+
+\subsubsection{Patrones usandos indirectamente}
+
+En el desarrollo de AppChat, se han usado numerosas clases que implementan patrones de diseño en su código. Destacan algunos como:
+
+\begin{itemize}
+    \item \textbf{\textit{Singleton}, \textit{Facade}, y \textit{Abstract Factory}}: la librería DriverPersistencia proporcionada por los profesores usa proporciona una interfaz clara y un método de acceso global a la clase \texttt{FactoriaServicioPersistencia}.
+    \item \textbf{\textit{Composite}}: las clases \texttt{JPanel}, \texttt{JFrame} y \texttt{Container} de Java AWT y Swing implementan este patrón para poder tratar objetos individuales y grupos de objetos de manera uniforme.
+    \item \textbf{\textit{Observer}}: cuando usamos, por ejemplo, ``\textit{action listeners}'' en los botones de las ventanas.
+    \item \textbf{\textit{Iterator}}: en las colleciones.
+\end{itemize}
+
 \clearpage
 
 \section{Manual de usuario de AppChat}
@@ -200,7 +294,7 @@ La aplicación se estructura en 5 paquetes diferentes, cada uno con una funciona
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.4\linewidth]{login}
+	\includegraphics[width=0.4\linewidth]{figures/login}
 	\caption{Inicio de sesión en AppChat}
 	\label{fig:login}
 \end{figure}
@@ -211,8 +305,8 @@ La interfaz gráfica ejecuta métodos y se comunica con el controlador para veri
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.4\linewidth]{error-login.png}
-	\caption{Inicio de sesión en AppChat}
+	\includegraphics[width=0.4\linewidth]{figures/error-login.png}
+	\caption{Error en el inicio de sesión}
 	\label{fig:error-login}
 \end{figure}
 
@@ -220,67 +314,161 @@ La interfaz gráfica ejecuta métodos y se comunica con el controlador para veri
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\linewidth]{register}
-	\caption{Error en el inicio de sesión}
+	\includegraphics[width=0.6\linewidth]{figures/register}
+	\caption{Registro en AppChat}
 	\label{fig:register}
 \end{figure}
 
 \subsubsection{Validación de campos en el registro}
 
-La interfaz gráfica también incorpora métodos para validar los campos antes de registrar a un usuario. Por ejemplo, si se intenta usar un número de teléfono ya registrado, el sistema mostrará un error al intentar crear la cuenta:
+La interfaz gráfica también incorpora métodos para validar los campos antes de registrar a un usuario. Por ejemplo, si se intenta usar un número de teléfono ya registrado, el sistema mostrará un error al intentar crear la cuenta.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.35\linewidth]{error-register}
+	\includegraphics[width=0.35\linewidth]{figures/error-register}
 	\caption{Error en el registro}
 	\label{fig:error-register}
 \end{figure}
 
 Asimismo, si el usuario no introduce la misma contraseña los campos ``\textit{Contraseña}'' y ``\textit{Confirmar contraseña}'':
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.35\linewidth]{error-register-passwords}
+	\includegraphics[width=0.35\linewidth]{figures/error-register-passwords}
 	\caption{Error en el registro}
 	\label{fig:error-register-passwords}
 \end{figure}
 
-
-
 \subsection{Vista principal}
 
-\subsection{Gestión de contactos}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\linewidth]{figures/main}
+	\caption{Ventana principal de AppChat}
+	\label{fig:main}
+\end{figure}
+
+\subsubsection{Búsqueda de mensajes}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\linewidth]{figures/search}
+	\caption{Búsqueda y filtrado de mensajes en AppChat}
+	\label{fig:search}
+\end{figure}
 
 \subsection{Gestión de contactos}
 
-\subsection{Envío de mensajes}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.4\linewidth]{figures/manage-contacts}
+	\caption{Gestión de contactos de AppChat}
+	\label{fig:manage-contacts}
+\end{figure}
+
+\subsubsection{Crear contacto}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\linewidth]{figures/add-contact}
+	\caption{Ventana para añadir contactos}
+	\label{fig:add-contact}
+\end{figure}
+
+\textbf{Error al crear contacto}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.4\linewidth]{figures/error-add-contact}
+	\caption{Error al crear contacto}
+	\label{fig:error-add-contact}
+\end{figure}
+
+\subsection{Perfil}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.65\linewidth]{figures/profile}
+	\caption{Perfil de AppChat}
+	\label{fig:profile}
+\end{figure}
 
 \subsection{Premium}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\linewidth]{figures/premium}
+	\caption{Actualización a AppChat \textit{premium}}
+	\label{fig:premium}
+\end{figure}
+
+\subsubsection{Confirmación del pago}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\linewidth]{figures/premium-payment}
+	\caption{Confirmación del pago de AppChat \textit{premium}}
+	\label{fig:premium-payment}
+\end{figure}
+
+\subsection{Exportación de mensajes en formato PDF}
+
+Para este funcionalidad, se ha implementado también la posibilidad de poder exportar los mensajes con todos los contactos.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\linewidth]{figures/export}
+	\caption{Ventana para exportar chats a formato PDF}
+	\label{fig:export}
+\end{figure}
+
+\subsubsection{Ejemplo de documento generado tras exportar chats}
+
+\begin{figure}[H]
+	\centering
+	\fbox{\includegraphics[width=0.7\linewidth]{figures/chat_exportado}}
+	\caption{Confirmación del pago de AppChat \textit{premium}}
+	\label{fig:chat-exportadot}
+\end{figure}
+
 \clearpage
 
-\section{Conclusiones personales y distribución de horas}
-Concluciones.
+\section{Conclusiones personales y distribución del trabajo}
+
+Este proyecto ha sido el más extenso hasta el momento del grado en Ingeniería Informática también el primero en el que hemos desarrollado una aplicación gráfica de escritorio.\\
+
+Ha sentado las bases sobre conceptos como la lógica de negocio (\textit{backend}) y la interfaz de usuario (\textit{frontend}). La interfaz proporcionada para la persistencia de datos también ha ayudado a comprender cómo se almacenan los objetos Java de forma persistence, y ha servido como una guía para más adelante usar JPA o Jakarta.\\
+
+Al ser el primer proyecto de esta índole, las prioridades y ejecución del proyecto eran desconocidas. Si intentamos relacionar la práctica con otras asignaturas del grado, encontramos una gran similitud Gestión de Proyectos de Desarrollo de Software o Procesos de Desarrollo de Software. Hemos ejecutado el desarrollo de un proyecto de software y hemos aprendido la importancia del análisis de requisitos y del diseño de modelos.\\
+
+Usar librerías externas nos ha mostrado la relevancia que tienen los patrones de diseño en el desarrollo de aplicaciones en la actualidad. Cada uno tiene un objetivo, y su uso resulta imprescindible en proyectos extensos.
+
+\vspace{2ex}
 
 \begin{table}[h!]
 	\centering
 	\begin{tabular}{|c|c|c|}
 		\hline
-		\textbf{Actividad} & \textbf{Presencial} & \textbf{Individual} \\
+		\textbf{Actividad} & \textbf{José Salinas} & \textbf{Hugo Sánchez} \\
 		\hline
-		\textit{Historias de usuario} &  h &  h \\
+		\textit{Historias de usuario} & 4 h & 3 h \\
 		\hline
-		\textit{Diseño del modelo} &  h &  h\\
+		\textit{Diseño del modelo} & 4 h & 2 h\\
 		\hline
-		\textit{Implementación de la lógica} &  h &  h\\
+		\textit{Implementación de la lógica} & 65 h & 90 h\\
 		\hline
-		\textit{Diseño de la interfaz gráfica} &  h &  h\\
+		\textit{Diseño de la interfaz gráfica} & 90 h & 65 h\\
 		\hline
-		\textit{Documentación} &  h &  h \\
+        \textit{Revisión y corrección de errores} & 20 h & 15 h\\
 		\hline
-		\textbf{Total} & - horas & - horas\\
+        \textit{Mantenimiento del repositorio} & 2 h & 2 h\\
+		\hline
+		\textit{Documentación} &  4 h &  9 h \\
+		\hline
+		\textbf{Total} & 189 horas & 186 horas\\
 		\hline
 	\end{tabular}
-	\caption{Distribución de horas entre presencial y trabajo autónomo}
+	\caption{Distribución de horas entre los miembros}
 \end{table}
 
 \bibliographystyle{unsrt}
